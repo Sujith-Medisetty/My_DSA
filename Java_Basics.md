@@ -133,3 +133,123 @@ BufferedReader bf = new BufferedReader(in);
 int value = Integer.parseInt(bf.readLine());
 
 ```
+
+# Converting Types and Working with Arrays
+
+## Converting String to int, double
+
+```java
+String value = "101";
+String val2 = "10.21";
+
+System.out.println(Integer.parseInt(value));
+System.out.println(Double.parseDouble(val2));
+
+if (operation.equals("sum")) {
+    System.out.printf("%f - %f = %f ", val1, val2, val1 - val2);
+}
+
+// Switch case example
+switch (val) {
+    case "Sum":
+        System.out.println("add");
+        break;
+    case "Sub":
+        System.out.println("sub");
+        break;
+    default:
+        System.out.println("no no");
+}
+```
+
+## Arrays
+
+```java
+char vowels[] = new char[5];
+
+vowels[0] = 'a';
+vowels[1] = 'e';
+vowels[2] = 'i';
+vowels[3] = 'o';
+vowels[4] = 'u';
+
+// or
+
+char vowels[] = {'a', 'e', 'i', 'o', 'u'};
+
+java.util.Arrays;
+System.out.println(Arrays.toString(vowels)); // Output: [a, e, i, o, u]
+
+vowels.length;
+Arrays.sort(vowels);
+System.out.println(Arrays.toString(vowels));
+
+Arrays.sort(vowels, 1, 4);
+System.out.println(Arrays.toString(vowels));
+
+Arrays.binarySearch(vowels, 'o');
+Arrays.binarySearch(vowels, 1, 4, 'o');
+
+Arrays.fill(vowels, 'X');
+Arrays.fill(vowels, 1, 4, 'X');
+
+int numbers[] = {1, 2, 3, 4, 5};
+int copyOfNumbers[] = Arrays.copyOf(numbers, numbers.length);
+Arrays.fill(numbers, 0);
+
+System.out.println(Arrays.toString(numbers)); // [0, 0, 0, 0, 0]
+System.out.println(Arrays.toString(copyOfNumbers)); // [1, 2, 3, 4, 5]
+
+int copyOfNumbers = Arrays.copyOf(numbers, 2);
+int copyOfNumbers = Arrays.copyOfRange(numbers, 2, 5);
+
+Arrays.equals(numbers, copyOfNumbers);
+
+for (int number : numbers) {
+    System.out.printf("%d is the number", number);
+}
+
+for (int i = 0; i < numbers.length; i++) {
+    System.out.println(numbers[i]);
+}
+```
+
+## Static Elements in Java
+### Static Variables, Methods, Blocks, and Nested Classes
+
+```java
+
+// Static Variables
+class MyClass {
+    static int count = 0;
+
+    public MyClass() {
+        count++; // Each instance increases count
+    }
+}
+
+// Static Methods
+class Utility {
+    static int add(int a, int b) {
+        return a + b;
+    }
+}
+
+// Static Blocks
+class MyClass {
+    static {
+        System.out.println("Static block initialized.");
+    }
+}
+
+// Static Nested Classes
+class Outer {
+    static int outerVar = 10;
+
+    static class StaticNested {
+        void display() {
+            System.out.println("Outer variable: " + outerVar);
+        }
+    }
+}
+```
