@@ -100,3 +100,36 @@ System.out.println("output string: " + Arrays.toString(currencies));
 
 // String methods do not have a Reverse() method due to String objects being immutable.
 ```
+
+# User Inputs in Java
+
+```java
+import java.util.Scanner;
+
+Scanner sc = new Scanner(System.in);
+String userName = sc.nextLine();
+int userAge = sc.nextInt();
+sc.nextLine(); // Clean the input buffer
+String userLanguage = sc.nextLine();
+
+// Close the object after opening it
+sc.close();
+
+System.out.printf("Name: %s, Age: %d, Language: %s", userName, userAge, userLanguage);
+
+//Method 1: Using Scanner
+
+Scanner sc = new Scanner(System.in);
+System.out.println(sc.nextInt());
+
+
+//Method 2: Using BufferedReader
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+InputStreamReader in = new InputStreamReader(System.in);
+BufferedReader bf = new BufferedReader(in);
+int value = Integer.parseInt(bf.readLine());
+
+```
