@@ -253,3 +253,126 @@ class Outer {
     }
 }
 ```
+
+# Encapsulation in Java
+
+Encapsulation in Java refers to bundling data (variables) and methods (functions) within a single unit, typically a class. It involves restricting access to certain components of an object and exposing only what is necessary. Key features include:
+
+1. **Access control:** Encapsulation helps control the accessibility of class members, defining the level of access for each variable or method.
+
+2. **Data Hiding:** Encapsulation hides the internal state of objects from the outside. It ensures that implementation details are hidden and accessed through well-defined interfaces (public methods).
+
+```java
+class Human {
+    private String name;
+    private int age;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+
+public class EncapsulationDemo {
+    public static void main(String[] args) {
+        Human man = new Human();
+        man.setAge(30);
+        man.setName("Sujith");
+
+        System.out.printf("Name is %s and his age is %d", man.getName(), man.getAge());
+    }
+}
+```
+
+# Abstraction in Java
+
+Abstraction in Java involves hiding complex implementation details while exposing only necessary functionalities or behavior of an object. Key features include:
+
+1. **Hiding Complex Implementation:** Abstraction allows focusing on essential attributes and behaviors while hiding irrelevant complexities.
+
+2. **Creating a Model:** It defines a blueprint or model for objects, encompassing only necessary attributes and behaviors while abstracting away unnecessary details.
+
+## Implementation:
+
+### Abstract Class:
+Abstract classes cannot be instantiated on their own. They may contain abstract methods (without implementation) and concrete methods. Other classes extend abstract classes and provide implementations for abstract methods.
+
+```java
+abstract class Shape {
+    // Abstract method (no implementation)
+    public abstract void draw();
+
+    // Concrete method
+    public void display() {
+        System.out.println("Displaying shape...");
+    }
+}
+
+class Circle extends Shape {
+    // Implementation of abstract method
+    public void draw() {
+        System.out.println("Drawing circle...");
+    }
+}
+
+class Rectangle extends Shape {
+    // Implementation of abstract method
+    public void draw() {
+        System.out.println("Drawing rectangle...");
+    }
+}
+```
+
+### Interfaces:
+Interfaces declare abstract methods implemented by classes that implement the interface, achieving full abstraction.
+
+```java
+
+interface Animal {
+    void makeSound();
+}
+
+class Dog implements Animal {
+    public void makeSound() {
+        System.out.println("Woof!");
+    }
+}
+
+class Cat implements Animal {
+    public void makeSound() {
+        System.out.println("Meow!");
+    }
+}
+
+
+
+interface MyInterface {
+    // Method signatures (no implementation)
+    void doSomething();
+    int calculate(int x, int y);
+
+    // Constants (implicitly static and final)
+    String VERSION = "1.0";
+}
+
+Example-2:
+
+interface MyInterface {
+    static void myStaticMethod() {
+        // Static method implementation
+    }
+}
+
+
+```
