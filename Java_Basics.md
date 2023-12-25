@@ -443,3 +443,167 @@ Inheritance in Java enables classes to inherit properties and behavior from othe
 3. **Multiple Inheritance:** Not directly supported in Java due to the diamond problem or ambiguity issue. It arises when a class inherits from two classes with a common ancestor. Java avoids multiple inheritance with classes but permits multiple inheritance through interfaces. Interfaces in Java help solve the ambiguity problem and support multiple inheritance.
 
 Java allows a class to implement multiple interfaces, ensuring that a class can inherit the behaviors defined in multiple interfaces without the conflict issues found in multiple class inheritance.
+
+
+# Polymorphism in Java
+
+Polymorphism in Java refers to the ability of objects of different classes to be treated as objects of a common parent class.
+
+## Types of Polymorphism:
+
+### **Compile-time Polymorphism (Method Overloading):**
+
+   Method overloading occurs when a class has multiple methods with the same name but different parameters.
+   The method to call is determined at compile-time based on the number and types of arguments passed.
+
+   ```java
+   class Calculator {
+       int add(int a, int b) {
+           return a + b;
+       }
+
+       int add(){
+           return 0;
+       }
+
+       double add(double a, double b) {
+           return a + b;
+       }
+   }
+```
+
+### **Runtime Polymorphism (Method Overriding) (Dynamic binding): **
+
+Method overriding occurs when a subclass provides a specific implementation of a method already defined in its superclass.
+The method to call is determined at runtime based on the actual object instance.
+
+```java
+class Animal {
+    void makeSound() {
+        System.out.println("Some sound...");
+    }
+}
+
+class Dog extends Animal {
+    void makeSound() {
+        System.out.println("Woof!");
+    }
+}
+
+```
+
+### **Polymorphism via Inheritance:**
+
+Subclasses can be treated as instances of their superclass.
+A reference variable of a superclass can hold an object of its subclass.
+
+#### Example-1:
+```java
+Animal myAnimal = new Dog(); // Dog object treated as an Animal
+myAnimal.makeSound(); // Calls Dog's makeSound() method
+
+```
+
+#### Example-2:
+
+```java
+interface Shape {
+    void draw();
+}
+
+class Circle implements Shape {
+    public void draw() {
+        System.out.println("Drawing Circle");
+    }
+}
+
+class Rectangle implements Shape {
+    public void draw() {
+        System.out.println("Drawing Rectangle");
+    }
+}
+
+// Treating different shapes uniformly via the Shape interface
+Shape circle = new Circle(); // dynamic binding
+Shape rectangle = new Rectangle();
+
+circle.draw(); // Draws a Circle
+rectangle.draw(); // Draws a Rectangle
+
+```
+Polymorphism offers benefits such as code reusability, flexibility, and ease of maintaining code.
+
+
+# Access Modifiers
+
+Access modifiers in Java are keywords used to define the accessibility or visibility of classes, variables, methods, and constructors in different scopes within Java programs. They control the level of access that other classes or components have to the elements in a Java application.
+
+### Types of Access Modifiers:
+
+1. **public:**
+   - The most open access level.
+   - Public elements are accessible from any other class or package.
+
+2. **protected:**
+   - Accessible within the same package or by subclasses.
+   - Inherited members can be accessed by subclasses, even if they are in different packages.
+
+3. **default (no modifier):**
+   - Also known as package-private or package-local.
+   - Accessible within the same package.
+   - When no access modifier is specified, the default access level is applied.
+
+4. **private:**
+   - Most restrictive access level.
+   - Accessible only within the same class.
+
+### Details:
+
+- **Classes:** A top-level class can only be declared as public or have default (no modifier) access. Inner classes can have any access modifier.
+  
+- **Variables and Methods:** Access modifiers can restrict access based on the enclosing class or package.
+
+- **Inheritance:** Access modifiers play a role in method overriding; a subclass method cannot have more restrictive access than the superclass method it overrides.
+
+# Final keyword in Java:
+
+In Java, the `final` keyword is used to restrict the modification of classes, methods, and variables. It implies that once defined, the entity marked as `final` cannot be altered or overridden.
+
+### **Final Classes:**
+   - A final class cannot be subclassed/extended.
+   - It prevents other classes from inheriting from it.
+   
+   ```java
+   final class FinalClass {
+       // Class definition
+   }
+
+### **Final Methods:**
+- A final method cannot be overridden by subclasses.
+- It ensures that the method implementation remains unchanged in all subclasses.
+
+```java
+class Parent {
+    final void finalMethod() {
+        // Method implementation
+    }
+}
+
+class Child extends Parent {
+    // Cannot override finalMethod from Parent
+    // Attempting to override will result in a compilation error
+}
+```
+
+### **Final Variables (Constants):**
+- A final variable can be assigned a value only once.
+- It behaves as a constant once initialized and cannot be reassigned.
+
+```java
+class MyClass {
+    final int CONSTANT_VALUE = 10;
+    // CONSTANT_VALUE cannot be reassigned
+}
+
+```
+
