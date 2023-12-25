@@ -376,3 +376,70 @@ interface MyInterface {
 
 
 ```
+
+# Constructors in Java
+
+Constructors are special methods used to initialize objects of a class. They initialize objects upon creation and don’t have a return type, not even void. Key points include:
+
+1. **Initialization:** Constructors initialize newly created objects, setting up the object's state and performing necessary setup tasks.
+
+2. **Default Constructor:** Java provides a default constructor if none is explicitly defined in the class. It initializes member variables to their default values.
+
+3. **Overloading Constructors:** Constructors can be overloaded by having different parameters, enabling multiple constructors with different parameter lists.
+
+## Types of Constructors:
+
+### Default Constructor:
+```java
+class MyClass {
+    public MyClass() {
+        // Initialization code
+    }
+}
+```
+
+### Parameterized Constructor:
+```java
+
+class Person {
+    String name;
+    int age;
+
+    public Person(String n, int a) {
+        name = n;
+        age = a;
+    }
+}
+```
+
+### Constructor Chaining:
+Java allows one constructor to call another in the same class using this(), known as constructor chaining.
+
+```java
+class Example {
+    int value;
+
+    public Example() {
+        this(10); // Calls the parameterized constructor
+    }
+
+    public Example(int v) {
+        value = v;
+    }
+}
+
+```
+
+Main uses of constructors include object initialization, setting default values for instance variables, and constructor overloading. Constructors aren't inherited by subclasses and can't be called directly.
+
+# Inheritance in Java
+
+Inheritance in Java enables classes to inherit properties and behavior from other classes. Key types of inheritance include:
+
+1. **Single Inheritance:** A subclass inherits from a single superclass. Java supports single inheritance.
+   
+2. **Multilevel Inheritance:** A subclass extends another subclass, creating a hierarchy. Java supports multilevel inheritance.
+
+3. **Multiple Inheritance:** Not directly supported in Java due to the diamond problem or ambiguity issue. It arises when a class inherits from two classes with a common ancestor. Java avoids multiple inheritance with classes but permits multiple inheritance through interfaces. Interfaces in Java help solve the ambiguity problem and support multiple inheritance.
+
+Java allows a class to implement multiple interfaces, ensuring that a class can inherit the behaviors defined in multiple interfaces without the conflict issues found in multiple class inheritance.
