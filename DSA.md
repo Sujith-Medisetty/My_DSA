@@ -38,3 +38,155 @@ Heap sort is a comparison-based sorting algorithm that leverages the heap data s
 Understanding heaps is essential as they find applications in algorithms like Dijkstra's algorithm, heap sort, and priority queues due to their efficient operations and versatile nature.
 
 Youtube Reference Video : https://youtu.be/HqPJF2L5h9U?feature=shared
+
+# Regular Expressions in Java
+
+Regular expressions (regex or regexp) are patterns used to match character combinations in strings. In Java, the `java.util.regex` package provides classes for handling regular expressions.
+
+## Fundamental Concepts
+
+### Pattern Class
+- The `Pattern` class defines a regular expression pattern.
+- Create a `Pattern` object by compiling a regex pattern using `Pattern.compile()`.
+
+### Matcher Class
+- The `Matcher` class is used to match a `Pattern` against a specific string.
+- Create a `Matcher` object by calling `matcher()` on a `Pattern` object, passing the string to match.
+
+### Regex Syntax
+
+#### Basic Characters
+- `.`: Matches any single character.
+- `\`: Escapes a special character.
+- `[ ]`: Matches any character within the brackets.
+- `[^ ]`: Matches any character NOT within the brackets.
+- `|`: Represents OR.
+
+#### Quantifiers
+- `*`: Matches zero or more occurrences.
+- `+`: Matches one or more occurrences.
+- `?`: Matches zero or one occurrence.
+- `{n}`: Matches exactly n occurrences.
+- `{n,}`: Matches n or more occurrences.
+- `{n,m}`: Matches at least n but not more than m occurrences.
+
+#### Character Classes
+- `\d`: Matches any digit (equivalent to `[0-9]`).
+- `\D`: Matches any non-digit.
+- `\w`: Matches any word character (alphanumeric plus underscore).
+- `\W`: Matches any non-word character.
+- `\s`: Matches any whitespace character.
+- `\S`: Matches any non-whitespace character.
+
+## Example Usage - 1
+
+In the following example, regular expressions are used to match digits (`\\d+`) and words (`\\w+`). The Matcher class's `find()` method identifies matches in the text, and `group()` retrieves the matched text.
+
+```java
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class RegexExample {
+    public static void main(String[] args) {
+        String text = "Hello, this is a sample text with 123 and special characters !@#";
+
+        // Pattern for matching digits
+        Pattern digitPattern = Pattern.compile("\\d+");
+        Matcher digitMatcher = digitPattern.matcher(text);
+
+        while (digitMatcher.find()) {
+            System.out.println("Digits found: " + digitMatcher.group());
+        }
+
+        // Pattern for matching words
+        Pattern wordPattern = Pattern.compile("\\w+");
+        Matcher wordMatcher = wordPattern.matcher(text);
+
+        while (wordMatcher.find()) {
+            System.out.println("Word found: " + wordMatcher.group());
+        }
+    }
+}
+```
+
+## Example Usage - 2
+
+```java
+import java.io.*;
+import java.math.*;
+import java.security.*;
+import java.text.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+class Result {
+
+    // numbers = "0123456789"
+    // lower_case = "abcdefghijklmnopqrstuvwxyz"
+    // upper_case = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    // special_characters = "!@#$%^&*()-+"
+    // string should be minimum of 6 and return the minimum length to satisfy the above criteria
+
+    public static int minimumNumber(int n, String password) {
+    // Return the minimum number of characters to make the password strong
+    int len=0;
+    if(password.matches(".*[0-9].*")){
+        len+=1;
+        System.out.println("in digits");
+    }
+    if(password.matches(".*[a-z].*")){
+        len+=1;
+        System.out.println("in small alpha");
+    }
+    if(password.matches(".*[A-Z].*")){
+        len+=1;
+        System.out.println("in large alpha");
+    }
+    Pattern specialCharPattern = Pattern.compile(".*[-!@#$%^&*()+].*");
+    Matcher specialCharMatcher = specialCharPattern.matcher(password);
+    if (specialCharMatcher.matches()) {
+        len+=1;
+        System.out.println("in special char");
+    }
+    
+    if(len==4 && password.length()>=6){
+         return 0;
+    }
+    if(len==4 && password.length()<6){
+        return 6-password.length();
+    }
+    if(len!=4 && password.length()>=6){
+        return 4-len;
+    }
+    if(len!=4 && password.length()<6){
+        if(4-len <= 6-password.length())
+            return 6-password.length();
+        if(4-len > 6-password.length())
+            return 4-len;
+    }
+    return 0;
+    }
+
+}
+
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+
+        int n = Integer.parseInt(bufferedReader.readLine().trim());
+
+        String password = bufferedReader.readLine();
+
+        int answer = Result.minimumNumber(n, password);
+
+        bufferedReader.close();
+    }
+}
+
+```
+
