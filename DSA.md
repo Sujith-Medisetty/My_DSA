@@ -36,3 +36,5 @@ Heap sort is a comparison-based sorting algorithm that leverages the heap data s
 - **Heap Sort:** Uses a heap to sort elements with a time complexity of \(O(n \log n)\).
 
 Understanding heaps is essential as they find applications in algorithms like Dijkstra's algorithm, heap sort, and priority queues due to their efficient operations and versatile nature.
+
+Youtube Reference Video : https://youtu.be/HqPJF2L5h9U?feature=shared
