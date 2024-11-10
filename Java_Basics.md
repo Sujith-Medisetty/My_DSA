@@ -1382,3 +1382,75 @@ public class StreamsDemo {
 }
 
 ```
+
+# More Things
+
+```java
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+public class ComparatorDemo {
+    public static void main(String[] args) {
+        Integer numbers[] = { 10, 20, 40, 5, 6, 40 };
+        List<Integer> elements = new ArrayList<>(Arrays.asList(numbers));
+        elements.add(20);
+        elements.set(1, 20);
+        elements.remove(1);
+        elements.size();
+        elements.isEmpty();
+        elements.contains(2);
+
+        Set<Integer> setEle = new HashSet<>();
+        setEle.add(10);
+        setEle.addAll(Arrays.asList(3, 4, 5, 6));
+        setEle.remove(2);
+        setEle.contains(1);
+
+        Set<Integer> convertToSetFromArray = new HashSet<>(elements);
+
+        List<Integer> convertToListFromSet = new ArrayList<>(convertToSetFromArray);
+
+        Map<String, String> newMap = new HashMap<>();
+        newMap.put("name", "sujith");
+        newMap.put("age", "30");
+        newMap.get("name");
+
+        if (newMap.containsKey("name")) {
+            System.out.println(newMap.get("name"));
+            System.out.println(newMap.size());
+            System.out.println(newMap.keySet());
+            System.out.println(newMap.values());
+        }
+
+        newMap.entrySet().forEach(ele -> System.out.println(ele));
+
+        Comparator<Integer> com = new Comparator<Integer>() {
+            public int compare(Integer a, Integer b) {
+                if (a % 10 < b % 10) {
+                    return 1;
+                } else if (a % 10 == b % 10) {
+                    return 0;
+                }
+                return -1;
+            }
+        };
+
+        Collections.sort(elements, (a, b) -> (a % 10 > b % 10) ? 1 : (a % 10 == b % 10) ? 0 : -1);
+
+        elements.stream().forEach(ele -> System.out.println(ele));
+
+        List<Integer> testList = elements.stream().map(ele -> ele + 2).filter(ele -> ele % 2 == 0).distinct().sorted()
+                .collect(Collectors.toList());
+        System.out.println(testList.toString());
+
+        System.out.println(elements.stream().map(ele -> ele + 2).filter(ele -> ele % 2 == 0).distinct().sorted()
+                .reduce((a, b) -> a + b));
+
+        Arrays.asList("sujith", "amith", "chandu").stream().map(String::toUpperCase)
+                .filter(ele -> (ele.toLowerCase().startsWith("c") || ele.toLowerCase().startsWith("s")))
+                .forEach(System.out::println);
+    }
+}
+
+```
