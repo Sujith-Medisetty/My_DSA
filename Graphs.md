@@ -1763,3 +1763,232 @@ public class AlienDictionary {
     }
 }
 ```
+# Shortest Path in Directed Acyclic Graph (DAG) - Topological Sort
+
+## Problem Statement
+
+You are given a **Directed Acyclic Graph (DAG)** and a source node `src`. The task is to find the **shortest path** from the source node to all other nodes in the graph. The graph does not have cycles, and it can have any number of nodes and edges. Each edge has a non-negative weight.
+
+### Input:
+- An integer `V`, the number of nodes in the graph.
+- An integer `E`, the number of edges in the graph.
+- A list of `E` edges, where each edge is represented by a pair `(u, v, w)` indicating a directed edge from node `u` to node `v` with weight `w`.
+- An integer `src`, the source node.
+
+### Output:
+- An array of integers representing the shortest distances from the source node to all other nodes. If a node is unreachable, return `Integer.MAX_VALUE` for that node.
+
+### Constraints:
+- `1 <= V <= 10^4`
+- `1 <= E <= 10^5`
+- `0 <= w <= 10^4`
+
+### Example:
+
+#### Example 1:
+```plaintext
+Input:
+V = 6, E = 7
+edges = [(0, 1, 5), (0, 2, 3), (1, 2, 2), (1, 3, 6), (2, 3, 7), (2, 4, 4), (3, 4, 2)]
+src = 0
+
+Output:
+[0, 5, 3, 11, 7]
+
+Input:
+V = 5, E = 6
+edges = [(0, 1, 2), (0, 3, 6), (1, 2, 3), (1, 3, 2), (2, 4, 1), (3, 4, 5)]
+src = 0
+
+Output:
+[0, 2, 5, 6, 6]
+```
+### Approach
+#### 3. **Steps**:
+   - **Topological Sort**: Perform **Kahn’s algorithm** or a **DFS-based topological sort**.
+   - **Initialization**: Set the distance of the source node as `0`, and all other nodes as `Integer.MAX_VALUE`.
+   - **BFS Traversal**: For each node in topological order, relax the edges.
+
+```java
+import java.util.*;
+
+public class ShortestPathDAG {
+    static class Edge {
+        int v, weight;
+        Edge(int v, int weight) {
+            this.v = v;
+            this.weight = weight;
+        }
+    }
+
+    public int[] shortestPath(int V, List<Edge>[] graph, int src) {
+        int[] dist = new int[V];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[src] = 0;
+
+        // Step 1: Topological Sort (using Kahn's Algorithm)
+        Queue<Integer> queue = new LinkedList<>();
+        int[] inDegree = new int[V];
+        for (int i = 0; i < V; i++) {
+            for (Edge edge : graph[i]) {
+                inDegree[edge.v]++;
+            }
+        }
+
+        for (int i = 0; i < V; i++) {
+            if (inDegree[i] == 0) {
+                queue.add(i);
+            }
+        }
+
+        // Step 2: Process nodes in topological order
+        while (!queue.isEmpty()) {
+            int u = queue.poll();
+
+            // Relax edges for the current node
+            for (Edge e : graph[u]) {
+                if (dist[u] != Integer.MAX_VALUE && dist[u] + e.weight < dist[e.v]) {
+                    dist[e.v] = dist[u] + e.weight;
+                }
+                inDegree[e.v]--;
+                if (inDegree[e.v] == 0) {
+                    queue.add(e.v);
+                }
+            }
+        }
+
+        return dist;
+    }
+
+    public static void main(String[] args) {
+        ShortestPathDAG sp = new ShortestPathDAG();
+        int V = 6;
+        List<Edge>[] graph = new List[V];
+
+        // Initialize adjacency list
+        for (int i = 0; i < V; i++) {
+            graph[i] = new ArrayList<>();
+        }
+
+        // Add edges to the graph
+        graph[0].add(new Edge(1, 5));
+        graph[0].add(new Edge(2, 3));
+        graph[1].add(new Edge(2, 2));
+        graph[1].add(new Edge(3, 6));
+        graph[2].add(new Edge(3, 7));
+        graph[2].add(new Edge(4, 4));
+        graph[3].add(new Edge(4, 2));
+
+        // Call the shortestPath function
+        int[] dist = sp.shortestPath(V, graph, 0);
+
+        // Print the result
+        System.out.println(Arrays.toString(dist));  // Output: [0, 5, 3, 11, 7]
+    }
+}
+```
+
+# Shortest Path in an Undirected Graph with Unit Weights
+
+### Problem Statement
+
+Given an **undirected graph** with `V` vertices and `E` edges, where each edge has a **unit weight (weight = 1)**, find the shortest path from a given **source node** `src` to all other nodes in the graph.
+
+### Input:
+- An integer `V`, representing the number of vertices in the graph.
+- An integer `E`, representing the number of edges.
+- A list of `E` edges, where each edge is represented as a pair `(u, v)`, indicating an undirected edge between node `u` and node `v`.
+- An integer `src`, representing the source node.
+
+### Output:
+- An array of integers representing the **shortest distance** from the source node to all other nodes. If a node is unreachable, return `-1` for that node.
+
+---
+
+### Approach
+
+### 1. **Graph Representation**
+- We represent the graph using an **adjacency list**, where each node stores a list of its connected neighbors.
+
+### 2. **Breadth-First Search (BFS)**
+- Since all edges have the same weight (`1`), **BFS** is the optimal choice for finding the shortest path. BFS explores all nodes at the current distance before moving deeper, ensuring the shortest path is found in **O(V + E) time**.
+
+### 3. **Algorithm Steps**
+1. **Initialize Distance Array**:
+   - Create an array `dist[]` of size `V`, initialized to `-1` (representing unreachable nodes).
+   - Set `dist[src] = 0` (distance from source to itself is `0`).
+
+2. **Use a Queue for BFS**:
+   - Create a queue and enqueue the source node.
+
+3. **Perform BFS Traversal**:
+   - Dequeue a node `u` and visit all its neighbors `v`.
+   - If `dist[v]` is `-1` (i.e., not visited), update `dist[v] = dist[u] + 1` and enqueue `v`.
+
+4. **Return the Distance Array**:
+   - The `dist[]` array now contains the shortest path from `src` to all other nodes.
+
+### 4. **Time and Space Complexity**
+- **Time Complexity**: **O(V + E)** (Each node and edge is visited once).
+- **Space Complexity**: **O(V + E)** (For adjacency list and BFS queue).
+
+---
+
+## Java Code
+
+```java
+import java.util.*;
+
+public class ShortestPathUndirectedUnitWeights {
+    public int[] shortestPath(int V, int[][] edges, int src) {
+        List<List<Integer>> graph = new ArrayList<>();
+        
+        // Initialize adjacency list
+        for (int i = 0; i < V; i++) {
+            graph.add(new ArrayList<>());
+        }
+
+        // Build the graph (Undirected)
+        for (int[] edge : edges) {
+            int u = edge[0], v = edge[1];
+            graph.get(u).add(v);
+            graph.get(v).add(u);
+        }
+
+        // Distance array, initialized to -1 (unreachable)
+        int[] dist = new int[V];
+        Arrays.fill(dist, -1);
+        dist[src] = 0; // Distance from source to itself is 0
+
+        // BFS Queue
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(src);
+
+        // BFS traversal
+        while (!queue.isEmpty()) {
+            int u = queue.poll();
+
+            for (int v : graph.get(u)) {
+                if (dist[v] == -1) { // If not visited
+                    dist[v] = dist[u] + 1; // Update distance
+                    queue.add(v);
+                }
+            }
+        }
+
+        return dist;
+    }
+
+    public static void main(String[] args) {
+        ShortestPathUndirectedUnitWeights sp = new ShortestPathUndirectedUnitWeights();
+        int V = 6;
+        int[][] edges = {
+            {0, 1}, {0, 2}, {1, 3}, {2, 3}, {3, 4}, {4, 5}
+        };
+        int src = 0;
+
+        int[] shortestDistances = sp.shortestPath(V, edges, src);
+        System.out.println(Arrays.toString(shortestDistances));
+    }
+}
+```
