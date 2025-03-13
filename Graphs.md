@@ -1888,6 +1888,77 @@ public class ShortestPathDAG {
 }
 ```
 
+### Shortest Path in a Directed Acyclic Graph (DAG) - BFS Approach
+
+#### Understanding the Concept
+In a **Directed Acyclic Graph (DAG)**, we can efficiently compute the **shortest path** from a given source node using **Topological Sorting + BFS**.
+
+**Key Concept:**
+- If a node is **processed** in **topological order**, its shortest path is **finalized**.
+- We then **use its shortest path to update its dependent nodes**.
+- Even if a node is dependent on multiple parents, we only take the **minimum distance**.
+
+#### Example Graph
+Consider the following **weighted DAG**:
+```
+    0 → 1 (5)
+    0 → 2 (3)
+    1 → 2 (2)
+    1 → 3 (6)
+    2 → 3 (7)
+    2 → 4 (4)
+    3 → 4 (2)
+```
+
+#### Processing Order (Topological Sort)
+Assume we obtain the **topological order** as:
+```
+0 → 1 → 2 → 3 → 4
+```
+
+### Step-by-Step Processing
+
+#### **Processing 0**
+```
+dist[1] = min(∞, dist[0] + 5) = 5
+dist[2] = min(∞, dist[0] + 3) = 3
+```
+
+#### **Processing 1**
+```
+dist[2] = min(3, dist[1] + 2) = 3  (NO UPDATE, as 3 is already shorter)
+dist[3] = min(∞, dist[1] + 6) = 11
+```
+
+#### **Processing 2**
+```
+dist[3] = min(11, dist[2] + 7) = 10 (Updated)
+dist[4] = min(∞, dist[2] + 4) = 7
+```
+
+#### **Processing 3**
+```
+dist[4] = min(7, dist[3] + 2) = 7 (NO UPDATE, as 7 is already shorter)
+```
+
+#### **Processing 4**
+```
+No outgoing edges. Processing is complete.
+```
+
+### **Key Takeaways**
+1. **Once a node is processed, its shortest path is finalized.**
+   - This is because **we process nodes in topological order**, ensuring dependencies are settled first.
+
+2. **We update a node’s shortest path if it depends on multiple nodes, taking the minimum value.**
+   - Example: `dist[2]` was **not updated by `dist[1]`**, as `dist[0] → 2` was already shorter.
+
+3. **Each node is processed once, avoiding unnecessary revisits.**
+   - Unlike Dijkstra’s algorithm, which needs priority queues, **topological sorting ensures nodes are processed only when their shortest path is ready.**
+
+**Conclusion:** This approach guarantees the correct shortest path for a **DAG** in **O(V + E)** time complexity.
+
+
 # Shortest Path in an Undirected Graph with Unit Weights
 
 ### Problem Statement
