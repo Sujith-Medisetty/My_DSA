@@ -16,7 +16,7 @@
   - Since all edges have the same weight, BFS does **not need a priority queue** (unlike Dijkstra’s algorithm for weighted graphs).
 
 ### 🔹 Key Takeaway
-✅ **BFS works efficiently for unweighted graphs because all edges have the same weight, ensuring that the first discovered path to a node is always the shortest.**
+ **BFS works efficiently for unweighted graphs because all edges have the same weight, ensuring that the first discovered path to a node is always the shortest.**
 
 ## Why Does BFS Not Work for Weighted Graphs?
 
@@ -29,7 +29,7 @@
 - **Fails for larger weights:**
   - If a longer direct path is found first, BFS will incorrectly mark the distance before exploring a shorter weighted path later.
 
-### ✅ Why Use Dijkstra’s Algorithm Instead?
+### Why Use Dijkstra’s Algorithm Instead?
 
 - **Uses a priority queue:**
   - Unlike BFS, Dijkstra’s algorithm uses a **min-heap (priority queue)** to always process the **shortest known distance** first.
@@ -41,8 +41,8 @@
   - Dijkstra’s algorithm accounts for different edge weights, guaranteeing correct results.
 
 ### 🔹 Key Takeaway
-❌ **BFS fails for weighted graphs because it does not account for edge weights.**
-✅ **Dijkstra’s algorithm is required for weighted graphs as it prioritizes nodes based on the shortest discovered distance.**
+ **BFS fails for weighted graphs because it does not account for edge weights.**
+**Dijkstra’s algorithm is required for weighted graphs as it prioritizes nodes based on the shortest discovered distance.**
 
 # Why Priority queue.. clear explaination with example below
 
