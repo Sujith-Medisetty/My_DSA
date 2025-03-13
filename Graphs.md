@@ -2556,7 +2556,13 @@ Minimum Effort Required: 2
 - **Total Complexity:** `O(N * M log (N * M))`.
 
 # Cheapest Flights Within K Stops
+
 ### There are n cities and m edges connected by some number of flights. You are given an array of flights where flights[i] = [ fromi, toi, pricei] indicates that there is a flight from city fromi to city toi with cost price. You have also given three integers src, dst, and k, and return the cheapest price from src to dst with at most k stops. If there is no such route, return -1.
+
+*** No need of Priority queue as this is a simple increase .. So normal BFS will work , no need of dijkstra algo ***
+```Ref
+https://takeuforward.org/data-structure/g-37-path-with-minimum-effort/
+```
 
 ```plain text
 Input:
@@ -2658,6 +2664,100 @@ class tuf {
 
         Solution obj = new Solution();
         int ans = obj.CheapestFLight(n,flights,src,dst,K);
+        
+        System.out.print(ans);
+        System.out.println();
+    }
+}
+```
+# Minimum Multiplications to Reach End
+
+### Given start, end, and an array arr of n numbers. At each step, the start is multiplied by any number in the array and then a mod operation with 100000 is done to get the new start.
+Your task is to find the minimum steps in which the end can be achieved starting from the start. If it is not possible to reach the end, then return -1.
+
+```plain text
+Input:
+arr[] = {2, 5, 7}
+start = 3
+end = 30
+Output:
+2
+Explanation: 
+Step 1: 3*2 = 6 % 100000 = 6 
+Step 2: 6*5 = 30 % 100000 = 30
+Therefore, in minimum 2 multiplications we reach the 
+end number which is treated as a destination 
+node of a graph here.
+```
+
+```Ref
+https://takeuforward.org/graph/g-39-minimum-multiplications-to-reach-end/
+```
+
+```java
+import java.util.*;
+
+class Pair {
+    int first, second; 
+    Pair(int first, int second) {
+        this.first = first;
+        this.second = second; 
+    }
+}
+class Solution {
+    int minimumMultiplications(int[] arr, 
+    int start, int end) {
+
+        // Create a queue for storing the numbers as a result of multiplication
+        // of the numbers in the array and the start number.
+        Queue<Pair> q = new LinkedList<>(); 
+        q.add(new Pair(start, 0)); 
+
+        // Create a dist array to store the no. of multiplications to reach
+        // a particular number from the start number.
+        int[] dist = new int[100000]; 
+        for(int i = 0;i<100000;i++) dist[i] = (int)(1e9);
+        dist[start] = 0; 
+        int mod = 100000;
+        int n = arr.length; 
+        // O(100000 * N) 
+
+        // Multiply the start no. with each of numbers in the arr
+        // until we get the end no.
+        while(!q.isEmpty()) {
+            int node = q.peek().first; 
+            int steps = q.peek().second;
+            q.remove(); 
+            
+            for(int i = 0;i < n; i++) {
+                int num = (arr[i] * node) % mod; 
+
+                // If the no. of multiplications are less than before
+                // in order to reach a number, we update the dist array.
+                if(steps + 1 < dist[num]) {
+                    dist[num] = steps + 1; 
+
+                    // Whenever we reach the end number
+                    // return the calculated steps
+                    if(num == end) return steps + 1; 
+                    q.add(new Pair(num, steps + 1)); 
+                }
+            }
+        }
+        // If the end no. is unattainable.
+        return -1; 
+    }
+}
+
+class tuf {
+
+    public static void main(String[] args) {
+       
+        int start=3, end=30;
+        int[] arr = {2,5,7};
+
+        Solution obj = new Solution();
+        int ans = obj.minimumMultiplications(arr,start,end);
         
         System.out.print(ans);
         System.out.println();
