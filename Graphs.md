@@ -2287,3 +2287,107 @@ To 4 (Distance: 6) Path: 0 -> 1 -> 2 -> 4
 - Uses **Priority Queue (Min-Heap)** for efficiency.
 - Maintains **distance and parent arrays**.
 - **Prints the shortest path** for each node using backtracking.
+
+# Shortest Distance in a Binary Maze
+
+## Problem Statement
+You are given a **binary grid** (maze) of size `N x M`, where:
+- `0` represents an **open path** (you can walk through it).
+- `1` represents a **wall** (you cannot walk through it).
+- You can move **up, down, left, or right** (but not diagonally).
+- Given a **source cell (sx, sy)** and a **destination cell (dx, dy)**, find the **shortest path length** from the source to the destination.
+- If there is no possible path, return `-1`.
+
+## Approach
+### Why BFS Works?
+- The grid can be treated as an **unweighted graph** where each cell is a node and its **adjacent 4 cells** (up, down, left, right) are its neighbors.
+- **Breadth-First Search (BFS)** is optimal for finding the shortest path in an **unweighted** graph because it explores all nodes at the current level before moving to the next.
+- We use a **queue** to store the `(x, y, distance)` tuple to track movement.
+- A **visited array** ensures we do not revisit cells.
+
+## Java Code
+
+```java
+import java.util.*;
+
+class ShortestPathBinaryMaze {
+    static class Cell {
+        int x, y, dist;
+        Cell(int x, int y, int dist) {
+            this.x = x;
+            this.y = y;
+            this.dist = dist;
+        }
+    }
+
+    public static int shortestPath(int[][] maze, int sx, int sy, int dx, int dy) {
+        int N = maze.length, M = maze[0].length;
+        if (maze[sx][sy] == 1 || maze[dx][dy] == 1) return -1; // No path if start or destination is blocked
+
+        int[] dRow = {-1, 1, 0, 0}; // Directions for row movement (Up, Down, Left, Right)
+        int[] dCol = {0, 0, -1, 1}; // Directions for col movement
+
+        boolean[][] visited = new boolean[N][M];
+        Queue<Cell> queue = new LinkedList<>();
+        queue.add(new Cell(sx, sy, 0));
+        visited[sx][sy] = true;
+
+        while (!queue.isEmpty()) {
+            Cell curr = queue.poll();
+            int x = curr.x, y = curr.y, dist = curr.dist;
+
+            if (x == dx && y == dy) return dist; // Reached the destination
+
+            for (int i = 0; i < 4; i++) {
+                int newX = x + dRow[i], newY = y + dCol[i];
+                if (isValid(newX, newY, N, M, maze, visited)) {
+                    visited[newX][newY] = true;
+                    queue.add(new Cell(newX, newY, dist + 1));
+                }
+            }
+        }
+        return -1; // Destination unreachable
+    }
+
+    private static boolean isValid(int x, int y, int N, int M, int[][] maze, boolean[][] visited) {
+        return x >= 0 && x < N && y >= 0 && y < M && maze[x][y] == 0 && !visited[x][y];
+    }
+
+    public static void main(String[] args) {
+        int[][] maze = {
+            {0, 1, 0, 0, 0},
+            {0, 1, 0, 1, 0},
+            {0, 0, 0, 1, 0},
+            {1, 1, 1, 1, 0},
+            {0, 0, 0, 0, 0}
+        };
+        int sx = 0, sy = 0, dx = 4, dy = 4;
+        int shortestDist = shortestPath(maze, sx, sy, dx, dy);
+        System.out.println("Shortest Path Length: " + shortestDist);
+    }
+}
+```
+
+## Example Run
+### **Input Maze:**
+```
+0  1  0  0  0
+0  1  0  1  0
+0  0  0  1  0
+1  1  1  1  0
+0  0  0  0  0
+```
+
+**Source:** `(0, 0)`
+
+**Destination:** `(4, 4)`
+
+### **Output:**
+```
+Shortest Path Length: 8
+```
+
+## Complexity Analysis
+- **Each cell is visited at most once** → `O(N * M)`
+- **Queue operations (constant time each)** → `O(1) per operation`
+- **Total Complexity:** `O(N * M)` (Optimal for grid-based shortest path problems)
