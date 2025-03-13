@@ -2063,3 +2063,109 @@ public class ShortestPathUndirectedUnitWeights {
     }
 }
 ```
+## Word Ladder - I | Shortest Paths
+
+### Problem Statement
+You are given two words, `beginWord` and `endWord`, and a dictionary `wordList`. Find the length of the shortest transformation sequence from `beginWord` to `endWord`, such that:
+1. Only one letter can be changed at a time.
+2. Each transformed word must exist in the given `wordList`.
+
+**Constraints:**
+- Each word in `wordList` and `beginWord` have the same length.
+- Only lowercase English letters are used.
+- No duplicate words in `wordList`.
+- It is guaranteed that `beginWord` and `endWord` are different.
+
+### Example
+#### Input:
+```text
+beginWord = "hit"
+endWord = "cog"
+wordList = ["hot","dot","dog","lot","log","cog"]
+```
+#### Output:
+```text
+5
+```
+#### Explanation:
+A shortest transformation sequence is:
+```
+"hit" -> "hot" -> "dot" -> "dog" -> "cog"
+```
+Length = **5**
+
+### Approach
+We can solve this problem using **Breadth-First Search (BFS)** since we need the shortest path. BFS explores all neighbors (one-letter transformed words) before moving deeper, ensuring the shortest sequence is found first.
+
+#### Steps:
+1. **Convert `wordList` into a Set** for quick lookups.
+2. **Use a Queue** to perform BFS. Start from `beginWord`.
+3. For each word in the queue:
+   - Try changing each character (A-Z) to form a new word.
+   - If the new word exists in `wordList`, push it into the queue.
+   - Remove the word from `wordList` to avoid revisiting.
+4. Repeat until `endWord` is found or queue is empty.
+
+### Java Code
+```java
+import java.util.*;
+
+public class WordLadder {
+    public int ladderLength(String beginWord, String endWord, List<String> wordList) {
+        Set<String> wordSet = new HashSet<>(wordList);
+        if (!wordSet.contains(endWord)) return 0;
+        
+        Queue<String> queue = new LinkedList<>();
+        queue.add(beginWord);
+        int level = 1;
+        
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                String word = queue.poll();
+                if (word.equals(endWord)) return level;
+                
+                char[] wordChars = word.toCharArray();
+                for (int j = 0; j < wordChars.length; j++) {
+                    char originalChar = wordChars[j];
+                    for (char c = 'a'; c <= 'z'; c++) {
+                        if (c == originalChar) continue;
+                        wordChars[j] = c;
+                        String newWord = new String(wordChars);
+                        if (wordSet.contains(newWord)) {
+                            queue.add(newWord);
+                            wordSet.remove(newWord);
+                        }
+                    }
+                    wordChars[j] = originalChar;
+                }
+            }
+            level++;
+        }
+        
+        return 0;
+    }
+    
+    public static void main(String[] args) {
+        WordLadder wl = new WordLadder();
+        List<String> wordList = Arrays.asList("hot", "dot", "dog", "lot", "log", "cog");
+        System.out.println(wl.ladderLength("hit", "cog", wordList));
+    }
+}
+```
+
+### Time Complexity Analysis
+- **Each word transformation takes O(L × 26)** (L = length of word)
+- **BFS runs for all words in `wordList` once** → O(N)
+- **Overall Complexity:** O(N × L × 26) ≈ **O(N × L)**
+
+### Space Complexity Analysis
+- **Queue stores words → O(N)**
+- **Set for word lookups → O(N)**
+- **Total Space:** **O(N)**
+
+### Summary
+- BFS is used to find the shortest path.
+- Each transformation is checked by changing one character at a time.
+- A `Set` helps in O(1) lookups to validate transformations.
+- The approach ensures that each word is processed at most once.
