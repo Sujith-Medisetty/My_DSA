@@ -2169,3 +2169,121 @@ public class WordLadder {
 - Each transformation is checked by changing one character at a time.
 - A `Set` helps in O(1) lookups to validate transformations.
 - The approach ensures that each word is processed at most once.
+- 
+
+# Dijkstra's Algorithm - Print Shortest Path
+
+## Problem Statement
+You are given a weighted graph with `V` vertices and `E` edges, and a source node `S`. Implement Dijkstra's Algorithm to find the shortest path from `S` to all other vertices and print the actual shortest path for each vertex.
+
+## Approach
+1. **Use a Priority Queue (Min-Heap):**
+   - Extract the node with the smallest distance (greedy approach).
+   - Update the distances of its neighboring nodes.
+   
+2. **Maintain Distance and Parent Arrays:**
+   - `dist[]` to store the shortest known distance from the source to each node.
+   - `parent[]` to track the previous node in the shortest path.
+
+3. **Reconstruct the Path:**
+   - Use `parent[]` to backtrack from the destination to the source.
+
+## Java Code Implementation
+
+```java
+import java.util.*;
+
+class DijkstraShortestPath {
+    static class Node implements Comparable<Node> {
+        int vertex, distance;
+        Node(int v, int d) {
+            this.vertex = v;
+            this.distance = d;
+        }
+        public int compareTo(Node other) {
+            return Integer.compare(this.distance, other.distance);
+        }
+    }
+
+    public static void dijkstra(int V, List<List<int[]>> graph, int source) {
+        int[] dist = new int[V];
+        int[] parent = new int[V];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        Arrays.fill(parent, -1);
+        dist[source] = 0;
+
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        pq.add(new Node(source, 0));
+
+        while (!pq.isEmpty()) {
+            Node current = pq.poll();
+            int u = current.vertex;
+
+            for (int[] edge : graph.get(u)) {
+                int v = edge[0], weight = edge[1];
+                if (dist[u] + weight < dist[v]) {
+                    dist[v] = dist[u] + weight;
+                    parent[v] = u;
+                    pq.add(new Node(v, dist[v]));
+                }
+            }
+        }
+
+        printPaths(source, dist, parent);
+    }
+
+    public static void printPaths(int source, int[] dist, int[] parent) {
+        System.out.println("Shortest paths from source " + source + ":");
+        for (int i = 0; i < dist.length; i++) {
+            System.out.print("To " + i + " (Distance: " + dist[i] + ") Path: ");
+            printPath(i, parent);
+            System.out.println();
+        }
+    }
+
+    private static void printPath(int v, int[] parent) {
+        if (parent[v] == -1) {
+            System.out.print(v);
+            return;
+        }
+        printPath(parent[v], parent);
+        System.out.print(" -> " + v);
+    }
+
+    public static void main(String[] args) {
+        int V = 5; // Number of vertices
+        List<List<int[]>> graph = new ArrayList<>();
+        for (int i = 0; i < V; i++) graph.add(new ArrayList<>());
+        
+        // Adding edges: {destination, weight}
+        graph.get(0).add(new int[]{1, 2});
+        graph.get(0).add(new int[]{2, 4});
+        graph.get(1).add(new int[]{2, 1});
+        graph.get(1).add(new int[]{3, 7});
+        graph.get(2).add(new int[]{4, 3});
+        graph.get(3).add(new int[]{4, 1});
+        
+        int source = 0;
+        dijkstra(V, graph, source);
+    }
+}
+```
+
+## Example Run
+```
+Shortest paths from source 0:
+To 0 (Distance: 0) Path: 0
+To 1 (Distance: 2) Path: 0 -> 1
+To 2 (Distance: 3) Path: 0 -> 1 -> 2
+To 3 (Distance: 9) Path: 0 -> 1 -> 3
+To 4 (Distance: 6) Path: 0 -> 1 -> 2 -> 4
+```
+
+## Complexity Analysis
+- **Priority Queue Operations:** `O((V + E) log V)`
+- **Total Time Complexity:** `O(E log V)`, where `E` is the number of edges and `V` is the number of vertices.
+
+## Summary
+- Uses **Priority Queue (Min-Heap)** for efficiency.
+- Maintains **distance and parent arrays**.
+- **Prints the shortest path** for each node using backtracking.
