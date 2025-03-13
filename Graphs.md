@@ -2391,3 +2391,124 @@ Shortest Path Length: 8
 - **Each cell is visited at most once** → `O(N * M)`
 - **Queue operations (constant time each)** → `O(1) per operation`
 - **Total Complexity:** `O(N * M)` (Optimal for grid-based shortest path problems)
+
+# Path With Minimum Effort
+
+## Problem Statement
+
+You are given an `N x M` grid where each cell `(i, j)` has a height value. You need to find a path from the **top-left** corner `(0,0)` to the **bottom-right** corner `(N-1, M-1)`, minimizing the **maximum effort** required in the path.
+
+Effort is defined as the **absolute difference** in height between two adjacent cells. Your task is to find a path where the largest height difference between consecutive cells is minimized.
+
+### **Constraints**
+
+- You can move **up, down, left, or right**.
+- The grid will always have a valid path.
+
+## Approach
+
+### Why Use Dijkstra’s Algorithm?
+
+- This problem is similar to Dijkstra’s shortest path algorithm but instead of minimizing **sum of distances**, we need to minimize the **maximum effort** in the path.
+- **Priority Queue (Min-Heap)** is used to always expand the path with the least effort first.
+- A **distance (effort) array** is maintained to keep track of the minimum effort required to reach each cell.
+
+### Steps:
+
+1. **Initialize a min-heap priority queue** and start from `(0,0)` with effort `0`.
+2. **Use a distance array** (`effort[][]`), initializing all values to `Integer.MAX_VALUE`.
+3. **Iterate using Dijkstra’s approach**:
+   - Extract the cell with the **minimum effort**.
+   - Explore its **four neighbors**.
+   - If moving to a neighbor reduces the max effort seen so far, update it and push it into the queue.
+4. **When reaching ****`(N-1, M-1)`****, return the minimum effort found**.
+
+## Java Code Implementation
+
+```java
+import java.util.*;
+
+class PathWithMinimumEffort {
+    static class Cell {
+        int x, y, effort;
+        Cell(int x, int y, int effort) {
+            this.x = x;
+            this.y = y;
+            this.effort = effort;
+        }
+    }
+
+    public static int minimumEffortPath(int[][] heights) {
+        int N = heights.length, M = heights[0].length;
+        int[][] effort = new int[N][M];
+        for (int[] row : effort) Arrays.fill(row, Integer.MAX_VALUE);
+
+        PriorityQueue<Cell> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a.effort));
+        pq.add(new Cell(0, 0, 0)); // Start from top-left corner
+        effort[0][0] = 0;
+
+        int[] dRow = {-1, 1, 0, 0}; // Up, Down, Left, Right
+        int[] dCol = {0, 0, -1, 1};
+
+        while (!pq.isEmpty()) {
+            Cell curr = pq.poll();
+            int x = curr.x, y = curr.y, currEffort = curr.effort;
+
+            if (x == N - 1 && y == M - 1) return currEffort; // Reached the destination
+
+            for (int i = 0; i < 4; i++) {
+                int newX = x + dRow[i], newY = y + dCol[i];
+                if (isValid(newX, newY, N, M)) {
+                    int newEffort = Math.max(currEffort, Math.abs(heights[x][y] - heights[newX][newY]));
+                    if (newEffort < effort[newX][newY]) {
+                        effort[newX][newY] = newEffort;
+                        pq.add(new Cell(newX, newY, newEffort));
+                    }
+                }
+            }
+        }
+        return -1; // Should never reach here
+    }
+
+    private static boolean isValid(int x, int y, int N, int M) {
+        return x >= 0 && x < N && y >= 0 && y < M;
+    }
+
+    public static void main(String[] args) {
+        int[][] heights = {
+            {1, 2, 2},
+            {3, 8, 2},
+            {5, 3, 5}
+        };
+        int minEffort = minimumEffortPath(heights);
+        System.out.println("Minimum Effort Required: " + minEffort);
+    }
+}
+```
+
+## Example Run
+
+### **Input Grid:**
+
+```
+1  2  2
+3  8  2
+5  3  5
+```
+
+**Expected Output:**
+
+```
+Minimum Effort Required: 2
+```
+
+**Explanation:**
+
+- The optimal path: `(0,0) -> (1,0) -> (2,0) -> (2,1) -> (2,2)`.
+- The highest absolute difference in this path is `|1 - 3| = 2`, `|3 - 5| = 2`, `|5 - 3| = 2`, `|3 - 5| = 2` → **Effort = 2**.
+
+## Complexity Analysis
+
+- **Each cell is visited once:** `O(N * M)`
+- **Priority Queue operations (logarithmic per update):** `O(E log V)`, where `E ≈ 4 * (N*M)`, `V = N*M`.
+- **Total Complexity:** `O(N * M log (N * M))`.
