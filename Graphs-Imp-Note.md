@@ -1,4 +1,4 @@
-## Important Note: Why Does BFS Work for Unweighted Graphs?
+## (Shortest Path) Important Note: Why Does BFS Work for Unweighted Graphs?
 
 ### Understanding BFS for Unit Weight Graphs
 
