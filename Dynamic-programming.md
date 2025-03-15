@@ -414,10 +414,3 @@ public class NinjaTraining {
 - **Space Complexity:** `O(1)` (Using only three variables: `prev0`, `prev1`, `prev2`)
 
 ---
-
-## **Key Takeaways**
-✔ **Optimized 2D DP Problem** using **O(1) space**  
-✔ **Ensures no consecutive activity repetition** with transition formula  
-✔ **Efficient Tabulation Approach** with minimal memory usage  
-
-
