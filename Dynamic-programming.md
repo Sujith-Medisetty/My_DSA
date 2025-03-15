@@ -414,3 +414,90 @@ public class NinjaTraining {
 - **Space Complexity:** `O(1)` (Using only three variables: `prev0`, `prev1`, `prev2`)
 
 ---
+
+# Unique Paths Problem
+
+### Problem Statement
+
+You are present at point ‘A’ which is the top-left cell of an M X N matrix, and your destination is point ‘B’, which is the bottom-right cell of the same matrix. Your task is to find the total number of unique paths from point ‘A’ to point ‘B’. In other words, you will be given the dimensions of the matrix as integers ‘M’ and ‘N’, and your task is to find the total number of unique paths from the cell MATRIX[0][0] to MATRIX[M-1][N-1].
+
+To traverse in the matrix, you can either move Right or Down at each step. For example, in a given point MATRIX[i][j], you can move to either MATRIX[i + 1][j] or MATRIX[i][j + 1].
+
+### Input Format:
+- The first input line contains the number of test cases, `T`.
+- For each test case, two integers `M` and `N` are given, which represent the number of rows and columns in the matrix.
+
+### Output Format:
+- For each test case, output a single integer representing the total number of unique paths.
+
+### Constraints:
+- 1 ≤ T ≤ 100
+- 1 ≤ M ≤ 15
+- 1 ≤ N ≤ 15
+
+### Time Limit:
+- 1 second
+
+
+### Explanation:
+
+#### Test case 1:
+We are given a 3 x 2 matrix. The possible paths from (0, 0) to (2, 1) are:
+- Path 1: (0, 0) → (0, 1) → (1, 1) → (2, 1)
+- Path 2: (0, 0) → (1, 0) → (2, 0) → (2, 1)
+- Path 3: (0, 0) → (1, 0) → (1, 1) → (2, 1)
+
+Hence, the total number of paths is 3.
+
+#### Test case 2:
+We are given a 1 x 6 matrix, where there is only one row. Hence, the total number of paths is 1.
+
+## Approach
+
+The problem can be solved using Dynamic Programming (DP) in a bottom-up manner. The idea is to use a 2D DP table where `dp[i][j]` represents the number of unique paths to reach the cell `(i, j)`.
+
+### Steps:
+1. **Base Case**: Initialize the last row and last column of the DP table with 1, since there is only one way to move along the last row (move right) or the last column (move down).
+2. **Fill the DP Table**: Iterate over the rest of the cells, starting from the bottom-right corner to the top-left. The value at each cell `dp[i][j]` is the sum of the values from the cell directly below (`dp[i+1][j]`) and the cell directly to the right (`dp[i][j+1]`).
+3. **Return the Result**: The result will be stored in `dp[0][0]`, which represents the number of unique paths to reach the top-left cell.
+
+### Code Implementation:
+
+```java
+import java.util.Scanner;
+
+public class UniquePaths {
+    public static int uniquePaths(int m, int n) {
+        int[][] dp = new int[m][n];
+
+        // Base case: Last row and last column are 1 (only one way to move)
+        for (int i = 0; i < m; i++) {
+            dp[i][n - 1] = 1;
+        }
+        for (int j = 0; j < n; j++) {
+            dp[m - 1][j] = 1;
+        }
+
+        // Bottom-up filling
+        for (int i = m - 2; i >= 0; i--) {
+            for (int j = n - 2; j >= 0; j--) {
+                dp[i][j] = dp[i + 1][j] + dp[i][j + 1];
+            }
+        }
+
+        return dp[0][0];  // Start position
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int t = sc.nextInt();  // Number of test cases
+        
+        while (t-- > 0) {
+            int m = sc.nextInt();
+            int n = sc.nextInt();
+            System.out.println(uniquePaths(m, n));
+        }
+        sc.close();
+    }
+}
+```
