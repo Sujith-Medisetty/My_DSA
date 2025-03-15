@@ -175,4 +175,110 @@ public class FrogJumpDP {
 - **Time Complexity:** `O(N)`, as we iterate once through `N` stairs.
 - **Space Complexity:** `O(N)`, due to the `dp` array (can be optimized to `O(1)`).
 
+# Maximum Sum of Non-Adjacent Subsequence
 
+### Problem Statement
+
+You are given an array/list of `N` integers. You are supposed to return the maximum sum of the subsequence with the constraint that no two elements are adjacent in the given array/list.
+
+### Notes:
+- A subsequence of an array/list is obtained by deleting some number of elements (can be zero) from the array/list, leaving the remaining elements in their original order.
+
+### Constraints:
+- `1 <= T <= 500`
+- `1 <= N <= 1000`
+- `0 <= ARR[i] <= 10^5`
+
+Where `ARR[i]` denotes the `i-th` element in the array/list.
+
+### Time Limit: 1 second.
+
+#### Explanation:
+- **Test Case 1:** `ARR = [1, 2, 4]`
+  - The sum of `ARR[0]` & `ARR[2]` is `5`, which is greater than `ARR[1]` which is `2`. So, the maximum sum is `5`.
+  
+- **Test Case 2:** `ARR = [2, 1, 4, 9]`
+  - The sum of `ARR[0]` and `ARR[2]` is `6`, the sum of `ARR[1]` and `ARR[3]` is `10`, and the sum of `ARR[0]` and `ARR[3]` is `11`. The maximum sum is `11`.
+
+- **Test Case 3:** `ARR = [1, 2, 3, 5, 4]`
+  - The sum of `ARR[0]`, `ARR[2]`, and `ARR[4]` is `8`, which is the maximum sum for a non-adjacent subsequence.
+  
+- **Test Case 4:** `ARR = [1, 2, 3, 1, 3, 5, 8, 1, 9]`
+  - The sum of `ARR[0]`, `ARR[2]`, `ARR[4]`, `ARR[6]`, and `ARR[8]` is `24`, which is the maximum sum for a non-adjacent subsequence.
+
+## Approach:
+
+This is a dynamic programming problem where we aim to find the maximum sum of a subsequence such that no two elements in the subsequence are adjacent.
+
+### Dynamic Programming Approach:
+1. **Base Cases:**
+   - If there are no elements (`N = 0`), the maximum sum is `0`.
+   - If there is only one element, the maximum sum is that element itself.
+
+2. **State Definition:**
+   - Let `dp[i]` represent the maximum sum of the subsequence considering elements from `0` to `i`.
+   
+   We have two choices:
+   - **Exclude `ARR[i]`**: The sum remains the same as `dp[i-1]`.
+   - **Include `ARR[i]`**: The sum becomes `ARR[i]` plus `dp[i-2]` (ensuring no adjacent elements are chosen).
+   
+   The recurrence relation is:
+   \[
+   dp[i] = \max(dp[i-1], ARR[i] + dp[i-2])
+   \]
+
+3. **Final Solution:**
+   - The result will be the value at `dp[N-1]`, which contains the maximum sum from the entire array.
+
+### Time Complexity:
+- **O(N)** per test case, where `N` is the length of the array. This is because we process each element of the array once.
+
+### Space Complexity:
+- **O(N)** for the `dp` array used to store intermediate results.
+
+---
+
+## Java Code:
+
+```java
+import java.util.Scanner;
+
+public class MaxSumNonAdjacent {
+
+    public static int maxSum(int[] arr, int n) {
+        if (n == 0) return 0; // No elements, no sum
+        if (n == 1) return arr[0]; // Only one element, return that element
+
+        int[] dp = new int[n]; // DP array to store maximum sums
+        dp[0] = arr[0]; // Base case for the first element
+        dp[1] = Math.max(arr[0], arr[1]); // Base case for the second element
+
+        // Fill the DP array
+        for (int i = 2; i < n; i++) {
+            dp[i] = Math.max(dp[i-1], arr[i] + dp[i-2]); // Max of excluding or including current element
+        }
+
+        return dp[n-1]; // The last element will contain the result
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        int T = scanner.nextInt(); // Read number of test cases
+        for (int t = 0; t < T; t++) {
+            int n = scanner.nextInt(); // Read the size of the array
+            int[] arr = new int[n];
+            
+            // Read the array elements
+            for (int i = 0; i < n; i++) {
+                arr[i] = scanner.nextInt();
+            }
+
+            // Call the function to get the max sum of non-adjacent subsequence
+            System.out.println(maxSum(arr, n));
+        }
+
+        scanner.close();
+    }
+}
+```
