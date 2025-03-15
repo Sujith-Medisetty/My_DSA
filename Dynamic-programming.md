@@ -1161,3 +1161,174 @@ Since `dp[5] = true`, we return `true`.
 - **1D DP with reverse iteration** optimizes space to `O(K)`, making it more efficient.
 - **Both methods achieve O(N * K) time complexity**, which is efficient for given constraints.
 
+# Partition A Set Into Two Subsets With Minimum Absolute Sum Difference
+
+## Problem Statement
+You are given an array `arr` containing `n` non-negative integers.
+
+Your task is to partition this array into two subsets such that the absolute difference between subset sums is minimized.
+
+### Notes:
+1. Each array element should belong to exactly one of the subsets.
+2. Subsets need not be contiguous.
+3. The subset-sum is the sum of all the elements in that subset.
+
+### Example:
+#### Input:
+```
+n = 5
+arr = [3, 1, 5, 2, 8]
+```
+#### Output:
+```
+1
+```
+#### Explanation:
+The array can be partitioned into `{3, 1, 5}` and `{2, 8}`.
+The absolute difference between their sums is `|10 - 9| = 1`.
+
+---
+
+## Approach
+This problem can be solved using **Dynamic Programming** (Subset Sum Approach).
+
+### **1. Understanding the problem:**
+- The total sum of the array is `sum(arr) = S`.
+- The goal is to find two subsets whose sum difference is minimized.
+- If one subset has sum `S1`, the other will have `S2 = S - S1`.
+- Our goal is to minimize `|S1 - S2| = |S - 2 * S1|`.
+
+### **2. Using Dynamic Programming (2D Approach)**
+- We use a **boolean DP table** where `dp[i][j]` represents whether we can achieve sum `j` using the first `i` elements.
+- We iterate from `0` to `S/2` (since the other subset is `S - S1`).
+- The minimum absolute difference is obtained by minimizing `|S - 2*S1|`.
+
+### **3. Optimized 1D DP Approach**
+- Instead of using a 2D DP array, we can optimize it using a **1D DP array**.
+- We update the DP array in **reverse order** to avoid overwriting results.
+
+---
+
+## Java Code
+
+### **1. 2D DP Approach:**
+```java
+public class PartitionMinSubsetDiff {
+    public static int minSubsetDifference(int[] arr) {
+        int n = arr.length;
+        int totalSum = 0;
+        for (int num : arr) {
+            totalSum += num;
+        }
+        
+        boolean[][] dp = new boolean[n + 1][totalSum / 2 + 1];
+        
+        // Initializing first column as true (sum = 0 is always possible)
+        for (int i = 0; i <= n; i++) {
+            dp[i][0] = true;
+        }
+        
+        // Fill the DP table
+        for (int i = 1; i <= n; i++) {
+            for (int sum = 1; sum <= totalSum / 2; sum++) {
+                boolean exclude = dp[i - 1][sum];
+                boolean include = (arr[i - 1] <= sum) ? dp[i - 1][sum - arr[i - 1]] : false;
+                dp[i][sum] = exclude || include;
+            }
+        }
+        
+        // Find the largest S1 such that dp[n][S1] is true
+        int minDiff = Integer.MAX_VALUE;
+        for (int s1 = totalSum / 2; s1 >= 0; s1--) {
+            if (dp[n][s1]) {
+                minDiff = Math.min(minDiff, Math.abs(totalSum - 2 * s1));
+                break;
+            }
+        }
+        return minDiff;
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {3, 1, 5, 2, 8};
+        System.out.println(minSubsetDifference(arr));  // Output: 1
+    }
+}
+```
+
+### **2. Optimized 1D DP Approach:**
+```java
+public class PartitionMinSubsetDiffOptimized {
+    public static int minSubsetDifference(int[] arr) {
+        int n = arr.length;
+        int totalSum = 0;
+        for (int num : arr) {
+            totalSum += num;
+        }
+        
+        boolean[] dp = new boolean[totalSum / 2 + 1];
+        dp[0] = true; // Sum 0 is always possible
+        
+        // Process elements
+        for (int num : arr) {
+            for (int sum = totalSum / 2; sum >= num; sum--) {
+                dp[sum] |= dp[sum - num];
+            }
+        }
+        
+        // Find the largest S1 where dp[S1] is true
+        int minDiff = Integer.MAX_VALUE;
+        for (int s1 = totalSum / 2; s1 >= 0; s1--) {
+            if (dp[s1]) {
+                minDiff = Math.min(minDiff, Math.abs(totalSum - 2 * s1));
+                break;
+            }
+        }
+        return minDiff;
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {3, 1, 5, 2, 8};
+        System.out.println(minSubsetDifference(arr));  // Output: 1
+    }
+}
+```
+
+---
+
+## Dry Run Example
+### Input:
+```
+n = 4, arr = [1, 2, 3, 4]
+```
+### Step-by-Step Execution:
+1. **Total Sum Calculation:**
+   ```
+   totalSum = 1 + 2 + 3 + 4 = 10
+   ```
+2. **DP Table Construction:**
+   - Compute possible subset sums up to `totalSum / 2 = 5`.
+   - `dp[i][j]` tells if we can form sum `j` using first `i` elements.
+3. **Finding Minimum Difference:**
+   - The largest `S1` where `dp[n][S1]` is true is `5`.
+   - Compute `minDiff = |10 - 2*5| = 0`.
+
+### Output:
+```
+0
+```
+
+---
+
+## Complexity Analysis
+| Approach | Time Complexity | Space Complexity |
+|----------|----------------|------------------|
+| **2D DP** | O(n * sum) | O(n * sum) |
+| **1D Optimized DP** | O(n * sum) | O(sum) |
+
+---
+
+## Summary
+1. **2D DP Approach:** Constructs a DP table of size `n x sum/2`.
+2. **1D Optimized DP Approach:** Reduces space complexity by updating in reverse order.
+3. **Key Optimization:** Iterate in reverse when updating the DP array to avoid overwriting.
+4. **Result:** The minimum absolute subset sum difference is found using `|totalSum - 2*S1|`.
