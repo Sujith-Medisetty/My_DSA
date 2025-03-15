@@ -718,3 +718,117 @@ Sum: 5
 ## Alternative Approaches
 - **Dijkstra’s Algorithm (Priority Queue):** Works better for larger constraints but is unnecessary for `O(N * M)` constraints.
 - **Recursive + Memoization:** Can be used but is less efficient compared to iterative DP.
+
+# Minimum Path Sum in a Triangle
+
+### Approach
+The problem requires us to find the minimum path sum from the top of the triangle to the bottom while moving only to adjacent elements in the row below.
+
+### Dynamic Programming Approach (Bottom-Up)
+1. **Define DP State:** Let `dp[i][j]` represent the minimum sum to reach `triangle[i][j]` from the top.
+2. **Base Case:** The last row of the triangle remains unchanged as it serves as the starting point for our DP solution.
+3. **Transition:**
+   - We process the triangle from the second-last row to the first row.
+   - For each `triangle[i][j]`, the minimum sum path is determined as follows:
+     ```
+     dp[i][j] = triangle[i][j] + min(dp[i+1][j], dp[i+1][j+1])
+     ```
+   - This means the value at `triangle[i][j]` is updated to include the minimum sum from its adjacent numbers in the row below.
+4. **Final Answer:** The result is stored in `triangle[0][0]` after processing all rows.
+
+## Java Implementation
+```java
+import java.util.*;
+
+public class MinimumTrianglePath {
+    public static int minPathSum(List<List<Integer>> triangle) {
+        int n = triangle.size();
+        
+        // Start from the second last row and move upwards
+        for (int i = n - 2; i >= 0; i--) {
+            for (int j = 0; j < triangle.get(i).size(); j++) {
+                int minSum = Math.min(triangle.get(i + 1).get(j), triangle.get(i + 1).get(j + 1));
+                triangle.get(i).set(j, triangle.get(i).get(j) + minSum);
+            }
+        }
+        
+        return triangle.get(0).get(0); // The top element contains the minimum path sum
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int T = sc.nextInt(); // Number of test cases
+        
+        while (T-- > 0) {
+            int N = sc.nextInt();
+            List<List<Integer>> triangle = new ArrayList<>();
+            
+            for (int i = 0; i < N; i++) {
+                List<Integer> row = new ArrayList<>();
+                for (int j = 0; j <= i; j++) {
+                    row.add(sc.nextInt());
+                }
+                triangle.add(row);
+            }
+            
+            System.out.println(minPathSum(triangle));
+        }
+        sc.close();
+    }
+}
+```
+
+## Complexity Analysis
+- **Time Complexity:** `O(N^2)`, as we process each element in the triangle once.
+- **Space Complexity:** `O(1)`, since we modify the input `triangle` in place, avoiding extra memory usage.
+
+## Example Walkthrough
+**Input:**
+```
+2
+4
+2
+3 4
+6 5 7
+4 1 8 3
+1
+-10
+```
+
+**Processing:**
+For the first case:
+```
+Triangle:
+2
+3 4
+6 5 7
+4 1 8 3
+
+After DP processing:
+2
+3 4
+9 6 10
+4 1 8 3
+
+Final minimum path: 2 -> 3 -> 5 -> 1 = 11
+```
+For the second case:
+```
+Triangle:
+-10
+
+Minimum path sum: -10
+```
+
+**Output:**
+```
+11
+-10
+```
+
+## Alternative Approaches
+- **Recursive + Memoization:** Stores results in a `dp` array to avoid redundant calculations but still has an `O(N^2)` complexity.
+- **Iterative DP with a 1D array:** Instead of modifying the input triangle, we can use a `1D dp[]` array of size `N` to store intermediate results, reducing space complexity to `O(N)`.
+
+This approach ensures an optimal solution with minimal time and space complexity.
+
