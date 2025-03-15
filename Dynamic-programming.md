@@ -832,3 +832,328 @@ Minimum path sum: -10
 
 This approach ensures an optimal solution with minimal time and space complexity.
 
+# Maximum Path Sum in a Matrix
+
+## Problem Statement
+You have been given an N*M matrix filled with integer numbers. Find the maximum sum that can be obtained from a path starting from any cell in the first row to any cell in the last row.
+
+From a cell in a row, you can move to another cell directly below that row, or diagonally below left or right. So from a particular cell `(row, col)`, we can move in three directions:
+- **Down**: `(row+1, col)`
+- **Down-left diagonal**: `(row+1, col-1)`
+- **Down-right diagonal**: `(row+1, col+1)`
+
+### Constraints:
+- `1 <= T <= 50`
+- `1 <= N <= 100`
+- `1 <= M <= 100`
+- `-10^4 <= matrix[i][j] <= 10^4`
+
+Where `T` is the number of test cases, `N` is the number of rows, and `M` is the number of columns.
+
+## Approach
+### Dynamic Programming Approach (Bottom-Up)
+1. **Define DP State:**
+   - Let `dp[i][j]` represent the maximum sum path that ends at position `(i, j)`.
+   - The first row remains the same as the given matrix since the path starts from there.
+2. **Transition:**
+   - For each element in row `i`, compute the maximum sum by considering the three possible moves:
+     ```
+     dp[i][j] = matrix[i][j] + max(dp[i-1][j], dp[i-1][j-1] (if valid), dp[i-1][j+1] (if valid))
+     ```
+   - Ensure boundary conditions for the first and last column to prevent out-of-bounds errors.
+3. **Final Answer:**
+   - The result is the maximum value in the last row of `dp`.
+
+## Java Implementation
+### 2D DP Approach
+```java
+import java.util.*;
+
+public class MaximumPathSumMatrix {
+    public static int maxPathSum(int[][] matrix, int N, int M) {
+        int[][] dp = new int[N][M];
+        
+        // Initialize first row as it is
+        for (int j = 0; j < M; j++) {
+            dp[0][j] = matrix[0][j];
+        }
+        
+        // Fill the dp table from row 1 to N-1
+        for (int i = 1; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                int down = dp[i - 1][j];
+                int downLeft = (j > 0) ? dp[i - 1][j - 1] : Integer.MIN_VALUE;
+                int downRight = (j < M - 1) ? dp[i - 1][j + 1] : Integer.MIN_VALUE;
+                
+                dp[i][j] = matrix[i][j] + Math.max(down, Math.max(downLeft, downRight));
+            }
+        }
+        
+        // Find the max value in the last row
+        int maxSum = Integer.MIN_VALUE;
+        for (int j = 0; j < M; j++) {
+            maxSum = Math.max(maxSum, dp[N - 1][j]);
+        }
+        
+        return maxSum;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int T = sc.nextInt(); // Number of test cases
+        
+        while (T-- > 0) {
+            int N = sc.nextInt();
+            int M = sc.nextInt();
+            int[][] matrix = new int[N][M];
+            
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    matrix[i][j] = sc.nextInt();
+                }
+            }
+            
+            System.out.println(maxPathSum(matrix, N, M));
+        }
+        sc.close();
+    }
+}
+```
+
+### Optimized 1D DP Approach
+Instead of maintaining a 2D `dp` table, we can use a `1D dp[]` array that keeps track of the previous row only.
+```java
+public static int maxPathSumOptimized(int[][] matrix, int N, int M) {
+    int[] dp = Arrays.copyOf(matrix[0], M); // Copy first row
+    
+    for (int i = 1; i < N; i++) {
+        int[] newDp = new int[M];
+        for (int j = 0; j < M; j++) {
+            int down = dp[j];
+            int downLeft = (j > 0) ? dp[j - 1] : Integer.MIN_VALUE;
+            int downRight = (j < M - 1) ? dp[j + 1] : Integer.MIN_VALUE;
+            
+            newDp[j] = matrix[i][j] + Math.max(down, Math.max(downLeft, downRight));
+        }
+        dp = newDp;
+    }
+    
+    return Arrays.stream(dp).max().getAsInt();
+}
+```
+
+## Example Walkthrough
+**Input:**
+```
+2
+4 4
+1 2 10 4
+100 3 2 1
+1 1 20 2
+1 2 2 1
+3 3
+10 2 3
+3 7 2
+8 1 5
+```
+
+**Processing:**
+For the first case:
+```
+Matrix:
+1  2  10  4
+100 3  2  1
+1  1  20  2
+1  2  2  1
+
+After DP processing:
+1  2  10  4
+102  12  12  6
+103  13  32  8
+104  15  34  9
+
+Maximum Path Sum: 105
+```
+For the second case:
+```
+Matrix:
+10  2  3
+3   7  2
+8   1  5
+
+After DP processing:
+10  2  3
+13  17  5
+21  18  10
+
+Maximum Path Sum: 25
+```
+
+**Output:**
+```
+105
+25
+```
+
+## Complexity Analysis
+- **Time Complexity:** `O(N * M)`, since we traverse the matrix once.
+- **Space Complexity:** `O(N * M)`, due to the `dp` matrix storage.
+- **Optimized Space Complexity:** `O(M)`, if we use a 1D array instead of a 2D `dp` table, updating the values in place.
+
+## Alternative Approaches
+- **Recursive + Memoization:** Store results in a `dp` array to avoid redundant calculations, but still has an `O(N*M)` complexity.
+- **Iterative DP with a 1D array:** Instead of modifying the input matrix, we can use a `1D dp[]` array to store intermediate results, reducing space complexity to `O(M)`.
+
+This approach ensures an optimal solution with minimal time and space complexity.
+
+# Subset Sum Problem
+
+## Problem Statement
+You are given an array/list `ARR` of `N` positive integers and an integer `K`. Your task is to check if there exists a subset in `ARR` with a sum equal to `K`.
+
+**Note:** Return `true` if there exists a subset with sum equal to `K`. Otherwise, return `false`.
+
+### Example
+#### Input
+```
+ARR = {1,2,3,4}, K = 4
+```
+#### Output
+```
+true
+```
+#### Explanation
+There exist two subsets with sum = 4: `{1,3}` and `{4}`. Hence, return `true`.
+
+## Approach
+### **1. 2D Dynamic Programming Approach**
+#### **Steps:**
+1. Define a DP table `dp[N+1][K+1]`, where `dp[i][j]` represents whether it is possible to achieve sum `j` using the first `i` elements.
+2. Initialize `dp[i][0] = true` (subset sum `0` is always possible).
+3. If `ARR[i-1] > j`, we cannot include it, so `dp[i][j] = dp[i-1][j]`.
+4. If `ARR[i-1] <= j`, we have two choices:
+   - Exclude the element: `dp[i][j] = dp[i-1][j]`
+   - Include the element: `dp[i][j] = dp[i-1][j - ARR[i-1]]`
+5. Return `dp[N][K]` as the final answer.
+
+#### **Java Code for 2D DP Approach:**
+```java
+public class SubsetSum {
+    public static boolean subsetSum2D(int[] arr, int k) {
+        int n = arr.length;
+        boolean[][] dp = new boolean[n + 1][k + 1];
+        
+        for (int i = 0; i <= n; i++) {
+            dp[i][0] = true; // Sum 0 is always possible
+        }
+        
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= k; j++) {
+                if (arr[i - 1] > j) {
+                    dp[i][j] = dp[i - 1][j];
+                } else {
+                    dp[i][j] = dp[i - 1][j] || dp[i - 1][j - arr[i - 1]];
+                }
+            }
+        }
+        
+        return dp[n][k];
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {4, 3, 2, 1};
+        int k = 5;
+        System.out.println(subsetSum2D(arr, k)); // Output: true
+    }
+}
+```
+
+### **2. Optimized 1D Dynamic Programming Approach**
+#### **Steps:**
+1. Use a **1D DP array** `dp[K+1]`, where `dp[j]` stores whether sum `j` is possible.
+2. Initialize `dp[0] = true` (sum `0` is always possible).
+3. Traverse the array and update `dp` in **reverse order** (to prevent overwriting previous states).
+4. If `dp[K]` is `true`, return `true`; otherwise, return `false`.
+
+#### **Java Code for Optimized 1D DP Approach:**
+```java
+public class SubsetSumOptimized {
+    public static boolean subsetSum1D(int[] arr, int k) {
+        boolean[] dp = new boolean[k + 1];
+        dp[0] = true; // Sum 0 is always possible
+        
+        for (int num : arr) {
+            for (int j = k; j >= num; j--) { // Reverse loop
+                dp[j] = dp[j] || dp[j - num];
+            }
+        }
+        
+        return dp[k];
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {4, 3, 2, 1};
+        int k = 5;
+        System.out.println(subsetSum1D(arr, k)); // Output: true
+    }
+}
+```
+
+## **Example Dry Run**
+### **Input:**
+```plaintext
+ARR = {4,3,2,1}, K = 5
+```
+
+### **Step-by-Step Execution (1D DP)**
+**Initialization:**
+```plaintext
+dp = {true, false, false, false, false, false}
+```
+
+**Processing 4:**
+```plaintext
+dp[5] = dp[5] || dp[1] -> false
+dp[4] = dp[4] || dp[0] -> true
+dp = {true, false, false, false, true, false}
+```
+
+**Processing 3:**
+```plaintext
+dp[5] = dp[5] || dp[2] -> false
+dp[4] = dp[4] || dp[1] -> true
+dp[3] = dp[3] || dp[0] -> true
+dp = {true, false, false, true, true, false}
+```
+
+**Processing 2:**
+```plaintext
+dp[5] = dp[5] || dp[3] -> true
+dp[4] = dp[4] || dp[2] -> true
+dp[2] = dp[2] || dp[0] -> true
+dp = {true, false, true, true, true, true}
+```
+
+**Processing 1:**
+```plaintext
+dp[5] = dp[5] || dp[4] -> true (Already true)
+dp[4] = dp[4] || dp[3] -> true (Already true)
+dp[3] = dp[3] || dp[2] -> true (Already true)
+dp[2] = dp[2] || dp[1] -> true (Already true)
+dp[1] = dp[1] || dp[0] -> true
+dp = {true, true, true, true, true, true}
+```
+
+Since `dp[5] = true`, we return `true`.
+
+## **Complexity Analysis**
+| Approach | Time Complexity | Space Complexity |
+|----------|----------------|------------------|
+| 2D DP    | O(N * K)       | O(N * K)         |
+| 1D DP    | O(N * K)       | O(K)             |
+
+### **Final Takeaways**
+- **2D DP** is straightforward but requires `O(N * K)` space.
+- **1D DP with reverse iteration** optimizes space to `O(K)`, making it more efficient.
+- **Both methods achieve O(N * K) time complexity**, which is efficient for given constraints.
+
