@@ -1606,3 +1606,123 @@ public class Knapsack1D {
   - Space Complexity: `O(W)`
 
 Both solutions efficiently compute the optimal solution, with the 1D approach being more space-efficient.
+
+## Minimum Coins Problem (DP on Subsequences)
+
+### Problem Statement
+Given an array of coin denominations `coins[]` and a target amount `target`, determine the **minimum number of coins** required to achieve the exact target amount. If it's impossible to form the target amount using the given coins, return `-1`.
+
+**Input:**
+- `coins[]` (array of integers): Available coin denominations.
+- `target` (integer): The target amount to be achieved.
+
+**Output:**
+- Minimum number of coins required to form the `target` amount, or `-1` if impossible.
+
+### Example
+**Input:**
+```
+coins = {1, 2, 5}
+target = 11
+```
+**Output:**
+```
+3  (Explanation: 5 + 5 + 1)
+```
+
+**Input:**
+```
+coins = {2}
+target = 3
+```
+**Output:**
+```
+-1 (Explanation: Impossible to form 3 with only coin 2)
+```
+
+---
+
+### Solution
+#### 1. 2D Dynamic Programming Approach
+```java
+import java.util.*;
+
+public class MinCoins2D {
+    public static int minCoins2D(int[] coins, int target) {
+        int n = coins.length;
+        int[][] dp = new int[n + 1][target + 1];
+
+        for (int i = 0; i <= target; i++) {
+            dp[0][i] = Integer.MAX_VALUE - 1; // Impossible states
+        }
+        dp[0][0] = 0; // 0 coins needed for target 0
+
+        for (int i = 1; i <= n; i++) {
+            for (int t = 0; t <= target; t++) {
+                if (coins[i - 1] <= t) {
+                    dp[i][t] = Math.min(dp[i - 1][t], 1 + dp[i][t - coins[i - 1]]);
+                } else {
+                    dp[i][t] = dp[i - 1][t];
+                }
+            }
+        }
+        return dp[n][target] == Integer.MAX_VALUE - 1 ? -1 : dp[n][target];
+    }
+
+    public static void main(String[] args) {
+        int[] coins = {1, 2, 5};
+        int target = 11;
+        System.out.println("Minimum coins required: " + minCoins2D(coins, target));
+    }
+}
+```
+
+---
+
+#### 2. Optimized 1D Dynamic Programming Approach
+```java
+import java.util.*;
+
+public class MinCoins1D {
+    public static int minCoins1D(int[] coins, int target) {
+        int[] dp = new int[target + 1];
+        Arrays.fill(dp, Integer.MAX_VALUE - 1); // Impossible states
+        dp[0] = 0; // 0 coins needed for target 0
+
+        for (int coin : coins) {
+            for (int t = coin; t <= target; t++) {
+                dp[t] = Math.min(dp[t], 1 + dp[t - coin]);
+            }
+        }
+        return dp[target] == Integer.MAX_VALUE - 1 ? -1 : dp[target];
+    }
+
+    public static void main(String[] args) {
+        int[] coins = {1, 2, 5};
+        int target = 11;
+        System.out.println("Minimum coins required: " + minCoins1D(coins, target));
+    }
+}
+```
+
+---
+
+### Explanation
+- **2D DP Approach:**
+  - Uses a matrix `dp[i][t]` where `i` is the number of coins considered and `t` is the target amount.
+  - The value at `dp[i][t]` represents the minimum coins required to achieve the target amount using the first `i` coins.
+- **1D DP Approach (Optimized):**
+  - Uses a 1D array `dp[]` where `dp[t]` stores the minimum coins required to achieve target `t`.
+  - Iterates directly over each coin and updates the target values in a single pass.
+
+---
+
+### Complexity Analysis
+- **2D DP Approach:**
+  - Time Complexity: `O(N * target)`
+  - Space Complexity: `O(N * target)`
+- **1D DP Approach (Optimized):**
+  - Time Complexity: `O(N * target)`
+  - Space Complexity: `O(target)`
+
+Both approaches provide efficient and clear solutions to the Minimum Coins problem. The 1D approach is more space-efficient while maintaining optimal performance.
