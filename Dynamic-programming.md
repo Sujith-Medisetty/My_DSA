@@ -282,3 +282,142 @@ public class MaxSumNonAdjacent {
     }
 }
 ```
+# **Ninja Training**
+
+## **Problem Statement**
+Ninja is planning this **N days-long** training schedule. Each day, he can perform any one of these three activities:
+- **Running**
+- **Fighting Practice**
+- **Learning New Moves**
+
+Each activity has **some merit points** assigned to it per day. However, Ninja **cannot do the same activity on two consecutive days**. Your task is to help Ninja **find the maximum merit points** he can earn over **N days**.
+
+### **Example**
+#### **Input**
+```
+2
+3
+1 2 5
+3 1 1
+3 3 3
+3
+10 40 70
+20 50 80
+30 60 90
+```
+
+#### **Output**
+```
+11
+210
+```
+
+### **Explanation**
+#### **Test Case 1**
+Given points array:
+```
+[[1, 2, 5],
+ [3, 1, 1],
+ [3, 3, 3]]
+```
+One optimal way Ninja can train is:
+- **Day 1:** Learn new moves (**5 points**)
+- **Day 2:** Running (**3 points**)
+- **Day 3:** Fighting practice (**3 points**)
+
+Total: **5 + 3 + 3 = 11**
+
+#### **Test Case 2**
+Given points array:
+```
+[[10, 40, 70],
+ [20, 50, 80],
+ [30, 60, 90]]
+```
+One optimal way Ninja can train is:
+- **Day 1:** Learn new moves (**70 points**)
+- **Day 2:** Fighting (**50 points**)
+- **Day 3:** Learn new moves (**90 points**)
+
+Total: **70 + 50 + 90 = 210**
+
+---
+
+## **Approach**
+### **1. Dynamic Programming Approach (Tabulation - Space Optimized)**
+- Define `dp[i][j]` as the **maximum merit points** from day `0` to `i` if activity `j` is performed on day `i`.
+- Transition formula:
+  ```
+  dp[i][j] = points[i][j] + max(dp[i-1][x]) where x ≠ j
+  ```
+- Base Case:
+  ```
+  dp[0][j] = points[0][j]  (for j = 0, 1, 2)
+  ```
+- We optimize **space complexity** from `O(N x 3)` to `O(1)` by using **three variables** (`prev0`, `prev1`, `prev2`).
+
+---
+
+## **Java Code**
+```java
+import java.util.*;
+
+public class NinjaTraining {
+    public static int ninjaTraining(int n, int[][] points) {
+        // Previous day points
+        int prev0 = points[0][0]; // Running
+        int prev1 = points[0][1]; // Fighting
+        int prev2 = points[0][2]; // Learning New Moves
+
+        for (int day = 1; day < n; day++) {
+            // Compute max points for each activity today
+            int curr0 = points[day][0] + Math.max(prev1, prev2);
+            int curr1 = points[day][1] + Math.max(prev0, prev2);
+            int curr2 = points[day][2] + Math.max(prev0, prev1);
+
+            // Update previous day values
+            prev0 = curr0;
+            prev1 = curr1;
+            prev2 = curr2;
+        }
+
+        // Return the max among the last day's activities
+        return Math.max(prev0, Math.max(prev1, prev2));
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int T = sc.nextInt(); // Number of test cases
+        while (T-- > 0) {
+            int n = sc.nextInt(); // Number of days
+            int[][] points = new int[n][3];
+
+            // Input points array
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < 3; j++) {
+                    points[i][j] = sc.nextInt();
+                }
+            }
+
+            // Compute and print max merit points
+            System.out.println(ninjaTraining(n, points));
+        }
+        sc.close();
+    }
+}
+```
+
+---
+
+## **Complexity Analysis**
+- **Time Complexity:** `O(N)` (Iterate through `N` days)
+- **Space Complexity:** `O(1)` (Using only three variables: `prev0`, `prev1`, `prev2`)
+
+---
+
+## **Key Takeaways**
+✔ **Optimized 2D DP Problem** using **O(1) space**  
+✔ **Ensures no consecutive activity repetition** with transition formula  
+✔ **Efficient Tabulation Approach** with minimal memory usage  
+
+
