@@ -1011,6 +1011,10 @@ This approach ensures an optimal solution with minimal time and space complexity
 ## Problem Statement
 You are given an array/list `ARR` of `N` positive integers and an integer `K`. Your task is to check if there exists a subset in `ARR` with a sum equal to `K`.
 
+``` Problem Ref
+https://www.naukri.com/code360/problems/subset-sum-equal-to-k_1550954?leftPanelTab=1%3Fsource%3Dyoutube&campaign=striver_dp_videos&utm_source=youtube&utm_medium=affiliate&utm_campaign=striver_dp_videos
+```
+
 **Note:** Return `true` if there exists a subset with sum equal to `K`. Otherwise, return `false`.
 
 ### Example
