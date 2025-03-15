@@ -1,5 +1,9 @@
 # Subset Sum Problem - Key Points
 
+``` Problem Ref
+https://www.naukri.com/code360/problems/subset-sum-equal-to-k_1550954?leftPanelTab=1%3Fsource%3Dyoutube&campaign=striver_dp_videos&utm_source=youtube&utm_medium=affiliate&utm_campaign=striver_dp_videos
+```
+
 ## Understanding Iteration in 1D DP Array
 
 - **Without Repetition:** Iterate from the **end to start** to ensure that each element is considered only once.
