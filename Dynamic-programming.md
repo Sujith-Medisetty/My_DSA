@@ -1512,3 +1512,97 @@ dp = [1, 0, 0, 0, 0, 0] // dp[0] = 1 (sum 0 can be achieved by choosing nothing)
 
 This problem is a variation of the **Subset Sum Problem** and can be extended to solve similar problems like **Partition Equal Subset Sum, Minimum Subset Sum Difference, and Knapsack variations**.
 
+## 0/1 Knapsack Problem (Bounded)
+
+### Problem Statement
+You are given `N` items, each with a weight `w[i]` and a value `v[i]`. You are also given a knapsack with a maximum capacity `W`. Your task is to determine the maximum value that can be achieved by selecting a subset of the items such that the total weight does not exceed `W`.
+
+**Input:**
+- `N` (integer): Number of items.
+- `W` (integer): Maximum capacity of the knapsack.
+- `w[]` (array of integers): Weights of the items.
+- `v[]` (array of integers): Values of the items.
+
+**Output:**
+- Maximum value that can be obtained.
+
+### Example
+**Input:**
+```
+N = 3
+W = 50
+w[] = {10, 20, 30}
+v[] = {60, 100, 120}
+```
+**Output:**
+```
+220
+```
+
+### Solution
+#### 1. 2D Dynamic Programming Approach
+```java
+public class Knapsack2D {
+    public static int knapsack2D(int W, int[] w, int[] v, int N) {
+        int[][] dp = new int[N + 1][W + 1];
+
+        for (int i = 1; i <= N; i++) {
+            for (int j = 0; j <= W; j++) {
+                if (w[i - 1] <= j) {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i - 1][j - w[i - 1]] + v[i - 1]);
+                } else {
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+        return dp[N][W];
+    }
+
+    public static void main(String[] args) {
+        int[] w = {10, 20, 30};
+        int[] v = {60, 100, 120};
+        int W = 50;
+        System.out.println("Maximum value: " + knapsack2D(W, w, v, w.length));
+    }
+}
+```
+
+#### 2. Optimized 1D Dynamic Programming Approach
+```java
+public class Knapsack1D {
+    public static int knapsack1D(int W, int[] w, int[] v, int N) {
+        int[] dp = new int[W + 1];
+
+        for (int i = 0; i < N; i++) {
+            for (int j = W; j >= w[i]; j--) {
+                dp[j] = Math.max(dp[j], dp[j - w[i]] + v[i]);
+            }
+        }
+        return dp[W];
+    }
+
+    public static void main(String[] args) {
+        int[] w = {10, 20, 30};
+        int[] v = {60, 100, 120};
+        int W = 50;
+        System.out.println("Maximum value: " + knapsack1D(W, w, v, w.length));
+    }
+}
+```
+
+### Explanation
+- **2D DP Approach:**
+  - Uses a matrix where `dp[i][j]` represents the maximum value achievable using the first `i` items and capacity `j`.
+- **1D DP Approach (Optimized):**
+  - Reduces space complexity by maintaining only a 1D array.
+  - Iterates backward through the `dp` array to prevent overwriting values that are yet to be processed.
+
+### Complexity Analysis
+- **2D DP Approach:**
+  - Time Complexity: `O(N * W)`
+  - Space Complexity: `O(N * W)`
+- **1D DP Approach (Optimized):**
+  - Time Complexity: `O(N * W)`
+  - Space Complexity: `O(W)`
+
+Both solutions efficiently compute the optimal solution, with the 1D approach being more space-efficient.
