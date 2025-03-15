@@ -1198,6 +1198,7 @@ This problem can be solved using **Dynamic Programming** (Subset Sum Approach).
 - If one subset has sum `S1`, the other will have `S2 = S - S1`.
 - Our goal is to minimize `|S1 - S2| = |S - 2 * S1|`.
 
+
 ### **2. Using Dynamic Programming (2D Approach)**
 - We use a **boolean DP table** where `dp[i][j]` represents whether we can achieve sum `j` using the first `i` elements.
 - We iterate from `0` to `S/2` (since the other subset is `S - S1`).
@@ -1332,3 +1333,182 @@ n = 4, arr = [1, 2, 3, 4]
 2. **1D Optimized DP Approach:** Reduces space complexity by updating in reverse order.
 3. **Key Optimization:** Iterate in reverse when updating the DP array to avoid overwriting.
 4. **Result:** The minimum absolute subset sum difference is found using `|totalSum - 2*S1|`.
+
+# Counts Subsets with Sum K
+
+## Problem Statement
+You are given an array 'arr' of size 'n' containing positive integers and a target sum 'k'.
+
+Find the number of ways of selecting the elements from the array such that the sum of chosen elements is equal to the target 'k'.
+
+Since the number of ways can be very large, print it modulo $10^9 + 7$.
+
+### Example
+#### Input:
+```
+arr = [1, 1, 4, 5]
+```
+#### Output:
+```
+3
+```
+#### Explanation:
+The possible ways are:
+- [1, 4]
+- [1, 4]
+- [5]
+
+Hence, the output is 3. Please note that both 1s present in 'arr' are treated differently.
+
+### Constraints:
+- $1 \leq n \leq 100$
+- $0 \leq arr[i] \leq 1000$
+- $1 \leq k \leq 1000$
+- Expected Time Complexity: $O(n \times k)$
+- Space Complexity: $O(k)$ (for optimized solution)
+
+---
+
+## Approach
+
+The problem can be solved using **Dynamic Programming** (DP). The idea is to use a 2D DP table where:
+- `dp[i][sum]` represents the number of ways to achieve `sum` using the first `i` elements of `arr`.
+
+### **2D DP Approach**
+We initialize a `dp` table where `dp[i][j]` stores the number of ways to get sum `j` using the first `i` elements of the array.
+
+### **State Transition**
+For each element `arr[i-1]`, we have two choices:
+1. **Exclude it**: The number of ways remains the same as `dp[i-1][sum]`.
+2. **Include it**: The number of ways to form `sum` includes `dp[i-1][sum - arr[i-1]]`.
+
+Thus, the recurrence relation is:
+```
+dp[i][sum] = dp[i-1][sum] + dp[i-1][sum - arr[i-1]]
+```
+
+### **Optimized 1D DP Approach**
+Since each `dp[i]` depends only on `dp[i-1]`, we can reduce space complexity by using a **1D DP array** instead of a 2D table.
+- Instead of `dp[i][sum]`, we use `dp[sum]` where `dp[sum]` represents the number of ways to achieve `sum` using elements so far.
+- To avoid overwriting values, we iterate **from end to start** in the inner loop.
+
+### **Final Formula**
+```
+dp[sum] = dp[sum] + dp[sum - arr[i]]
+```
+
+---
+
+## **Java Code**
+
+### **2D DP Approach**
+```java
+import java.util.*;
+
+public class SubsetSumCount {
+    static final int MOD = 1000000007;
+    
+    public static int countSubsets(int[] arr, int n, int k) {
+        int[][] dp = new int[n + 1][k + 1];
+        
+        // Base case: There's one way to make sum 0 (by choosing nothing)
+        for (int i = 0; i <= n; i++) {
+            dp[i][0] = 1;
+        }
+        
+        // Fill the dp table
+        for (int i = 1; i <= n; i++) {
+            for (int sum = 0; sum <= k; sum++) {
+                dp[i][sum] = dp[i-1][sum];
+                if (sum >= arr[i-1]) {
+                    dp[i][sum] = (dp[i][sum] + dp[i-1][sum - arr[i-1]]) % MOD;
+                }
+            }
+        }
+        
+        return dp[n][k];
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {1, 1, 4, 5};
+        int k = 5;
+        System.out.println(countSubsets(arr, arr.length, k));
+    }
+}
+```
+
+### **Optimized 1D DP Approach**
+```java
+import java.util.*;
+
+public class SubsetSumCountOptimized {
+    static final int MOD = 1000000007;
+    
+    public static int countSubsets(int[] arr, int n, int k) {
+        int[] dp = new int[k + 1];
+        dp[0] = 1; // There's one way to make sum 0
+        
+        for (int i = 0; i < n; i++) {
+            for (int sum = k; sum >= arr[i]; sum--) {
+                dp[sum] = (dp[sum] + dp[sum - arr[i]]) % MOD;
+            }
+        }
+        
+        return dp[k];
+    }
+    
+    public static void main(String[] args) {
+        int[] arr = {1, 1, 4, 5};
+        int k = 5;
+        System.out.println(countSubsets(arr, arr.length, k));
+    }
+}
+```
+
+---
+
+## **Example Walkthrough**
+
+### **Input:**
+```
+n = 4, arr = [1, 1, 4, 5], k = 5
+```
+### **Step-by-Step Execution (1D DP Approach)**
+
+#### **Initialization:**
+```
+dp = [1, 0, 0, 0, 0, 0] // dp[0] = 1 (sum 0 can be achieved by choosing nothing)
+```
+#### **Iteration:**
+1. Consider element `1`:
+   ```
+   dp[1] += dp[0] → dp = [1, 1, 0, 0, 0, 0]
+   ```
+2. Consider second `1`:
+   ```
+   dp[2] += dp[1] → dp = [1, 2, 1, 0, 0, 0]
+   ```
+3. Consider `4`:
+   ```
+   dp[5] += dp[1] → dp = [1, 2, 1, 0, 1, 2]
+   ```
+4. Consider `5`:
+   ```
+   dp[5] += dp[0] → dp = [1, 2, 1, 0, 1, 3]
+   ```
+
+### **Final Output:**
+```
+3
+```
+
+---
+
+## **Key Takeaways**
+1. **2D DP uses `dp[i][sum]`, while 1D DP optimizes space to `dp[sum]`**.
+2. **Iterate backwards in 1D DP to prevent overwriting results**.
+3. **Modulo operation (`MOD = 10^9+7`) prevents integer overflow**.
+4. **DP is useful for counting problems where direct recursion leads to exponential time complexity**.
+
+This problem is a variation of the **Subset Sum Problem** and can be extended to solve similar problems like **Partition Equal Subset Sum, Minimum Subset Sum Difference, and Knapsack variations**.
+
