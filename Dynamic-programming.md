@@ -501,3 +501,95 @@ public class UniquePaths {
     }
 }
 ```
+# Problem Statement
+
+Given an `N x M` maze with obstacles, count and return the number of unique paths to reach the right-bottom cell from the top-left cell. A cell in the given maze has a value of `-1` if it is a blockage or dead-end, else `0`. From a given cell, you are allowed to move to cells `(i+1, j)` and `(i, j+1)` only. Since the answer can be large, print it modulo \(10^9 + 7\).
+
+## Input
+- The first line contains an integer `T`, the number of test cases.
+- For each test case:
+  - The first line contains two integers `N` and `M` (1 ≤ N, M ≤ 200), the dimensions of the maze.
+  - The next `N` lines contain `M` space-separated integers, where:
+    - `0` denotes an empty cell.
+    - `-1` denotes a blocked cell.
+
+## Output
+- For each test case, print the number of unique paths to reach the bottom-right corner of the maze, modulo \(10^9 + 7\).
+
+## Constraints
+- 1 ≤ T ≤ 10
+- 1 ≤ N, M ≤ 200
+
+## Note
+- It is guaranteed that the top-left cell does not have an obstacle.
+
+# Approach
+
+We can solve this problem using dynamic programming. We'll maintain a 2D DP array where `dp[i][j]` represents the number of ways to reach the cell `(i, j)` from the top-left corner.
+
+### Steps:
+1. Initialize `dp[0][0] = 1` if the starting point is not blocked.
+2. For each cell `(i, j)`:
+   - If it's not blocked (`maze[i][j] != -1`), update `dp[i][j]` as the sum of the number of ways to reach from the top (`dp[i-1][j]`) and from the left (`dp[i][j-1]`).
+   - If the cell is blocked (`maze[i][j] == -1`), set `dp[i][j] = 0`.
+3. The result will be in `dp[N-1][M-1]` after filling the DP table.
+
+# Code
+
+```java
+import java.util.Scanner;
+
+public class UniquePathsInMaze {
+
+    static final int MOD = 1000000007;
+
+    public static int uniquePaths(int N, int M, int[][] maze) {
+        int[][] dp = new int[N][M];
+
+        // Initialize the starting point
+        if (maze[0][0] == 0) {
+            dp[0][0] = 1;
+        }
+
+        // Fill the DP table
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (maze[i][j] == -1) {
+                    dp[i][j] = 0; // Blocked cells
+                } else {
+                    if (i > 0) {
+                        dp[i][j] = (dp[i][j] + dp[i - 1][j]) % MOD; // From above
+                    }
+                    if (j > 0) {
+                        dp[i][j] = (dp[i][j] + dp[i][j - 1]) % MOD; // From left
+                    }
+                }
+            }
+        }
+
+        return dp[N - 1][M - 1]; // Bottom-right corner contains the result
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int T = sc.nextInt(); // Number of test cases
+        
+        while (T-- > 0) {
+            int N = sc.nextInt();
+            int M = sc.nextInt();
+            int[][] maze = new int[N][M];
+            
+            // Read the maze input
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    maze[i][j] = sc.nextInt();
+                }
+            }
+
+            // Calculate the result for this maze
+            System.out.println(uniquePaths(N, M, maze));
+        }
+        sc.close();
+    }
+}
+```
