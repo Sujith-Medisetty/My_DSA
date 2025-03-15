@@ -593,3 +593,128 @@ public class UniquePathsInMaze {
     }
 }
 ```
+
+# Minimum Path Sum in Ninjaland
+
+```Ref
+https://www.naukri.com/code360/problems/minimum-path-sum_985349?source=youtube&campaign=striver_dp_videos&utm_source=youtube&utm_medium=affiliate&utm_campaign=striver_dp_videos
+```
+
+### Approach
+The problem can be solved using **Dynamic Programming (DP)** to find the minimum path sum from the top-left corner `(0,0)` to the bottom-right corner `(N-1, M-1)`. Since we can only move **right** or **down**, we can use the following approach:
+
+1. **Define DP State:** Let `dp[i][j]` represent the minimum sum required to reach cell `(i, j)`.
+2. **Base Case:** The starting point `dp[0][0]` is simply `GRID[0][0]`.
+3. **Transition:**
+   - If moving **right** from `(i, j-1)`, the cost is `dp[i][j-1] + GRID[i][j]`.
+   - If moving **down** from `(i-1, j)`, the cost is `dp[i-1][j] + GRID[i][j]`.
+   - The optimal cost to reach `(i, j)` is the **minimum** of these two values:
+     
+     ```
+     dp[i][j] = min(dp[i-1][j], dp[i][j-1]) + GRID[i][j]
+     ```
+4. **Final Answer:** The result is stored in `dp[N-1][M-1]`.
+
+## Java Implementation
+```java
+import java.util.*;
+
+public class MinimumPathSum {
+    public static int minPathSum(int[][] grid, int N, int M) {
+        int[][] dp = new int[N][M];
+        
+        // Initialize dp array with maximum integer value
+        for (int[] row : dp) {
+            Arrays.fill(row, Integer.MAX_VALUE);
+        }
+        
+        // Initialize the first cell
+        dp[0][0] = grid[0][0];
+        
+        // Fill the first row (only right moves possible)
+        for (int j = 1; j < M; j++) {
+            dp[0][j] = dp[0][j - 1] + grid[0][j];
+        }
+        
+        // Fill the first column (only down moves possible)
+        for (int i = 1; i < N; i++) {
+            dp[i][0] = dp[i - 1][0] + grid[i][0];
+        }
+        
+        // Fill the rest of the DP table
+        for (int i = 1; i < N; i++) {
+            for (int j = 1; j < M; j++) {
+                dp[i][j] = Math.min(dp[i - 1][j], dp[i][j - 1]) + grid[i][j];
+            }
+        }
+        
+        return dp[N - 1][M - 1];
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int T = sc.nextInt(); // Number of test cases
+        
+        while (T-- > 0) {
+            int N = sc.nextInt();
+            int M = sc.nextInt();
+            int[][] grid = new int[N][M];
+            
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    grid[i][j] = sc.nextInt();
+                }
+            }
+            
+            System.out.println(minPathSum(grid, N, M));
+        }
+        sc.close();
+    }
+}
+```
+
+## Complexity Analysis
+- **Time Complexity:** `O(N * M)`, since we iterate through every cell once.
+- **Space Complexity:** `O(N * M)`, due to the `dp` table storage.
+- We can further **optimize space to O(M)** by using a single row for `dp`, as we only need values from the previous row at any step.
+
+## Example Walkthrough
+**Input:**
+```
+2
+2 3
+5 9 6
+11 5 2
+1 1
+5
+```
+
+**Processing:**
+For the first case:
+```
+Grid:
+5   9   6
+11  5   2
+
+Path: (0,0) -> (0,1) -> (1,1) -> (1,2)
+Sum: 5 + 9 + 5 + 2 = 21
+```
+
+For the second case:
+```
+Grid:
+5
+
+Path: (0,0)
+Sum: 5
+```
+
+**Output:**
+```
+21
+5
+```
+
+## Alternative Approaches
+- **Dijkstra’s Algorithm (Priority Queue):** Works better for larger constraints but is unnecessary for `O(N * M)` constraints.
+- **Recursive + Memoization:** Can be used but is less efficient compared to iterative DP.
