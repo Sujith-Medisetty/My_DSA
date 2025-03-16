@@ -2144,3 +2144,118 @@ public class LCSOptimized {
 | **1D DP (Optimized)** | O(M * N)         | O(N)                 |
 
 ---
+
+## Print Longest Common Subsequence (LCS)
+
+### Problem Statement
+Given two strings, 'S' and 'T' with lengths 'M' and 'N', print the **Longest Common Subsequence** itself (not just its length).
+
+**Definition:**
+A **subsequence** of a string is a sequence of characters that appears in the same relative order as in the original string, but not necessarily contiguous.
+
+### Constraints
+- **0 <= M <= 10^3**
+- **0 <= N <= 10^3**
+- **Time Limit:** 1 sec
+
+### Sample Input 1
+```
+adebc
+dcadb
+```
+**Sample Output 1:**
+```
+adb
+```
+**Explanation:**
+Both strings share the common subsequence **'adb'**, which is the longest common subsequence.
+
+### Sample Input 2
+```
+ab
+defg
+```
+**Sample Output 2:**
+```
+
+```
+**Explanation:**
+The only common subsequence is the empty string "", so the LCS is empty.
+
+---
+
+### Approach 1: Dynamic Programming (2D Table)
+
+**Step 1:** Create a DP array `dp[][]` where:
+- `dp[i][j]` stores the length of the LCS between `S[0...i-1]` and `T[0...j-1]`.
+
+**Step 2:** Initialization
+- Base case: `dp[0][*] = 0` and `dp[*][0] = 0` since an empty string has an LCS of 0.
+
+**Step 3:** Transition
+- **If characters match:** `dp[i][j] = 1 + dp[i-1][j-1]`
+- **If characters don't match:** `dp[i][j] = max(dp[i-1][j], dp[i][j-1])`
+
+**Step 4:** Construct the LCS string by backtracking through the `dp[][]` table.
+
+### Code Implementation (2D DP)
+```java
+public class PrintLCS {
+    public static String getLCS(String s, String t) {
+        int m = s.length();
+        int n = t.length();
+        int[][] dp = new int[m + 1][n + 1];
+
+        // Fill DP array
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (s.charAt(i - 1) == t.charAt(j - 1)) {
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        // Backtracking to build the LCS string
+        StringBuilder lcs = new StringBuilder();
+        int i = m, j = n;
+        while (i > 0 && j > 0) {
+            if (s.charAt(i - 1) == t.charAt(j - 1)) {
+                lcs.append(s.charAt(i - 1));
+                i--;
+                j--;
+            } else if (dp[i - 1][j] > dp[i][j - 1]) {
+                i--;
+            } else {
+                j--;
+            }
+        }
+        return lcs.reverse().toString();
+    }
+
+    public static void main(String[] args) {
+        String s = "adebc";
+        String t = "dcadb";
+        System.out.println("LCS: " + getLCS(s, t));  // Output: adb
+    }
+}
+```
+
+---
+
+### Approach 2: Optimized Space (1D DP)
+Since constructing the LCS itself requires backtracking, there’s no significant space optimization beyond the **2D DP** version when printing the result.
+
+However, space can still be optimized if only the **length of LCS** is needed.
+
+---
+
+### Complexity Analysis
+| Approach     | Time Complexity | Space Complexity |
+|---------------|-----------------|------------------|
+| **2D DP**      | O(M * N)         | O(M * N)           |
+| **1D DP (Length Only)** | O(M * N)         | O(N)                 |
+
+---
+
