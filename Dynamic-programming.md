@@ -1726,3 +1726,141 @@ public class MinCoins1D {
   - Space Complexity: `O(target)`
 
 Both approaches provide efficient and clear solutions to the Minimum Coins problem. The 1D approach is more space-efficient while maintaining optimal performance.
+
+## Target Sum Problem (DP on Subsequences)
+
+### Problem Statement
+You are given an array `ARR` of `N` integers and a target number `TARGET`. Your task is to build an expression by adding either `+` or `-` before each integer such that the resulting expression equals the given `TARGET`. You must return the **number of ways** this target can be achieved.
+
+### Example
+**Input:**
+```
+2
+5 3
+1 1 1 1 1
+4 3
+1 2 3 1
+```
+**Output:**
+```
+5
+2
+```
+
+### Constraints
+- `1 <= T <= 10`
+- `1 <= N <= 25`
+- `-1000 <= TARGET <= 1000`
+- `0 <= ARR[i] <= 1000`
+
+---
+
+### Approach
+This problem is equivalent to partitioning the array into two subsets such that:
+```
+Subset1 - Subset2 = TARGET
+```
+From this equation, we can derive:
+```
+Subset1 = (SUM + TARGET) / 2
+```
+Where `SUM` is the total sum of the array.
+
+The problem then reduces to finding the number of ways to form `Subset1` with the array elements.
+
+---
+
+### 1. 2D Dynamic Programming Approach
+```java
+public class TargetSum2D {
+    public static int findTargetSumWays(int[] nums, int target) {
+        int totalSum = 0;
+        for (int num : nums) totalSum += num;
+
+        if ((totalSum + target) % 2 != 0 || totalSum < Math.abs(target)) return 0;
+        int sum = (totalSum + target) / 2;
+
+        int n = nums.length;
+        int[][] dp = new int[n + 1][sum + 1];
+
+        dp[0][0] = 1; // Base case: One way to get zero sum with zero elements
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 0; j <= sum; j++) {
+                dp[i][j] = dp[i - 1][j]; // Exclude current element
+                if (nums[i - 1] <= j) {
+                    dp[i][j] += dp[i - 1][j - nums[i - 1]]; // Include current element
+                }
+            }
+        }
+        return dp[n][sum];
+    }
+
+    public static void main(String[] args) {
+        int[] arr1 = {1, 1, 1, 1, 1};
+        int target1 = 3;
+        System.out.println("Ways to reach target: " + findTargetSumWays(arr1, target1));
+
+        int[] arr2 = {1, 2, 3, 1};
+        int target2 = 3;
+        System.out.println("Ways to reach target: " + findTargetSumWays(arr2, target2));
+    }
+}
+```
+
+---
+
+### 2. Optimized 1D Dynamic Programming Approach
+```java
+public class TargetSum1D {
+    public static int findTargetSumWays(int[] nums, int target) {
+        int totalSum = 0;
+        for (int num : nums) totalSum += num;
+
+        if ((totalSum + target) % 2 != 0 || totalSum < Math.abs(target)) return 0;
+        int sum = (totalSum + target) / 2;
+
+        int[] dp = new int[sum + 1];
+        dp[0] = 1; // Base case: One way to get zero sum with zero elements
+
+        for (int num : nums) {
+            for (int j = sum; j >= num; j--) {
+                dp[j] += dp[j - num];
+            }
+        }
+        return dp[sum];
+    }
+
+    public static void main(String[] args) {
+        int[] arr1 = {1, 1, 1, 1, 1};
+        int target1 = 3;
+        System.out.println("Ways to reach target: " + findTargetSumWays(arr1, target1));
+
+        int[] arr2 = {1, 2, 3, 1};
+        int target2 = 3;
+        System.out.println("Ways to reach target: " + findTargetSumWays(arr2, target2));
+    }
+}
+```
+
+---
+
+### Explanation
+- **2D DP Approach:**
+  - Uses a matrix `dp[i][j]` where `i` is the number of elements considered and `j` is the target sum to achieve.
+  - The value at `dp[i][j]` represents the number of ways to achieve target `j` with the first `i` elements.
+- **1D DP Approach (Optimized):**
+  - Uses a 1D array `dp[]` where `dp[j]` stores the number of ways to achieve target `j`.
+  - Iterates backward to ensure values are updated correctly without overwriting.
+
+---
+
+### Complexity Analysis
+- **2D DP Approach:**
+  - Time Complexity: `O(N * sum)`
+  - Space Complexity: `O(N * sum)`
+- **1D DP Approach (Optimized):**
+  - Time Complexity: `O(N * sum)`
+  - Space Complexity: `O(sum)`
+
+Both approaches efficiently compute the total number of valid combinations to achieve the target sum. The 1D DP solution is preferred for better space optimization.
