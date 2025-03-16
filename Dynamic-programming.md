@@ -1006,6 +1006,8 @@ Maximum Path Sum: 25
 
 This approach ensures an optimal solution with minimal time and space complexity.
 
+# DP on Subsequence
+
 # Subset Sum Problem
 
 ## Problem Statement
@@ -2003,4 +2005,142 @@ public class RodCutting1D {
 
 The optimized 1D DP solution is preferable for better space efficiency without compromising performance.
 
-If you would like a detailed dry run or additional examples, feel free to ask! 🚀
+# DP on Strings
+
+# Longest Common Subsequence (LCS)
+```Ref
+Pls watch the below video, very clearly explained...
+https://www.youtube.com/watch?v=ASoaQq66foQ&t=6s&ab_channel=BackToBackSWE
+```
+### Problem Statement
+Given two strings, 'S' and 'T' with lengths 'M' and 'N', find the length of the **Longest Common Subsequence**.
+
+**Definition:**
+A **subsequence** of a string is a sequence of characters that appears in the same relative order as in the original string, but not necessarily contiguous.
+
+**Example:**
+Subsequences of string "abc" are: ""(empty string), a, b, c, ab, bc, ac, abc.
+
+### Constraints
+- **0 <= M <= 10^3**
+- **0 <= N <= 10^3**
+- **Time Limit:** 1 sec
+
+### Sample Input 1
+```
+adebc
+dcadb
+```
+**Sample Output 1:**
+```
+3
+```
+**Explanation:**
+Both strings share the common subsequence **'adb'**, which is the longest common subsequence with a length of **3**.
+
+### Sample Input 2
+```
+ab
+defg
+```
+**Sample Output 2:**
+```
+0
+```
+**Explanation:**
+The only common subsequence is the empty string "", so the LCS length is **0**.
+
+---
+
+### Approach 1: Dynamic Programming (2D Table)
+
+**Step 1:** Create a DP array `dp[][]` where:
+- `dp[i][j]` stores the length of the LCS between `S[0...i-1]` and `T[0...j-1]`.
+
+**Step 2:** Initialization
+- Base case: `dp[0][*] = 0` and `dp[*][0] = 0` since an empty string has an LCS of 0.
+
+**Step 3:** Transition
+- **If characters match:** `dp[i][j] = 1 + dp[i-1][j-1]`
+- **If characters don't match:** `dp[i][j] = max(dp[i-1][j], dp[i][j-1])`
+
+**Step 4:** The final answer is stored in `dp[M][N]`.
+
+### Code Implementation (2D DP)
+```java
+public class LongestCommonSubsequence {
+    public static int lcs(String s, String t) {
+        int m = s.length();
+        int n = t.length();
+        int[][] dp = new int[m + 1][n + 1];
+
+        // Base case
+        for (int i = 0; i <= m; i++) dp[i][0] = 0;
+        for (int j = 0; j <= n; j++) dp[0][j] = 0;
+
+        // DP logic
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (s.charAt(i - 1) == t.charAt(j - 1)) {
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+        return dp[m][n];
+    }
+
+    public static void main(String[] args) {
+        String s = "adebc";
+        String t = "dcadb";
+        System.out.println("Length of LCS: " + lcs(s, t));  // Output: 3
+    }
+}
+```
+
+---
+
+### Approach 2: Optimized Space (1D DP)
+Since each cell in the DP table depends only on the **previous row** and the **current row**, we can reduce the space complexity from **O(M * N)** to **O(2 * N)**.
+
+### Code Implementation (1D DP - Space Optimized)
+```java
+public class LCSOptimized {
+    public static int lcs(String s, String t) {
+        int m = s.length();
+        int n = t.length();
+        int[] prev = new int[n + 1];
+        int[] curr = new int[n + 1];
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (s.charAt(i - 1) == t.charAt(j - 1)) {
+                    curr[j] = 1 + prev[j - 1];
+                } else {
+                    curr[j] = Math.max(prev[j], curr[j - 1]);
+                }
+            }
+            // Move current to previous for the next iteration
+            System.arraycopy(curr, 0, prev, 0, n + 1);
+        }
+        return prev[n];
+    }
+
+    public static void main(String[] args) {
+        String s = "adebc";
+        String t = "dcadb";
+        System.out.println("Length of LCS: " + lcs(s, t));  // Output: 3
+    }
+}
+```
+
+---
+
+### Complexity Analysis
+| Approach     | Time Complexity | Space Complexity |
+|---------------|-----------------|------------------|
+| **2D DP**      | O(M * N)         | O(M * N)           |
+| **1D DP (Optimized)** | O(M * N)         | O(N)                 |
+
+---
