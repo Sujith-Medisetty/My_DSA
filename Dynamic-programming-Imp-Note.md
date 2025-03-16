@@ -38,3 +38,21 @@ This allows picking the same element multiple times.
 
 This structured approach helps in efficiently solving subset sum and related DP problems!
 
+-- 
+# Note for DP on Subsequences Problems
+
+### Key Structure for DP Table:
+- **Rows:** Represent the(subset) **number of elements considered** (or the **index of the element** in the array).
+- **Columns:** Represent the:
+  - **Target Value** (e.g., in Target Sum problem)
+  - **Subset Length** (e.g., in Combination Sum problem)
+  - **Total Achievable Sum** (e.g., in Subset Sum problem)
+
+### Why This Structure?
+This setup effectively tracks decisions involving element inclusion/exclusion in subsequence-based DP problems.
+
+### Common Problems Using This Structure:
+- ✅ **0/1 Knapsack**
+- ✅ **Subset Sum**
+- ✅ **Coin Change**
+- ✅ **Target Sum**
