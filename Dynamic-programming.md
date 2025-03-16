@@ -2259,3 +2259,131 @@ However, space can still be optimized if only the **length of LCS** is needed.
 
 ---
 
+# 📘 Longest Common Substring | Dynamic Programming
+
+## 📝 Problem Statement
+Given two strings `S1` and `S2` of lengths `M` and `N`, find the **length of the longest common substring**.
+
+### 🔍 What is a Substring?
+A substring is a **contiguous sequence of characters** within a string.
+
+### Example
+**Input:**
+```
+S1 = "abcde"
+S2 = "abfce"
+```
+**Output:** `2`
+
+**Explanation:** The longest common substring is `"ab"`, which has a length of 2.
+
+---
+
+## ✅ Approach 1: Dynamic Programming (2D Array)
+
+### 🔹 Steps to Solve
+1. Create a 2D DP table of size `(M+1) x (N+1)` where `dp[i][j]` represents the length of the longest common substring ending at `S1[i-1]` and `S2[j-1]`.
+2. Initialize `dp[i][0]` and `dp[0][j]` to `0` since an empty string has no common substring.
+3. Iterate through both strings:
+   - If `S1[i-1] == S2[j-1]`, set `dp[i][j] = dp[i-1][j-1] + 1`.
+   - Else, set `dp[i][j] = 0`.
+4. Track the maximum value in the DP table — this will be the length of the longest common substring.
+
+### 🔹 Code Implementation (2D DP)
+```java
+public class LongestCommonSubstring {
+    public static int longestCommonSubstring(String S1, String S2) {
+        int m = S1.length(), n = S2.length();
+        int[][] dp = new int[m + 1][n + 1];
+        int maxLength = 0;
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (S1.charAt(i - 1) == S2.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                    maxLength = Math.max(maxLength, dp[i][j]);
+                } else {
+                    dp[i][j] = 0;
+                }
+            }
+        }
+
+        return maxLength;
+    }
+
+    public static void main(String[] args) {
+        String S1 = "abcde";
+        String S2 = "abfce";
+        System.out.println("Longest Common Substring Length: " + longestCommonSubstring(S1, S2));
+    }
+}
+```
+
+### 🔹 Example Walkthrough
+**Input:**
+```
+S1 = "abcde"
+S2 = "abfce"
+```
+**DP Table:**
+```
+  0 a b c d e
+0 0 0 0 0 0 0
+a 0 1 0 0 0 0
+b 0 0 2 0 0 0
+f 0 0 0 0 0 0
+c 0 0 0 1 0 0
+e 0 0 0 0 0 1
+```
+**Output:** `2`
+
+---
+
+## ✅ Approach 2: Optimized Space (1D DP Array)
+
+### 🔹 Steps to Optimize
+1. Instead of a 2D DP table, maintain **only one previous row** for computation.
+2. Use a 1D array `dp[]` where `dp[j]` keeps track of the maximum substring length for the current row.
+3. Iterate similarly and keep updating `dp[j]` while maintaining the maximum length.
+
+### 🔹 Code Implementation (Optimized DP)
+```java
+public class LongestCommonSubstringOptimized {
+    public static int longestCommonSubstring(String S1, String S2) {
+        int m = S1.length(), n = S2.length();
+        int[] dp = new int[n + 1];
+        int maxLength = 0;
+
+        for (int i = 1; i <= m; i++) {
+            int[] current = new int[n + 1];
+            for (int j = 1; j <= n; j++) {
+                if (S1.charAt(i - 1) == S2.charAt(j - 1)) {
+                    current[j] = dp[j - 1] + 1;
+                    maxLength = Math.max(maxLength, current[j]);
+                } else {
+                    current[j] = 0;
+                }
+            }
+            dp = current;
+        }
+
+        return maxLength;
+    }
+
+    public static void main(String[] args) {
+        String S1 = "abcde";
+        String S2 = "abfce";
+        System.out.println("Longest Common Substring Length: " + longestCommonSubstring(S1, S2));
+    }
+}
+```
+
+---
+
+## 📊 Complexity Analysis
+| Approach  | Time Complexity | Space Complexity |
+|------------|------------------|-------------------|
+| **2D DP** | `O(M * N)`        | `O(M * N)`         |
+| **1D DP** | `O(M * N)`        | `O(N)`             |
+
+---
