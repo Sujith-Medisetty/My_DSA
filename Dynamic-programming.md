@@ -1864,3 +1864,143 @@ public class TargetSum1D {
   - Space Complexity: `O(sum)`
 
 Both approaches efficiently compute the total number of valid combinations to achieve the target sum. The 1D DP solution is preferred for better space optimization.
+
+
+## Rod Cutting Problem (DP on Subsequences)
+
+```Ref
+https://www.naukri.com/code360/problems/rod-cutting-problem_800284?source=youtube&campaign=striver_dp_videos&utm_source=youtube&utm_medium=affiliate&utm_campaign=striver_dp_videos
+```
+
+### Problem Statement
+Given a rod of length `N` units, you need to determine the **maximum cost** obtainable by cutting the rod into pieces of various sizes. Each size has a corresponding cost associated with it.
+
+### Input
+- `T` (integer): Number of test cases.
+- For each test case:
+  - `N` (integer): Length of the rod.
+  - Array `A` of size `N`: Where `A[i]` denotes the cost of a rod piece of length `i+1`.
+
+### Output
+- For each test case, print the maximum achievable cost.
+
+### Example
+**Input:**
+```
+2
+5
+2 5 7 8 10
+8
+3 5 8 9 10 17 17 20
+```
+**Output:**
+```
+12
+24
+```
+
+---
+
+### Approach
+We can use Dynamic Programming (DP) to solve this problem efficiently.
+
+#### 1. 2D Dynamic Programming Approach
+- Create a DP table `dp[][]` where `dp[i][j]` represents the **maximum cost** achievable by using the first `i` rod sizes to form a rod of length `j`.
+- Recurrence Relation:
+```
+if (length of piece <= target)
+    dp[i][target] = max(dp[i-1][target], price[i-1] + dp[i][target - length[i-1]])
+else
+    dp[i][target] = dp[i-1][target]
+```
+
+---
+
+### Code - 2D DP Approach
+```java
+import java.util.*;
+
+public class RodCutting2D {
+    public static int maxProfit(int[] prices, int n) {
+        int[][] dp = new int[n + 1][n + 1];
+
+        for (int i = 1; i <= n; i++) {
+            for (int len = 0; len <= n; len++) {
+                if (i <= len) {
+                    dp[i][len] = Math.max(dp[i - 1][len], prices[i - 1] + dp[i][len - i]);
+                } else {
+                    dp[i][len] = dp[i - 1][len];
+                }
+            }
+        }
+        return dp[n][n];
+    }
+
+    public static void main(String[] args) {
+        int[] prices1 = {2, 5, 7, 8, 10};
+        int[] prices2 = {3, 5, 8, 9, 10, 17, 17, 20};
+
+        System.out.println("Maximum profit: " + maxProfit(prices1, 5)); // Output: 12
+        System.out.println("Maximum profit: " + maxProfit(prices2, 8)); // Output: 24
+    }
+}
+```
+
+---
+
+#### 2. Optimized 1D Dynamic Programming Approach
+- Instead of using a 2D array, maintain a 1D DP array where `dp[j]` represents the **maximum achievable cost** for a rod of length `j`.
+- Recurrence Relation:
+```
+dp[j] = max(dp[j], prices[i-1] + dp[j-i])
+```
+
+---
+
+### Code - 1D DP Approach
+```java
+import java.util.*;
+
+public class RodCutting1D {
+    public static int maxProfit(int[] prices, int n) {
+        int[] dp = new int[n + 1];
+
+        for (int i = 1; i <= n; i++) {
+            for (int len = i; len <= n; len++) {
+                dp[len] = Math.max(dp[len], prices[i - 1] + dp[len - i]);
+            }
+        }
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        int[] prices1 = {2, 5, 7, 8, 10};
+        int[] prices2 = {3, 5, 8, 9, 10, 17, 17, 20};
+
+        System.out.println("Maximum profit: " + maxProfit(prices1, 5)); // Output: 12
+        System.out.println("Maximum profit: " + maxProfit(prices2, 8)); // Output: 24
+    }
+}
+```
+
+---
+
+### Explanation
+- **2D DP Approach:**
+  - Uses a 2D table `dp[i][j]` where `i` is the number of cuts considered and `j` is the rod length.
+- **1D DP Approach (Optimized):**
+  - Uses a 1D array `dp[]` where each index directly represents the maximum achievable profit for that rod length.
+
+---
+
+### Complexity Analysis
+- **2D DP Approach:**
+  - Time Complexity: `O(N * N)`
+  - Space Complexity: `O(N * N)`
+- **1D DP Approach (Optimized):**
+  - Time Complexity: `O(N * N)`
+  - Space Complexity: `O(N)`
+
+The optimized 1D DP solution is preferable for better space efficiency without compromising performance.
+
+If you would like a detailed dry run or additional examples, feel free to ask! 🚀
