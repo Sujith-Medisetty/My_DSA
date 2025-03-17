@@ -3022,3 +3022,149 @@ Where `m` = length of **S**, and `n` = length of **T**.
 ✅ Always consider base conditions carefully in DP problems for correct initialization.
 
 If you have any questions or need further clarification, feel free to ask! 🚀
+
+
+### Edit Distance Problem
+
+#### Problem Statement
+Given two strings `word1` and `word2`, return the minimum number of operations required to convert `word1` to `word2`.
+
+You are allowed to perform the following three operations:
+- Insert a character
+- Delete a character
+- Replace a character
+
+#### Example 1:
+**Input:**
+```
+word1 = "horse"
+word2 = "ros"
+```
+**Output:** `3`
+**Explanation:**
+- horse -> rorse (replace 'h' with 'r')
+- rorse -> rose (delete 'r')
+- rose -> ros (delete 'e')
+
+#### Example 2:
+**Input:**
+```
+word1 = "intention"
+word2 = "execution"
+```
+**Output:** `5`
+**Explanation:**
+- intention -> extention (replace 'i' with 'e')
+- extention -> exection (replace 'n' with 'c')
+- exection -> execution (insert 'u')
+
+---
+
+### Approach 1: 2D Dynamic Programming
+
+**DP Definition:**
+- `dp[i][j]` represents the minimum number of operations to convert `word1[0..i-1]` to `word2[0..j-1]`
+
+**Recurrence Relation:**
+- If characters match: `dp[i][j] = dp[i-1][j-1]`
+- If characters don’t match:
+  
+```
+dp[i][j] = 1 + min(
+   dp[i-1][j]    // Delete
+   dp[i][j-1]    // Insert
+   dp[i-1][j-1]  // Replace
+)
+```
+
+**Initialization:**
+- `dp[0][j] = j` (Converting empty `word1` to `word2` of length `j`)
+- `dp[i][0] = i` (Converting `word1` of length `i` to empty `word2`)
+
+**Java Code (2D DP):**
+```java
+class EditDistance {
+    public int minDistance(String word1, String word2) {
+        int m = word1.length(), n = word2.length();
+        int[][] dp = new int[m + 1][n + 1];
+
+        for (int i = 0; i <= m; i++) {
+            dp[i][0] = i;
+        }
+        for (int j = 0; j <= n; j++) {
+            dp[0][j] = j;
+        }
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = 1 + Math.min(
+                        dp[i - 1][j],     // Delete
+                        Math.min(dp[i][j - 1], dp[i - 1][j - 1]) // Insert / Replace
+                    );
+                }
+            }
+        }
+        return dp[m][n];
+    }
+
+    public static void main(String[] args) {
+        EditDistance ed = new EditDistance();
+        System.out.println("Minimum Operations: " + ed.minDistance("horse", "ros")); // Output: 3
+        System.out.println("Minimum Operations: " + ed.minDistance("intention", "execution")); // Output: 5
+    }
+}
+```
+
+---
+
+### Approach 2: Optimized 1D Dynamic Programming (Space Optimized)
+
+Instead of using a full 2D array, we can optimize space by keeping only two rows (previous and current).
+
+**Java Code (1D Optimized DP):**
+```java
+class EditDistanceOptimized {
+    public int minDistance(String word1, String word2) {
+        int m = word1.length(), n = word2.length();
+        int[] prev = new int[n + 1];
+        int[] curr = new int[n + 1];
+
+        for (int j = 0; j <= n; j++) {
+            prev[j] = j;
+        }
+
+        for (int i = 1; i <= m; i++) {
+            curr[0] = i;
+            for (int j = 1; j <= n; j++) {
+                if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
+                    curr[j] = prev[j - 1];
+                } else {
+                    curr[j] = 1 + Math.min(
+                        prev[j],       // Delete
+                        Math.min(curr[j - 1], prev[j - 1]) // Insert / Replace
+                    );
+                }
+            }
+            prev = curr.clone();
+        }
+        return prev[n];
+    }
+
+    public static void main(String[] args) {
+        EditDistanceOptimized ed = new EditDistanceOptimized();
+        System.out.println("Minimum Operations: " + ed.minDistance("horse", "ros")); // Output: 3
+        System.out.println("Minimum Operations: " + ed.minDistance("intention", "execution")); // Output: 5
+    }
+}
+```
+
+---
+
+### Key Takeaways
+✅ 2D DP effectively solves the problem in `O(m * n)` time and `O(m * n)` space.
+✅ 1D DP optimizes space to `O(n)` while maintaining the same time complexity.
+✅ The key is understanding the recursive logic of matching characters and handling mismatches through deletion, insertion, and replacement.
+
