@@ -2711,3 +2711,163 @@ Minimum Insertions (Optimized): 2
 ### Key Observations
 ✅ DP table tracks the LPS and reduces to optimal space complexity in the improved approach.
 ✅ Using the formula `Min Insertions = n - LPS` simplifies the overall problem logic.
+
+### Shortest Common Supersequence (SCS) | DP on Strings
+
+#### Problem Statement
+Given two strings `X` and `Y`, find the length of the shortest string that has both `X` and `Y` as subsequences. This is known as the **Shortest Common Supersequence**.
+
+---
+
+### Approach
+To compute the **Shortest Common Supersequence (SCS)**, we can leverage the **Longest Common Subsequence (LCS)** concept.
+
+**Key Observation:**
+- The **SCS** will contain:
+  - All characters of `X`
+  - All characters of `Y`
+  - Common characters (LCS) should appear only once.
+
+**Formula:**
+```
+SCS Length = Length of X + Length of Y - LCS Length
+```
+
+---
+
+### Step-by-Step Approach
+1. **Create a DP Table:**  
+   Use a `dp` table where `dp[i][j]` represents the length of the **LCS** of the first `i` characters of string `X` and first `j` characters of string `Y`.
+
+2. **Initialize Base Conditions:**  
+   - When either string is empty, the LCS is zero.
+
+3. **Filling the DP Table:**  
+   - If `X[i-1] == Y[j-1]`:  
+     `dp[i][j] = 1 + dp[i-1][j-1]`
+   - Else:  
+     `dp[i][j] = max(dp[i-1][j], dp[i][j-1])`
+
+4. **Compute the SCS Length:**  
+   Use the formula:  
+   `SCS Length = m + n - dp[m][n]`
+
+5. **Backtracking for the Actual SCS String (Optional)**  
+   Trace back the path in the DP table to reconstruct the shortest common supersequence.
+
+---
+
+### Java Code Implementation
+```java
+public class ShortestCommonSupersequence {
+
+    public static int scsLength(String X, String Y) {
+        int m = X.length();
+        int n = Y.length();
+
+        int[][] dp = new int[m + 1][n + 1];
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (X.charAt(i - 1) == Y.charAt(j - 1)) {
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        return m + n - dp[m][n];
+    }
+
+    public static String buildSCS(String X, String Y) {
+        int m = X.length();
+        int n = Y.length();
+        int[][] dp = new int[m + 1][n + 1];
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (X.charAt(i - 1) == Y.charAt(j - 1)) {
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        StringBuilder scs = new StringBuilder();
+        int i = m, j = n;
+
+        while (i > 0 && j > 0) {
+            if (X.charAt(i - 1) == Y.charAt(j - 1)) {
+                scs.append(X.charAt(i - 1));
+                i--; j--;
+            } else if (dp[i - 1][j] > dp[i][j - 1]) {
+                scs.append(X.charAt(i - 1));
+                i--;
+            } else {
+                scs.append(Y.charAt(j - 1));
+                j--;
+            }
+        }
+
+        while (i > 0) scs.append(X.charAt(i-- - 1));
+        while (j > 0) scs.append(Y.charAt(j-- - 1));
+
+        return scs.reverse().toString();
+    }
+
+    public static void main(String[] args) {
+        String X = "abac";
+        String Y = "cab";
+
+        System.out.println("Length of Shortest Common Supersequence: " + scsLength(X, Y));
+        System.out.println("Shortest Common Supersequence String: " + buildSCS(X, Y));
+    }
+}
+```
+
+---
+
+### Example Walkthrough
+**Input:**  
+```
+X = "abac"
+Y = "cab"
+```
+
+**Step 1:** Compute the DP Table
+```
+    "" c a b
+""  0 0 0 0
+ a  0 0 1 1
+ b  0 0 1 2
+ a  0 1 1 2
+ c  0 1 2 2
+```
+
+**Step 2:** SCS Length
+```
+SCS Length = 4 + 3 - 2 = 5
+```
+
+**Step 3:** Reconstructing the SCS String
+```
+Shortest Common Supersequence String: cabac
+```
+
+---
+
+### Output
+```
+Length of Shortest Common Supersequence: 5
+Shortest Common Supersequence String: cabac
+```
+
+---
+
+### Complexity Analysis
+- **Time Complexity:** `O(m * n)`
+- **Space Complexity:** `O(m * n)`
+
+Optimized space complexity solutions are also possible with a 1D array, but this code emphasizes clarity for better understanding.
