@@ -2588,4 +2588,126 @@ public class OptimizedLPS {
 Optimized Longest Palindromic Subsequence Length: 4
 ```
 
+## Minimum Insertions to Make String Palindrome
+
+### Problem Statement
+Given a string `s`, your task is to find the **minimum number of insertions** required to make the given string a palindrome.
+
+### Example
+**Input:**
+```
+s = "mbadm"
+```
+**Output:**
+```
+2
+```
+**Explanation:**
+- Insert 'a' at index 1 and 'b' at index 4 to make the string palindrome "mbabm".
+
 ---
+
+### Approach
+The key idea is to recognize that the **minimum insertions** required is the difference between the string's length and the **Longest Palindromic Subsequence (LPS)**.
+
+**Formula:**
+```
+Minimum Insertions = Length of String - Length of Longest Palindromic Subsequence (LPS)
+```
+
+### Steps
+1. **Find the LPS using DP:**
+   - Create a `dp` table where `dp[i][j]` represents the LPS in the substring `s[i...j]`.
+2. **Initialization:**
+   - Each individual character is a palindrome of length 1: `dp[i][i] = 1`.
+3. **DP Transition:**
+   - If `s[i] == s[j]`, then `dp[i][j] = dp[i + 1][j - 1] + 2`.
+   - Otherwise, `dp[i][j] = max(dp[i + 1][j], dp[i][j - 1])`.
+4. **Result:**
+   - Minimum insertions = `s.length() - dp[0][n - 1]`
+
+---
+
+### Java Code (2D DP Approach)
+```java
+public class MinInsertionsPalindrome {
+
+    public static int minInsertions(String s) {
+        int n = s.length();
+        int[][] dp = new int[n][n];
+
+        for (int i = 0; i < n; i++) {
+            dp[i][i] = 1; // Each character is a palindrome
+        }
+
+        for (int len = 2; len <= n; len++) {
+            for (int i = 0; i <= n - len; i++) {
+                int j = i + len - 1;
+                if (s.charAt(i) == s.charAt(j)) {
+                    dp[i][j] = dp[i + 1][j - 1] + 2;
+                } else {
+                    dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        return n - dp[0][n - 1];
+    }
+
+    public static void main(String[] args) {
+        String s = "mbadm";
+        System.out.println("Minimum Insertions: " + minInsertions(s));
+    }
+}
+```
+
+**Output:**
+```
+Minimum Insertions: 2
+```
+
+---
+
+### Optimized Approach (1D DP)
+Since the DP table only depends on the previous row and the current row, we can optimize it to use only one array.
+
+**Java Code (Optimized 1D DP Approach)**
+```java
+public class MinInsertionsPalindromeOptimized {
+    public static int minInsertions(String s) {
+        int n = s.length();
+        int[] dp = new int[n];
+        
+        for (int i = n - 1; i >= 0; i--) {
+            int[] newDp = new int[n];
+            newDp[i] = 1; // Each character is a palindrome
+            for (int j = i + 1; j < n; j++) {
+                if (s.charAt(i) == s.charAt(j)) {
+                    newDp[j] = dp[j - 1] + 2;
+                } else {
+                    newDp[j] = Math.max(dp[j], newDp[j - 1]);
+                }
+            }
+            dp = newDp;
+        }
+
+        return n - dp[n - 1];
+    }
+
+    public static void main(String[] args) {
+        String s = "mbadm";
+        System.out.println("Minimum Insertions (Optimized): " + minInsertions(s));
+    }
+}
+```
+
+**Output:**
+```
+Minimum Insertions (Optimized): 2
+```
+
+---
+
+### Key Observations
+✅ DP table tracks the LPS and reduces to optimal space complexity in the improved approach.
+✅ Using the formula `Min Insertions = n - LPS` simplifies the overall problem logic.
