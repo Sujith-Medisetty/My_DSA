@@ -3168,3 +3168,146 @@ class EditDistanceOptimized {
 ✅ 1D DP optimizes space to `O(n)` while maintaining the same time complexity.
 ✅ The key is understanding the recursive logic of matching characters and handling mismatches through deletion, insertion, and replacement.
 
+### Wildcard Matching
+
+**Problem Statement:**
+Given two strings `s` and `p`, where `s` is the input string and `p` is the pattern, implement wildcard pattern matching with support for '?' and '*'.
+
+- '?' Matches any single character.
+- '*' Matches any sequence of characters (including the empty sequence).
+
+You need to determine if the given string `s` matches the pattern `p`.
+
+**Constraints:**
+- 1 <= s.length, p.length <= 2000
+- `s` and `p` contain only lowercase English letters and special characters `?` and `*`.
+
+---
+
+**Approach:**
+We'll use **Dynamic Programming** to solve this efficiently.
+
+### Step 1: DP Table Definition
+Define a 2D DP table `dp[i][j]` where:
+- `dp[i][j]` is `true` if `s[0..i-1]` matches `p[0..j-1]`, otherwise `false`.
+
+### Step 2: Initialization
+- `dp[0][0] = true` (empty pattern matches empty string).
+- For the first row, handle the pattern if it starts with `*`. A `*` can match zero characters, so propagate `dp[0][j]` values accordingly.
+
+### Step 3: DP Transition
+- If `s[i-1] == p[j-1]` or `p[j-1] == '?'`:
+  `dp[i][j] = dp[i-1][j-1]`
+- If `p[j-1] == '*'`:
+  `dp[i][j] = dp[i-1][j] || dp[i][j-1]`
+
+### Step 4: Final Answer
+The result is stored in `dp[m][n]` where `m` and `n` are the lengths of `s` and `p` respectively.
+
+---
+
+### Java Code Implementation
+```java
+public class WildcardMatching {
+    public boolean isMatch(String s, String p) {
+        int m = s.length();
+        int n = p.length();
+        boolean[][] dp = new boolean[m + 1][n + 1];
+
+        dp[0][0] = true; // Empty pattern matches empty string
+
+        for (int j = 1; j <= n; j++) {
+            if (p.charAt(j - 1) == '*') {
+                dp[0][j] = dp[0][j - 1];
+            }
+        }
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (s.charAt(i - 1) == p.charAt(j - 1) || p.charAt(j - 1) == '?') {
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else if (p.charAt(j - 1) == '*') {
+                    dp[i][j] = dp[i - 1][j] || dp[i][j - 1];
+                }
+            }
+        }
+        
+        return dp[m][n];
+    }
+
+    public static void main(String[] args) {
+        WildcardMatching wm = new WildcardMatching();
+        System.out.println(wm.isMatch("adceb", "*a*b")); // true
+        System.out.println(wm.isMatch("acdcb", "a*c?b")); // false
+    }
+}
+```
+
+---
+
+### Optimized Approach (1D DP)
+- Since each cell in `dp` depends only on the previous row, we can reduce the space complexity to **O(n)**.
+
+```java
+public class WildcardMatchingOptimized {
+    public boolean isMatch(String s, String p) {
+        int m = s.length();
+        int n = p.length();
+        boolean[] prev = new boolean[n + 1];
+        boolean[] curr = new boolean[n + 1];
+
+        prev[0] = true; // Empty pattern matches empty string
+        
+        for (int j = 1; j <= n; j++) {
+            if (p.charAt(j - 1) == '*') {
+                prev[j] = prev[j - 1];
+            }
+        }
+
+        for (int i = 1; i <= m; i++) {
+            curr[0] = false; // Empty pattern cannot match non-empty string
+
+            for (int j = 1; j <= n; j++) {
+                if (s.charAt(i - 1) == p.charAt(j - 1) || p.charAt(j - 1) == '?') {
+                    curr[j] = prev[j - 1];
+                } else if (p.charAt(j - 1) == '*') {
+                    curr[j] = prev[j] || curr[j - 1];
+                } else {
+                    curr[j] = false;
+                }
+            }
+            
+            System.arraycopy(curr, 0, prev, 0, n + 1);
+        }
+        
+        return prev[n];
+    }
+
+    public static void main(String[] args) {
+        WildcardMatchingOptimized wmo = new WildcardMatchingOptimized();
+        System.out.println(wmo.isMatch("adceb", "*a*b")); // true
+        System.out.println(wmo.isMatch("acdcb", "a*c?b")); // false
+    }
+}
+```
+
+---
+
+### Example Walkthrough
+**Input:** `s = "adceb", p = "*a*b"`
+
+**Step-by-Step Matching:**
+- '*' can match zero or more characters, so it accommodates `adce`.
+- Next, 'a' matches 'a'.
+- '*' again matches zero or more characters, taking care of `dce`.
+- Finally, 'b' matches 'b'.
+
+**Output:** `true`
+
+---
+
+### Complexity Analysis
+- **Time Complexity:** `O(m * n)` — Filling the DP table.
+- **Space Complexity:**
+  - **2D Approach:** `O(m * n)`
+  - **Optimized 1D Approach:** `O(n)`
