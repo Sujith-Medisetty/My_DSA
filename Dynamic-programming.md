@@ -2871,3 +2871,154 @@ Shortest Common Supersequence String: cabac
 - **Space Complexity:** `O(m * n)`
 
 Optimized space complexity solutions are also possible with a 1D array, but this code emphasizes clarity for better understanding.
+
+# Distinct Subsequences
+
+## Problem Statement
+Given two strings **S** and **T**, return the number of distinct subsequences of **S** which equals **T**.
+
+A subsequence of a string is a new string formed by deleting some (or no) characters while maintaining the relative order of the remaining characters.
+
+### Constraints:
+- `1 <= S.length, T.length <= 1000`
+- `S` and `T` consist of English letters only.
+
+### Example 1:
+**Input:**
+```
+S = "rabbbit"
+T = "rabbit"
+```
+**Output:** `3`
+
+**Explanation:**
+There are 3 distinct subsequences of "rabbbit" that equal "rabbit".
+
+### Example 2:
+**Input:**
+```
+S = "babgbag"
+T = "bag"
+```
+**Output:** `5`
+
+---
+
+## Approach 1: 2D DP Table (Tabulation)
+
+### DP Definition:
+Let `dp[i][j]` be the number of distinct subsequences of the first `i` characters of **S** that match the first `j` characters of **T**.
+
+### Recurrence Relation:
+- If `S[i-1] == T[j-1]`:
+```
+dp[i][j] = dp[i-1][j-1] + dp[i-1][j]
+```
+- If `S[i-1] != T[j-1]`:
+```
+dp[i][j] = dp[i-1][j]
+```
+
+### Base Conditions:
+- `dp[0][0] = 1` (Empty string matches empty string)
+- First column `dp[i][0] = 1` (Any prefix of `S` can form an empty subsequence)
+- First row `dp[0][j] = 0` for `j > 0` (Empty string cannot form non-empty subsequence)
+
+### Java Code (2D DP Approach)
+```java
+public class DistinctSubsequences {
+    public static int numDistinct(String s, String t) {
+        int m = s.length();
+        int n = t.length();
+        int[][] dp = new int[m + 1][n + 1];
+
+        // Initialize base conditions
+        for (int i = 0; i <= m; i++) {
+            dp[i][0] = 1; // Empty target string is always achievable
+        }
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (s.charAt(i - 1) == t.charAt(j - 1)) {
+                    dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
+                } else {
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+
+        return dp[m][n];
+    }
+
+    public static void main(String[] args) {
+        String s = "rabbbit";
+        String t = "rabbit";
+        System.out.println("Distinct Subsequences: " + numDistinct(s, t));
+    }
+}
+```
+
+---
+
+## Approach 2: Optimized 1D DP
+Instead of using a 2D table, we can optimize the space complexity by maintaining a **1D array** that updates in reverse order.
+
+### Optimized Recurrence Relation:
+- Iterate `i` over **S** from left to right
+- Iterate `j` over **T** from right to left (reverse order to avoid overwriting values prematurely)
+- If `S[i-1] == T[j-1]`:
+```
+dp[j] = dp[j] + dp[j-1];
+```
+- Otherwise:
+```
+dp[j] = dp[j];
+```
+
+### Java Code (Optimized 1D DP Approach)
+```java
+public class DistinctSubsequencesOptimized {
+    public static int numDistinct(String s, String t) {
+        int m = s.length();
+        int n = t.length();
+        int[] dp = new int[n + 1];
+
+        dp[0] = 1; // Empty target string is always achievable
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = n; j >= 1; j--) {
+                if (s.charAt(i - 1) == t.charAt(j - 1)) {
+                    dp[j] += dp[j - 1];
+                }
+            }
+        }
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        String s = "babgbag";
+        String t = "bag";
+        System.out.println("Distinct Subsequences: " + numDistinct(s, t));
+    }
+}
+```
+
+---
+
+## Complexity Analysis
+| Approach | Time Complexity | Space Complexity |
+|-----------|-----------------|-------------------|
+| 2D DP      | `O(m * n)`      | `O(m * n)`        |
+| Optimized  | `O(m * n)`      | `O(n)`            |
+
+Where `m` = length of **S**, and `n` = length of **T**.
+
+---
+
+## Key Takeaways
+✅ Understanding the recurrence relation is crucial for DP problems.
+✅ Optimizing space by iterating in reverse improves efficiency for larger inputs.
+✅ Always consider base conditions carefully in DP problems for correct initialization.
+
+If you have any questions or need further clarification, feel free to ask! 🚀
