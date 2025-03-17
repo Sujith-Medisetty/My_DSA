@@ -2387,3 +2387,205 @@ public class LongestCommonSubstringOptimized {
 | **1D DP** | `O(M * N)`        | `O(N)`             |
 
 ---
+
+# Longest Palindromic Subsequence (LPS)
+
+## Problem Statement
+Given a string `s`, find the length of the **longest palindromic subsequence** in `s`.
+
+A *subsequence* is a sequence that can be derived from the original string by deleting some or no characters without changing the order of the remaining characters.
+
+### Constraints
+- 1 <= `s.length` <= 1000
+- `s` consists only of lowercase English letters.
+
+### Example Input 1
+```
+s = "bbbab"
+```
+### Example Output 1
+```
+Longest Palindromic Subsequence Length: 4
+```
+**Explanation:** The longest palindromic subsequence is "bbbb" with a length of 4.
+
+### Example Input 2
+```
+s = "cbbd"
+```
+### Example Output 2
+```
+Longest Palindromic Subsequence Length: 2
+```
+**Explanation:** The longest palindromic subsequence is "bb" with a length of 2.
+
+---
+
+## Approach 1: Dynamic Programming (2D Array)
+
+### Key Idea
+- Use a 2D DP table where `dp[i][j]` represents the **longest palindromic subsequence** in the substring `s[i...j]`.
+
+### DP Transition
+1. **Base Case:**
+   - Any single character is a palindrome of length 1.
+     
+   **`dp[i][i] = 1`**
+
+2. **Recurrence Relation:**
+   - If `s[i] == s[j]`:
+     
+     **`dp[i][j] = dp[i + 1][j - 1] + 2`**
+   
+   - Else:
+     
+     **`dp[i][j] = max(dp[i + 1][j], dp[i][j - 1])`**
+
+### Code Implementation (Java)
+```java
+public class LongestPalindromicSubsequence {
+    public static int longestPalindromeSubseq(String s) {
+        int n = s.length();
+        int[][] dp = new int[n][n];
+
+        // Base case: Single character palindromes
+        for (int i = 0; i < n; i++) {
+            dp[i][i] = 1;
+        }
+
+        // Filling the DP table in increasing order of substring length
+        for (int len = 2; len <= n; len++) {
+            for (int i = 0; i <= n - len; i++) {
+                int j = i + len - 1;
+                if (s.charAt(i) == s.charAt(j)) {
+                    dp[i][j] = dp[i + 1][j - 1] + 2;
+                } else {
+                    dp[i][j] = Math.max(dp[i + 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+
+        return dp[0][n - 1];
+    }
+
+    public static void main(String[] args) {
+        String s = "bbbab";
+        System.out.println("Longest Palindromic Subsequence Length: " + longestPalindromeSubseq(s));
+    }
+}
+```
+
+### Output
+```
+Longest Palindromic Subsequence Length: 4
+```
+
+---
+
+## Step-by-Step Example (Visualizing i and j)
+
+**Example String:** `"bbbab"`
+
+### Understanding the DP Table
+- The DP table is built to find the longest palindromic subsequence in the string.
+- The rows (`i`) represent the starting index of a substring.
+- The columns (`j`) represent the ending index of a substring.
+- The cell `dp[i][j]` stores the **length of the longest palindromic subsequence** between index `i` and `j` in the string.
+
+### Step 1: Initialize Single Characters
+- A single character itself is always a palindrome of length 1.
+```
+dp[0][0] = 1
+dp[1][1] = 1
+dp[2][2] = 1
+dp[3][3] = 1
+dp[4][4] = 1
+```
+
+### Step 2: Build the Table for Larger Lengths
+Starting from substrings of length 2 to `n`:
+
+**Length 2 Substrings:**
+```
+dp[0][1] = 2  // "bb" is a palindrome
+dp[1][2] = 2  // "bb" is a palindrome
+dp[2][3] = 1  // "ba" is NOT a palindrome
+dp[3][4] = 1  // "ab" is NOT a palindrome
+```
+
+**Length 3 Substrings:**
+```
+dp[0][2] = 3  // "bbb" is a palindrome
+dp[1][3] = 2  // "bba" is NOT a palindrome
+dp[2][4] = 1  // "bab" (longest palindrome is 'b' or 'a')
+```
+
+**Length 4 Substrings:**
+```
+dp[0][3] = 3  // "bbba" (longest palindrome is 'bbb')
+dp[1][4] = 3  // "bbab" (longest palindrome is 'bbb')
+```
+
+**Length 5 Substrings (Final Result):**
+```
+dp[0][4] = 4  // "bbbab" (longest palindrome is 'bbbb')
+```
+
+### Step 3: Final Answer
+- The value at `dp[0][n-1]` gives the final answer. In this example:
+```
+Final Answer = dp[0][4] = 4
+```
+
+### Why `dp[i][j] = dp[i + 1][j - 1] + 2` ?
+- When `s[i] == s[j]`, it extends the palindrome that lies within `dp[i + 1][j - 1]`.
+- Example: For substring `"bbb"` starting at index 0 and ending at index 2, `dp[0][2] = dp[1][1] + 2` because both ends are `'b'` and `dp[1][1]` is `1`.
+
+### Why Build Length-Wise Instead of Row-Wise?
+- Building by increasing substring length ensures that smaller subproblems (shorter substrings) are solved first, enabling us to reference them when calculating longer subsequences.
+
+---
+
+## Optimized Approach (Space Optimization)
+
+### Key Idea
+Since `dp[i][j]` depends only on `dp[i + 1][j]` and `dp[i][j - 1]`, we can optimize the space complexity to **O(N)** using a 1D array.
+
+### Optimized Code (Java)
+```java
+public class OptimizedLPS {
+    public static int longestPalindromeSubseq(String s) {
+        int n = s.length();
+        int[] dp = new int[n];
+
+        for (int i = n - 1; i >= 0; i--) {
+            dp[i] = 1; // Single characters are palindromes
+            int prev = 0; // Track the diagonal element
+
+            for (int j = i + 1; j < n; j++) {
+                int temp = dp[j]; // Store current dp[j] before updating
+                if (s.charAt(i) == s.charAt(j)) {
+                    dp[j] = prev + 2;
+                } else {
+                    dp[j] = Math.max(dp[j], dp[j - 1]);
+                }
+                prev = temp; // Update prev to be the previous diagonal value
+            }
+        }
+
+        return dp[n - 1];
+    }
+
+    public static void main(String[] args) {
+        String s = "bbbab";
+        System.out.println("Optimized Longest Palindromic Subsequence Length: " + longestPalindromeSubseq(s));
+    }
+}
+```
+
+### Output
+```
+Optimized Longest Palindromic Subsequence Length: 4
+```
+
+---
