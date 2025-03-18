@@ -614,3 +614,241 @@ Final result: `[[2, 2, 3], [7]]`
 ## Complexity Analysis
 - **Time Complexity:** `O(2^target)` - Each element can be picked multiple times, leading to exponential combinations in the worst case.
 - **Space Complexity:** `O(target)` - Maximum recursion depth when constructing combinations.
+
+
+# Generate Parentheses
+
+## Problem Statement
+Given `n` pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
+
+### Example 1:
+**Input:** `n = 3`
+
+**Output:** `["((()))","(()())","(())()","()(())","()()()"]`
+
+### Example 2:
+**Input:** `n = 1`
+
+**Output:** `["()"]`
+
+### Constraints:
+- `1 <= n <= 8`
+
+---
+
+## Approach
+We can solve this problem using **Backtracking**.
+
+### Key Idea
+- Use recursion to build combinations.
+- Maintain two counters:
+  - `open`: Tracks the number of `(` used so far.
+  - `close`: Tracks the number of `)` used so far.
+- At each step:
+  - Add `(` if `open < n`.
+  - Add `)` if `close < open`.
+- Stop the recursion when the combination reaches a length of `2 * n`.
+
+---
+
+## Code Implementation (Java)
+```java
+import java.util.*;
+
+class Solution {
+    public List<String> generateParenthesis(int n) {
+        List<String> result = new ArrayList<>();
+        backtrack(result, "", 0, 0, n);
+        return result;
+    }
+
+    private void backtrack(List<String> result, String current, int open, int close, int max) {
+        if (current.length() == max * 2) {
+            result.add(current);
+            return;
+        }
+
+        if (open < max) {
+            backtrack(result, current + "(", open + 1, close, max);
+        }
+        if (close < open) {
+            backtrack(result, current + ")", open, close + 1, max);
+        }
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        System.out.println("Output for n = 3: " + solution.generateParenthesis(3));
+        System.out.println("Output for n = 1: " + solution.generateParenthesis(1));
+    }
+}
+```
+
+---
+
+## Dry Run
+### Example: `n = 3`
+**Initial State:** `current = "", open = 0, close = 0`
+
+| Step | Current Combination | Open | Close | Action |
+|------|---------------------|------|-------|---------|
+| 1    | "("                  | 1    | 0     | Add `(` |
+| 2    | "(("                 | 2    | 0     | Add `(` |
+| 3    | "((("                | 3    | 0     | Add `(` |
+| 4    | "((()"               | 3    | 1     | Add `)` |
+| 5    | "((())"              | 3    | 2     | Add `)` |
+| 6    | "((()))"             | 3    | 3     | Add `)` (Valid combination found) |
+| 7    | "(()"                | 2    | 1     | Backtrack and try next path |
+| 8    | "(()("                | 3    | 1     | Add `(` |
+| 9    | "(()()"              | 3    | 2     | Add `)` |
+| 10   | "(()())"             | 3    | 3     | Add `)` (Valid combination found) |
+| 11   | "(())"               | 2    | 2     | Backtrack and try next path |
+| 12   | "(())("               | 3    | 2     | Add `(` |
+| 13   | "(())()"             | 3    | 3     | Add `)` (Valid combination found) |
+| 14   | "()"                 | 1    | 1     | Backtrack and try next path |
+| 15   | "()("                | 2    | 1     | Add `(` |
+| 16   | "()(("               | 3    | 1     | Add `(` |
+| 17   | "()(()"              | 3    | 2     | Add `)` |
+| 18   | "()(())"             | 3    | 3     | Add `)` (Valid combination found) |
+| 19   | "()()"               | 2    | 2     | Backtrack and try next path |
+| 20   | "()()("               | 3    | 2     | Add `(` |
+| 21   | "()()()"             | 3    | 3     | Add `)` (Valid combination found) |
+
+**Final Output:** `["((()))", "(()())", "(())()", "()(())", "()()()"]`
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(2^2n)` - Each position has 2 choices (`(` or `)`).
+- **Space Complexity:** `O(2n)` - Recursive stack depth is `2n` in the worst case.
+
+---
+
+# Word Search Problem
+
+## Problem Statement
+Given an `m x n` grid of characters `board` and a string `word`, return `true` if the word exists in the grid.
+
+The word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once.
+
+### Examples
+**Example 1:**
+```
+Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+Output: true
+```
+
+**Example 2:**
+```
+Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "SEE"
+Output: true
+```
+
+**Example 3:**
+```
+Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCB"
+Output: false
+```
+
+### Constraints
+- `1 <= m, n <= 6`
+- `1 <= word.length <= 15`
+- `board` and `word` consist of only lowercase and uppercase English letters.
+
+---
+
+## Approach
+### Algorithm
+1. Iterate through the grid cell by cell.
+2. If the first character matches the starting cell, initiate a Depth-First Search (DFS) from that cell.
+3. Use backtracking to explore all possible paths to construct the word:
+   - Mark the current cell as visited by modifying its value temporarily.
+   - Recursively attempt to build the rest of the word by checking adjacent cells (up, down, left, right).
+   - Backtrack by restoring the original cell value when moving back in recursion.
+4. If any path successfully constructs the word, return `true`. Otherwise, return `false`.
+
+---
+
+## Java Code Implementation
+```java
+class Solution {
+    public boolean exist(char[][] board, String word) {
+        int rows = board.length;
+        int cols = board[0].length;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (board[i][j] == word.charAt(0) && dfs(board, i, j, 0, word)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean dfs(char[][] board, int row, int col, int index, String word) {
+        if (index == word.length()) {
+            return true;
+        }
+        if (row < 0 || row >= board.length || col < 0 || col >= board[0].length || board[row][col] != word.charAt(index)) {
+            return false;
+        }
+
+        // Temporarily mark the cell as visited
+        char temp = board[row][col];
+        board[row][col] = '#';
+
+        // Explore all four directions
+        boolean found = dfs(board, row + 1, col, index + 1, word)
+                    || dfs(board, row - 1, col, index + 1, word)
+                    || dfs(board, row, col + 1, index + 1, word)
+                    || dfs(board, row, col - 1, index + 1, word);
+
+        // Backtrack - restore the cell
+        board[row][col] = temp;
+
+        return found;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        char[][] board = {
+            {'A', 'B', 'C', 'E'},
+            {'S', 'F', 'C', 'S'},
+            {'A', 'D', 'E', 'E'}
+        };
+
+        System.out.println("Output for word 'ABCCED': " + solution.exist(board, "ABCCED")); // true
+        System.out.println("Output for word 'SEE': " + solution.exist(board, "SEE"));       // true
+        System.out.println("Output for word 'ABCB': " + solution.exist(board, "ABCB"));     // false
+    }
+}
+```
+
+---
+
+## Dry Run
+### Example: Input `board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]]`, word = "ABCCED"
+
+1. Start at cell `(0, 0)`: `board[0][0] = A` (Matches first letter)
+2. Move to cell `(0, 1)`: `board[0][1] = B` (Matches second letter)
+3. Move to cell `(0, 2)`: `board[0][2] = C` (Matches third letter)
+4. Move to cell `(1, 2)`: `board[1][2] = C` (Matches fourth letter)
+5. Move to cell `(1, 1)`: `board[1][1] = F` (Does not match) → Backtrack
+6. Try cell `(2, 2)`: `board[2][2] = E` (Matches fifth letter)
+7. Move to cell `(2, 1)`: `board[2][1] = D` (Matches final letter)
+8. Word found — Return `true`
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(m * n * 4^L)`
+  - `m` = number of rows
+  - `n` = number of columns
+  - `L` = length of the word
+  - Each cell explores up to 4 possible directions recursively.
+
+- **Space Complexity:** `O(L)`
+  - Maximum recursion depth is the length of the word.
+
+---
