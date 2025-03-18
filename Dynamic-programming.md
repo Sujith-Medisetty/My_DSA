@@ -3311,3 +3311,100 @@ public class WildcardMatchingOptimized {
 - **Space Complexity:**
   - **2D Approach:** `O(m * n)`
   - **Optimized 1D Approach:** `O(n)`
+
+
+# Stock Buy and Sell - Maximum Profit
+```Ref
+https://www.youtube.com/watch?v=nGJmxkUJQGs&list=PLgUwDviBIf0oF6QL8m22w1hIDC1vJ_BHz&index=216&ab_channel=takeUforward
+```
+## Problem Statement
+You have been given stock prices for **N** days. Every `i-th` element represents the price of a stock on that day. You need to find the **maximum profit** possible by buying and selling the stock.
+
+### Constraints
+- **1 ≤ t ≤ 10^2** (number of test cases)
+- **0 ≤ N ≤ 10^5** (number of days)
+- Time Limit: **1 sec**
+
+### Sample Input 1
+```
+1
+7
+1 2 3 4 5 6 7
+```
+**Output:** `6`
+
+### Sample Input 2
+```
+1
+7
+7 6 5 4 3 2 1
+```
+**Output:** `0`
+
+---
+
+## Dry Run Table
+
+| **Day** | **Price** | **`dp[i][0]` (No Stock)** | **`dp[i][1]` (With Stock)** | **Max Calculation for Each Cell** |
+|:--------:|:-----------:|:-------------------------:|:---------------------------:|:---------------------------------:|
+| **0**     | 3            | 0                         | -3                           | `dp[0][0] = 0`<br>`dp[0][1] = -prices[0] = -3` |
+| **1**     | 2            | `max(0, -3 + 2) = 0`      | `max(-3, 0 - 2) = -2`        | `dp[1][0] = max(0, -1) = 0`<br>`dp[1][1] = max(-3, -2) = -2` |
+| **2**     | 5            | `max(0, -2 + 5) = 3`      | `max(-2, 0 - 5) = -2`        | `dp[2][0] = max(0, 3) = 3`<br>`dp[2][1] = max(-2, -5) = -2` |
+| **3**     | 1            | `max(3, -2 + 1) = 3`      | `max(-2, 3 - 1) = 2`         | `dp[3][0] = max(3, -1) = 3`<br>`dp[3][1] = max(-2, 2) = 2` |
+| **4**     | 4            | `max(3, 2 + 4) = 6`       | `max(2, 3 - 4) = 2`          | `dp[4][0] = max(3, 6) = 6`<br>`dp[4][1] = max(2, -1) = 2` |
+
+**Final Answer:** `dp[4][0] = 6`
+
+---
+
+## Approach 1: DP with 2D Array (Standard DP Solution)
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+        int n = prices.length;
+        if (n == 0) return 0;
+
+        int[][] dp = new int[n][2];
+        dp[0][0] = 0;        // No stock on Day 0
+        dp[0][1] = -prices[0]; // Buy stock on Day 0
+
+        for (int i = 1; i < n; i++) {
+            dp[i][0] = Math.max(dp[i-1][0], dp[i-1][1] + prices[i]);
+            dp[i][1] = Math.max(dp[i-1][1], dp[i-1][0] - prices[i]);
+        }
+
+        return dp[n-1][0];
+    }
+}
+```
+
+---
+
+## Approach 2: Optimized 1D DP (Space Efficient Solution)
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+        int n = prices.length;
+        if (n == 0) return 0;
+
+        int noStock = 0;      // Equivalent to dp[i][0]
+        int withStock = -prices[0]; // Equivalent to dp[i][1]
+
+        for (int i = 1; i < n; i++) {
+            noStock = Math.max(noStock, withStock + prices[i]);
+            withStock = Math.max(withStock, noStock - prices[i]);
+        }
+
+        return noStock;
+    }
+}
+```
+
+---
+
+## Key Takeaways
+✅ **2D DP Solution:** Tracks all states directly but uses `O(N)` space.  
+✅ **Optimized 1D DP Solution:** Uses only two variables for maximum space efficiency.  
+✅ **Time Complexity:** `O(N)` for both approaches.  
+✅ **Space Complexity:** `O(N)` for 2D DP, `O(1)` for optimized DP.
+
