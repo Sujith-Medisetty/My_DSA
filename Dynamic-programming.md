@@ -3408,3 +3408,607 @@ class Solution {
 ✅ **Time Complexity:** `O(N)` for both approaches.  
 ✅ **Space Complexity:** `O(N)` for 2D DP, `O(1)` for optimized DP.
 
+
+## Longest Increasing Subsequence (LIS)
+
+### Problem Statement
+You are given an array `nums` of integers. Your task is to find the **length of the Longest Increasing Subsequence** (LIS) in the array.
+
+**Definition:**
+- An **increasing subsequence** is a sequence of elements from the array in increasing order, but they don't have to be consecutive.
+
+### Constraints
+- `1 <= nums.length <= 10^4`
+- `-10^4 <= nums[i] <= 10^4`
+
+---
+
+### Example
+**Input:** `[10, 9, 2, 5, 3, 7, 101, 18]`
+
+**Output:** `4`
+
+**Explanation:** The LIS is `[2, 3, 7, 18]` or `[2, 3, 7, 101]`. Both have a length of 4.
+
+---
+
+## Approach 1: Dynamic Programming (O(N^2))
+### Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        if (nums == null || nums.length == 0) return 0;
+
+        int n = nums.length;
+        int[] dp = new int[n];
+        Arrays.fill(dp, 1); // Initialize all dp values to 1
+
+        for (int i = 1; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (nums[i] > nums[j]) {
+                    dp[i] = Math.max(dp[i], dp[j] + 1);
+                }
+            }
+        }
+
+        int maxLIS = 0;
+        for (int value : dp) {
+            maxLIS = Math.max(maxLIS, value);
+        }
+
+        return maxLIS;
+    }
+}
+```
+
+### Dry Run for DP Approach
+**Input:** `[10, 9, 2, 5, 3, 7, 101, 18]`
+
+| Index | nums[i] | dp Array (Stepwise Update) |
+|--------|-----------|----------------------------|
+|  0     | 10         | `[1]`                     |
+|  1     | 9          | `[1, 1]`                  |
+|  2     | 2          | `[1, 1, 1]`               |
+|  3     | 5          | `[1, 1, 1, 2]`            |
+|  4     | 3          | `[1, 1, 1, 2, 2]`         |
+|  5     | 7          | `[1, 1, 1, 2, 2, 3]`      |
+|  6     | 101        | `[1, 1, 1, 2, 2, 3, 4]`   |
+|  7     | 18         | `[1, 1, 1, 2, 2, 3, 4, 4]`|
+
+**Result:** `4`
+
+---
+
+## Approach 2: Optimized Using Binary Search (O(N log N))
+### Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public int lengthOfLIS(int[] nums) {
+        if (nums == null || nums.length == 0) return 0;
+
+        ArrayList<Integer> lis = new ArrayList<>();
+
+        for (int num : nums) {
+            int pos = Collections.binarySearch(lis, num);
+
+            if (pos < 0) pos = -(pos + 1);  // Binary search returns insertion point
+
+            if (pos < lis.size()) {
+                lis.set(pos, num); // Replace to keep sequence minimal
+            } else {
+                lis.add(num); // Append if num is larger than all elements in lis
+            }
+        }
+
+        return lis.size();
+    }
+}
+```
+
+### Dry Run for Optimized Approach
+**Input:** `[10, 9, 2, 5, 3, 7, 101, 18]`
+
+| Step | `num` | Binary Search Result (`pos`) | `lis` List State |
+|------|--------|----------------------------|------------------|
+|  1   | `10`   | `-1` → Insert at `0`         | `[10]`            |
+|  2   | `9`    | `-1` → Insert at `0`         | `[9]`             |
+|  3   | `2`    | `-1` → Insert at `0`         | `[2]`             |
+|  4   | `5`    | `-2` → Insert at `1`         | `[2, 5]`          |
+|  5   | `3`    | `-2` → Replace at `1`        | `[2, 3]`          |
+|  6   | `7`    | `-3` → Insert at `2`         | `[2, 3, 7]`       |
+|  7   | `101`  | `-4` → Insert at `3`         | `[2, 3, 7, 101]`  |
+|  8   | `18`   | `-4` → Replace at `3`        | `[2, 3, 7, 18]`   |
+
+**Result:** `4`
+
+---
+
+## Key Differences Between Approaches
+| Aspect                  | DP (O(N^2))            | Optimized (O(N log N)) |
+|------------------------|------------------------|------------------------|
+| **Time Complexity**     | O(N^2)                 | O(N log N)              |
+| **Space Complexity**    | O(N)                   | O(N)                    |
+| **Tracking LIS Sequence**| Yes                    | No (Only LIS length)    |
+
+---
+
+## Which Approach to Use?
+✅ **DP Approach:** Preferred for small arrays or when you need to reconstruct the LIS sequence.
+✅ **Optimized Approach:** Efficient for larger arrays due to its faster O(N log N) complexity.
+
+## Longest Increasing Subsequence (LIS) - Print the Sequence
+
+### Problem Statement
+You are given an array `nums` of integers. Your task is to find the **Longest Increasing Subsequence** (LIS) and **print the actual sequence**.
+
+### Constraints
+- `1 <= nums.length <= 10^4`
+- `-10^4 <= nums[i] <= 10^4`
+
+---
+
+### Example
+**Input:** `[10, 9, 2, 5, 3, 7, 101, 18]`
+
+**Output:** `2 3 7 18`
+
+**Explanation:** The LIS is `[2, 3, 7, 18]` or `[2, 3, 7, 101]`. Both have the same length, but the first sequence is one valid LIS.
+
+---
+
+## Approach: Dynamic Programming with Path Tracking (O(N²))
+### Approach Explanation
+1. **DP Array:** Create a `dp[]` array where `dp[i]` stores the **length of the LIS** ending at index `i`.
+2. **Prev Array:** Create a `prev[]` array to track the previous index in the LIS sequence for backtracking the actual sequence.
+3. **Nested Loop:** For each element `nums[i]`, check all previous elements `nums[j]` where `j < i`. If `nums[i] > nums[j]`, then update `dp[i] = dp[j] + 1` and update `prev[i]` to `j`.
+4. **Find Maximum Length:** Keep track of the maximum LIS length and its ending index for easy reconstruction.
+5. **Backtrack:** Using the `prev[]` array, backtrack from the last index to form the LIS sequence.
+6. **Reverse:** Since backtracking gives the sequence in reverse order, reverse it before returning.
+
+---
+
+### Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public List<Integer> printLIS(int[] nums) {
+        if (nums == null || nums.length == 0) return new ArrayList<>();
+
+        int n = nums.length;
+        int[] dp = new int[n];
+        int[] prev = new int[n];
+        Arrays.fill(dp, 1);
+        Arrays.fill(prev, -1);
+
+        int maxLength = 0;
+        int lastIndex = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (nums[i] > nums[j] && dp[i] < dp[j] + 1) {
+                    dp[i] = dp[j] + 1;
+                    prev[i] = j;
+                }
+            }
+            if (dp[i] > maxLength) {
+                maxLength = dp[i];
+                lastIndex = i;
+            }
+        }
+
+        // Backtracking to reconstruct LIS
+        List<Integer> lis = new ArrayList<>();
+        while (lastIndex != -1) {
+            lis.add(nums[lastIndex]);
+            lastIndex = prev[lastIndex];
+        }
+
+        Collections.reverse(lis);
+        return lis;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        int[] nums = {10, 9, 2, 5, 3, 7, 101, 18};
+        System.out.println("Longest Increasing Subsequence: " + solution.printLIS(nums));
+    }
+}
+```
+
+---
+
+### Dry Run for DP Approach
+**Input:** `[10, 9, 2, 5, 3, 7, 101, 18]`
+
+| Index | nums[i] | dp Array | prev Array | Explanation |
+|--------|---------|-----------|--------------|--------------|
+|  0     | 10      | `[1]`       | `[-1]`         | Starting element |
+|  1     | 9       | `[1, 1]`     | `[-1, -1]`       | No increase |
+|  2     | 2       | `[1, 1, 1]`   | `[-1, -1, -1]`     | No increase |
+|  3     | 5       | `[1, 1, 1, 2]` | `[-1, -1, -1, 2]` | LIS starts to form |
+|  4     | 3       | `[1, 1, 1, 2, 2]` | `[-1, -1, -1, 2, 2]` | Tracks subsequence |
+|  5     | 7       | `[1, 1, 1, 2, 2, 3]` | `[-1, -1, -1, 2, 2, 3]` | Growing LIS |
+|  6     | 101     | `[1, 1, 1, 2, 2, 3, 4]` | `[-1, -1, -1, 2, 2, 3, 5]` | Appending LIS |
+|  7     | 18      | `[1, 1, 1, 2, 2, 3, 4, 4]` | `[-1, -1, -1, 2, 2, 3, 5, 5]` | Replacing 101 with 18 |
+
+**LIS Sequence:** `[2, 3, 7, 18]`
+
+---
+
+## Key Takeaways
+✅ DP with path tracking helps reconstruct the actual LIS.  
+✅ The `prev[]` array effectively traces the correct sequence.  
+✅ This method efficiently prints the LIS in **O(N²)** time complexity.
+
+
+## Largest Divisible Subset
+
+### Problem Statement
+Given a set of **distinct positive integers**, find the largest subset such that every pair `(Si, Sj)` of elements in this subset satisfies:
+
+`Si % Sj == 0` or `Sj % Si == 0`.
+
+### Constraints
+- `1 <= nums.length <= 1000`
+- `1 <= nums[i] <= 2 * 10^9`
+
+### Example
+**Input:** `[1, 2, 3]`  
+**Output:** `[1, 2]`  
+
+**Input:** `[1, 2, 4, 8]`  
+**Output:** `[1, 2, 4, 8]`
+
+---
+
+## Approach 1: Dynamic Programming (O(N²))
+### Approach Explanation
+1. **Sort the Array:** Sorting ensures that for any pair `(a, b)`, if `a < b` and `b % a == 0`, `a` will always appear before `b`.
+2. **DP Array:** Create a `dp[]` array where `dp[i]` represents the length of the largest divisible subset ending at index `i`.
+3. **Previous Array:** Create a `prev[]` array to track the previous index in the subset chain for backtracking.
+4. **Nested Loop:** For each element `nums[i]`, check all previous elements `nums[j]` where `j < i`. If `nums[i] % nums[j] == 0`, update `dp[i] = dp[j] + 1` and `prev[i] = j`.
+5. **Track Maximum Length:** Track the index of the maximum value in the `dp[]` array for easy reconstruction.
+6. **Backtrack:** Using `prev[]`, backtrack to reconstruct the sequence.
+
+---
+
+### Code Implementation (DP Approach)
+```java
+import java.util.*;
+
+class Solution {
+    public List<Integer> largestDivisibleSubset(int[] nums) {
+        if (nums == null || nums.length == 0) return new ArrayList<>();
+
+        Arrays.sort(nums);
+        int n = nums.length;
+        int[] dp = new int[n];
+        int[] prev = new int[n];
+        Arrays.fill(dp, 1);
+        Arrays.fill(prev, -1);
+
+        int maxLength = 0, lastIndex = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (nums[i] % nums[j] == 0 && dp[i] < dp[j] + 1) {
+                    dp[i] = dp[j] + 1;
+                    prev[i] = j;
+                }
+            }
+            if (dp[i] > maxLength) {
+                maxLength = dp[i];
+                lastIndex = i;
+            }
+        }
+
+        // Backtrack to build the sequence
+        List<Integer> result = new ArrayList<>();
+        while (lastIndex != -1) {
+            result.add(nums[lastIndex]);
+            lastIndex = prev[lastIndex];
+        }
+
+        Collections.reverse(result);
+        return result;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        int[] nums = {1, 2, 4, 8};
+        System.out.println("Largest Divisible Subset: " + solution.largestDivisibleSubset(nums));
+    }
+}
+```
+
+---
+
+### Dry Run
+**Input:** `[1, 2, 4, 8]`
+
+| Index | nums[i] | dp Array | prev Array | Explanation |
+|--------|---------|-----------|--------------|--------------|
+|  0     | 1       | `[1]`       | `[-1]`        | Starting element |
+|  1     | 2       | `[1, 2]`     | `[-1, 0]`      | 2 divisible by 1 |
+|  2     | 4       | `[1, 2, 3]`   | `[-1, 0, 1]`    | 4 divisible by 2 |
+|  3     | 8       | `[1, 2, 3, 4]` | `[-1, 0, 1, 2]` | 8 divisible by 4 |
+
+**Result:** `[1, 2, 4, 8]`
+
+---
+
+## Approach 2: Optimized Approach using HashMap (O(N log N))
+### Code Implementation (Optimized Approach)
+```java
+import java.util.*;
+
+class SolutionOptimized {
+    public List<Integer> largestDivisibleSubset(int[] nums) {
+        if (nums == null || nums.length == 0) return new ArrayList<>();
+
+        Arrays.sort(nums);
+        Map<Integer, List<Integer>> map = new HashMap<>();
+
+        List<Integer> largestSubset = new ArrayList<>();
+        for (int num : nums) {
+            List<Integer> maxSubset = new ArrayList<>();
+            for (int key : map.keySet()) {
+                if (num % key == 0 && map.get(key).size() > maxSubset.size()) {
+                    maxSubset = map.get(key);
+                }
+            }
+            List<Integer> newSubset = new ArrayList<>(maxSubset);
+            newSubset.add(num);
+            map.put(num, newSubset);
+
+            if (newSubset.size() > largestSubset.size()) {
+                largestSubset = newSubset;
+            }
+        }
+        return largestSubset;
+    }
+
+    public static void main(String[] args) {
+        SolutionOptimized solution = new SolutionOptimized();
+        int[] nums = {1, 2, 3, 6, 12, 24};
+        System.out.println("Largest Divisible Subset: " + solution.largestDivisibleSubset(nums));
+    }
+}
+```
+
+### Dry Run for Optimized Approach
+**Input:** `[1, 2, 3, 6, 12, 24]`
+
+| Step | num | maxSubset | newSubset | Map Content |
+|------|-----|------------|-------------|---------------|
+| 1    | 1   | `[]`         | `[1]`          | `{1=[1]}` |
+| 2    | 2   | `[1]`        | `[1, 2]`       | `{1=[1], 2=[1, 2]}` |
+| 3    | 3   | `[1]`        | `[1, 3]`       | `{1=[1], 2=[1, 2], 3=[1, 3]}` |
+| 4    | 6   | `[1, 2]`     | `[1, 2, 6]`    | `{1=[1], 2=[1, 2], 3=[1, 3], 6=[1, 2, 6]}` |
+| 5    | 12  | `[1, 2, 6]`  | `[1, 2, 6, 12]`| `{1=[1], 2=[1, 2], 3=[1, 3], 6=[1, 2, 6], 12=[1, 2, 6, 12]}` |
+| 6    | 24  | `[1, 2, 6, 12]`| `[1, 2, 6, 12, 24]`| `{1=[1], 2=[1, 2], 3=[1, 3], 6=[1, 2, 6], 12=[1, 2, 6, 12], 24=[1, 2, 6, 12, 24]}` |
+
+**Result:** `[1, 2, 6, 12, 24]`
+
+# Longest String Chain
+
+## Problem Statement
+You are given an array of words where each word consists of lowercase English letters.
+
+A **word chain** is a sequence of words `[word1, word2, ... , wordk]` with the following properties:
+- `word1` is a subsequence of `word2`.
+- `word2` is a subsequence of `word3`, and so on.
+- A single word is trivially a valid chain with length 1.
+
+Return the length of the **longest possible word chain** in the array.
+
+### Constraints
+- `1 <= words.length <= 1000`
+- `1 <= words[i].length <= 16`
+- `words[i]` consists only of lowercase English letters.
+
+### Example
+**Input:** `words = ["a","b","ba","bca","bda","bdca"]`  
+**Output:** `4`  
+**Explanation:** The longest string chain is ["a", "ba", "bda", "bdca"].
+
+---
+
+## Optimized DP Approach
+
+### Steps
+1. **Sort the words** based on their lengths.
+2. Use a HashMap `dp` to store the longest chain for each word directly.
+3. For each word, attempt to remove each character one by one and check if the resulting word exists in the `dp` map.
+4. Update the chain count dynamically using `dp.put()` for the longest chain found.
+5. Track the maximum chain length.
+
+### Code Implementation (Optimized Approach)
+```java
+import java.util.*;
+
+class SolutionOptimized {
+    public int longestStrChain(String[] words) {
+        Arrays.sort(words, Comparator.comparingInt(String::length));
+
+        HashMap<String, Integer> dp = new HashMap<>();
+        int maxLength = 1;
+
+        for (String word : words) {
+            dp.put(word, 1);
+            for (int i = 0; i < word.length(); i++) {
+                StringBuilder sb = new StringBuilder(word);
+                sb.deleteCharAt(i);
+                String prevWord = sb.toString();
+                if (dp.containsKey(prevWord)) {
+                    dp.put(word, Math.max(dp.get(word), dp.get(prevWord) + 1));
+                }
+            }
+            maxLength = Math.max(maxLength, dp.get(word));
+        }
+        return maxLength;
+    }
+}
+```
+
+### Dry Run (Optimized Approach)
+**Input:** `words = ["a","b","ba","bca","bda","bdca"]`
+
+| Word  | Removed Character | Previous Word Found? | DP Value |
+|--------|------------------------|-------------------------------|------------------|
+| `a`         | -                                    | No                                             | 1                |
+| `b`         | -                                    | No                                             | 1                |
+| `ba`       | Remove `a`                    | Yes (Word `a` exists)             | 2                |
+| `bca`     | Remove `a`                    | Yes (Word `ba` exists)            | 3                |
+| `bda`     | Remove `a`                    | Yes (Word `ba` exists)            | 3                |
+| `bdca`   | Remove `a`, `b`, `c`  | Yes (Word `bca` or `bda`)       | 4                |
+
+**Result:** `4`
+
+---
+
+# Longest Bitonic Subsequence
+
+## Problem Statement
+Given an array `arr` of `N` positive integers, find the **length of the longest bitonic subsequence**.
+
+A **bitonic subsequence** is a sequence that first increases and then decreases.
+
+### Example
+**Input:** `arr = [1, 11, 2, 10, 4, 5, 2, 1]`  
+**Output:** `6`  
+**Explanation:** The longest bitonic subsequence is `[1, 2, 10, 4, 2, 1]`.
+
+### Constraints
+- `1 <= N <= 1000`
+- `1 <= arr[i] <= 10^6`
+
+---
+
+## Approach
+1. **Create Two Arrays:**
+   - `inc[]`: Stores the **length of the longest increasing subsequence** ending at each index.
+   - `dec[]`: Stores the **length of the longest decreasing subsequence** starting at each index.
+
+2. **Build `inc[]` Array:**
+   - For each index `i`, iterate through all previous indices `j`.
+   - If `arr[i] > arr[j]`, update `inc[i] = max(inc[i], inc[j] + 1)`.
+
+3. **Build `dec[]` Array:**
+   - Iterate the array in reverse order.
+   - For each index `i`, iterate through all succeeding indices `j`.
+   - If `arr[i] > arr[j]`, update `dec[i] = max(dec[i], dec[j] + 1)`.
+
+4. **Calculate Maximum Bitonic Length:**
+   - For each index `i`, compute `inc[i] + dec[i] - 1` and track the maximum value.
+
+---
+
+## Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public int longestBitonicSubsequence(int[] arr) {
+        int n = arr.length;
+        int[] inc = new int[n];
+        int[] dec = new int[n];
+
+        // Initialize both arrays with 1 (each element is a subsequence of length 1)
+        Arrays.fill(inc, 1);
+        Arrays.fill(dec, 1);
+
+        // Fill the increasing subsequence array
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (arr[i] > arr[j]) {
+                    inc[i] = Math.max(inc[i], inc[j] + 1);
+                }
+            }
+        }
+
+        // Fill the decreasing subsequence array
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = i + 1; j < n; j++) {
+                if (arr[i] > arr[j]) {
+                    dec[i] = Math.max(dec[i], dec[j] + 1);
+                }
+            }
+        }
+
+        // Compute the maximum bitonic subsequence length
+        int maxLength = 0;
+        for (int i = 0; i < n; i++) {
+            maxLength = Math.max(maxLength, inc[i] + dec[i] - 1);
+        }
+
+        return maxLength;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        int[] arr = {1, 11, 2, 10, 4, 5, 2, 1};
+        System.out.println("Length of Longest Bitonic Subsequence: " + solution.longestBitonicSubsequence(arr));
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:** `arr = [1, 11, 2, 10, 4, 5, 2, 1]`
+
+### Step 1: `inc[]` Array (Increasing Subsequence)
+| Index | Array Value | inc[] Value | Explanation |
+|--------|--------------|----------------|------------------------|
+| 0          | 1                       | 1                            | Single element subsequence |
+| 1          | 11                    | 2                            | `1 < 11` |
+| 2          | 2                       | 2                            | `1 < 2` |
+| 3          | 10                     | 3                            | `1 < 2 < 10` |
+| 4          | 4                       | 3                            | `1 < 2 < 4` |
+| 5          | 5                       | 4                            | `1 < 2 < 4 < 5` |
+| 6          | 2                       | 2                            | `1 < 2` |
+| 7          | 1                       | 1                            | Single element |
+
+### Step 2: `dec[]` Array (Decreasing Subsequence)
+| Index | Array Value | dec[] Value | Explanation |
+|--------|--------------|----------------|------------------------|
+| 7          | 1                       | 1                            | Single element |
+| 6          | 2                       | 2                            | `2 > 1` |
+| 5          | 5                       | 3                            | `5 > 2 > 1` |
+| 4          | 4                       | 2                            | `4 > 2` |
+| 3          | 10                     | 4                            | `10 > 5 > 2 > 1` |
+| 2          | 2                       | 2                            | `2 > 1` |
+| 1          | 11                    | 5                            | `11 > 10 > 5 > 2 > 1` |
+| 0          | 1                       | 1                            | Single element |
+
+### Step 3: Compute Maximum Bitonic Length
+For each index, `inc[i] + dec[i] - 1`:
+
+- Index 0: `1 + 1 - 1 = 1`
+- Index 1: `2 + 5 - 1 = 6`
+- Index 2: `2 + 2 - 1 = 3`
+- Index 3: `3 + 4 - 1 = 6`
+- Index 4: `3 + 2 - 1 = 4`
+- Index 5: `4 + 3 - 1 = 6`
+- Index 6: `2 + 2 - 1 = 3`
+- Index 7: `1 + 1 - 1 = 1`
+
+**Result:** Maximum Bitonic Length = **6**
+
+---
+
+## Key Observations
+- The solution efficiently calculates the bitonic subsequence using two DP arrays.
+- Time Complexity: `O(N^2)`
+- Space Complexity: `O(N)`
+
+
+
+
+
