@@ -1,5 +1,5 @@
 # Infix, Postfix, prefix conversions.
-
+``` java
 import java.util.*;
 
 public class ExpressionConverter {
@@ -124,7 +124,7 @@ public class ExpressionConverter {
         System.out.println("Prefix to Postfix: " + converter.prefixToPostfix("-+a*b^-^cde+f*ghi"));
     }
 }
-
+```
 /**
 Approach for Solving Each Conversion:
 
