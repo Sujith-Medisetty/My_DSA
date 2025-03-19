@@ -790,4 +790,945 @@ class Solution {
 
 ### Final Output: **`[1, 2, 4, 7, 5, 8, 9, 6, 3]`**
 
+# Vertical Order Traversal of a Binary Tree
+
+## Problem Statement
+Given the root of a binary tree, return its **vertical order traversal**. Nodes at the same horizontal distance should be grouped together and sorted by level order.
+
+### Example
+#### Input:
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+```
+#### Output:
+```
+[[4], [2], [1, 5], [3], [6]]
+```
+#### Explanation:
+- **Vertical -2:** `[4]`
+- **Vertical -1:** `[2]`
+- **Vertical  0:** `[1, 5]`
+- **Vertical  1:** `[3]`
+- **Vertical  2:** `[6]`
+
+---
+
+## Java Solution
+```java
+import java.util.*;
+
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+class Solution {
+    public List<List<Integer>> verticalOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+        
+        Map<Integer, List<Integer>> columnMap = new TreeMap<>();
+        Queue<Pair> queue = new LinkedList<>();
+        queue.offer(new Pair(root, 0));
+        
+        while (!queue.isEmpty()) {
+            Pair p = queue.poll();
+            TreeNode node = p.node;
+            int col = p.col;
+            
+            columnMap.putIfAbsent(col, new ArrayList<>());
+            columnMap.get(col).add(node.val);
+            
+            if (node.left != null) queue.offer(new Pair(node.left, col - 1));
+            if (node.right != null) queue.offer(new Pair(node.right, col + 1));
+        }
+        
+        result.addAll(columnMap.values());
+        return result;
+    }
+    
+    class Pair {
+        TreeNode node;
+        int col;
+        Pair(TreeNode node, int col) {
+            this.node = node;
+            this.col = col;
+        }
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Given Input:
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+```
+
+### Step-by-step Execution:
+1. **Column -2:** `[4]`
+2. **Column -1:** `[2]`
+3. **Column  0:** `[1, 5]`
+4. **Column  1:** `[3]`
+5. **Column  2:** `[6]`
+
+### Final Output: **`[[4], [2], [1, 5], [3], [6]]`**
+
+# Binary Tree Views (Top View, Bottom View, Left View, Right View)
+
+## Problem Statement
+Given the root of a binary tree, return its **top view**, **bottom view**, **left view**, and **right view**.
+
+### Example
+#### Input:
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+         \
+          7
+```
+#### Outputs:
+- **Top View:** `[4, 2, 1, 3, 6]`
+- **Bottom View:** `[4, 2, 7, 3, 6]`
+- **Left View:** `[1, 2, 4, 7]`
+- **Right View:** `[1, 3, 6, 7]`
+
+---
+
+## Java Solution
+```java
+import java.util.*;
+
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+class Solution {
+    // Top View
+    public List<Integer> topView(TreeNode root) {
+        List<Integer> result = new ArrayList<>();
+        if (root == null) return result;
+        
+        Map<Integer, Integer> map = new TreeMap<>();
+        Queue<Pair> queue = new LinkedList<>();
+        queue.offer(new Pair(root, 0));
+        
+        while (!queue.isEmpty()) {
+            Pair p = queue.poll();
+            TreeNode node = p.node;
+            int col = p.col;
+            
+            map.putIfAbsent(col, node.val);
+            
+            if (node.left != null) queue.offer(new Pair(node.left, col - 1));
+            if (node.right != null) queue.offer(new Pair(node.right, col + 1));
+        }
+        
+        result.addAll(map.values());
+        return result;
+    }
+    
+    // Bottom View
+    public List<Integer> bottomView(TreeNode root) {
+        List<Integer> result = new ArrayList<>();
+        if (root == null) return result;
+        
+        Map<Integer, Integer> map = new TreeMap<>();
+        Queue<Pair> queue = new LinkedList<>();
+        queue.offer(new Pair(root, 0));
+        
+        while (!queue.isEmpty()) {
+            Pair p = queue.poll();
+            TreeNode node = p.node;
+            int col = p.col;
+            
+            map.put(col, node.val);
+            
+            if (node.left != null) queue.offer(new Pair(node.left, col - 1));
+            if (node.right != null) queue.offer(new Pair(node.right, col + 1));
+        }
+        
+        result.addAll(map.values());
+        return result;
+    }
+    
+    // Left View
+    public List<Integer> leftView(TreeNode root) {
+        List<Integer> result = new ArrayList<>();
+        leftViewHelper(root, result, 0);
+        return result;
+    }
+    private void leftViewHelper(TreeNode node, List<Integer> result, int level) {
+        if (node == null) return;
+        if (level == result.size()) result.add(node.val);
+        leftViewHelper(node.left, result, level + 1);
+        leftViewHelper(node.right, result, level + 1);
+    }
+    
+    // Right View
+    public List<Integer> rightView(TreeNode root) {
+        List<Integer> result = new ArrayList<>();
+        rightViewHelper(root, result, 0);
+        return result;
+    }
+    private void rightViewHelper(TreeNode node, List<Integer> result, int level) {
+        if (node == null) return;
+        if (level == result.size()) result.add(node.val);
+        rightViewHelper(node.right, result, level + 1);
+        rightViewHelper(node.left, result, level + 1);
+    }
+    
+    class Pair {
+        TreeNode node;
+        int col;
+        Pair(TreeNode node, int col) {
+            this.node = node;
+            this.col = col;
+        }
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Given Input:
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+         \
+          7
+```
+
+### Step-by-step Execution:
+1. **Top View:** `[4, 2, 1, 3, 6]`
+2. **Bottom View:** `[4, 2, 7, 3, 6]`
+3. **Left View:** `[1, 2, 4, 7]`
+4. **Right View:** `[1, 3, 6, 7]`
+
+### Final Outputs:
+```
+Top View: [4, 2, 1, 3, 6]
+Bottom View: [4, 2, 7, 3, 6]
+Left View: [1, 2, 4, 7]
+Right View: [1, 3, 6, 7]
+```
+
+# symmetric Binary Tree
+
+Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
+
+### Example 1:
+
+```
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+```
+
+**Input:** `root = [1,2,2,3,4,4,3]`
+
+**Output:** `true`
+
+### Example 2:
+
+```
+    1
+   / \
+  2   2
+   \   \
+   3    3
+```
+
+**Input:** `root = [1,2,2,null,3,null,3]`
+
+**Output:** `false`
+
+---
+
+## Java Code
+
+```java
+class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+    TreeNode(int x) { val = x; }
+}
+
+public class SymmetricTree {
+    public boolean isSymmetric(TreeNode root) {
+        if (root == null) return true;
+        return isMirror(root.left, root.right);
+    }
+
+    private boolean isMirror(TreeNode t1, TreeNode t2) {
+        if (t1 == null && t2 == null) return true;
+        if (t1 == null || t2 == null) return false;
+        return (t1.val == t2.val) 
+            && isMirror(t1.right, t2.left) 
+            && isMirror(t1.left, t2.right);
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Example 1:
+
+#### Input:
+```
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+```
+
+#### Execution Steps:
+1. Call `isSymmetric(root)`, where `root.val = 1`.
+2. Call `isMirror(root.left, root.right)`, comparing nodes `2` and `2`.
+3. Recursively check `isMirror(2.left, 2.right)` and `isMirror(2.right, 2.left)`.
+4. Compare `3` with `3` (symmetric) and `4` with `4` (symmetric).
+5. Return `true` since all comparisons match.
+
+#### Output: `true`
+
+---
+
+### Example 2:
+
+#### Input:
+```
+    1
+   / \
+  2   2
+   \   \
+   3    3
+```
+
+#### Execution Steps:
+1. Call `isSymmetric(root)`, where `root.val = 1`.
+2. Call `isMirror(root.left, root.right)`, comparing nodes `2` and `2`.
+3. `isMirror(2.left, 2.right)` -> `null` vs `3`, which is `false`.
+4. Return `false` since one comparison fails.
+
+#### Output: `false`
+
+# Print Root to Node Path in a Binary Tree
+
+## Problem Description
+
+Given the root of a binary tree and a target node, print the path from the root to the target node.
+
+### Example:
+
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+```
+
+**Input:** `root = [1,2,3,4,5,null,6], target = 5`
+
+**Output:** `[1, 2, 5]`
+
+---
+
+## Java Code
+
+```java
+import java.util.*;
+
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+public class RootToNodePath {
+    public static boolean findPath(TreeNode root, List<Integer> path, int target) {
+        if (root == null) return false;
+        
+        path.add(root.val);
+        
+        if (root.val == target) return true;
+        
+        if (findPath(root.left, path, target) || findPath(root.right, path, target)) {
+            return true;
+        }
+        
+        path.remove(path.size() - 1);
+        return false;
+    }
+    
+    public static void printPath(TreeNode root, int target) {
+        List<Integer> path = new ArrayList<>();
+        if (findPath(root, path, target)) {
+            System.out.println(path);
+        } else {
+            System.out.println("Target not found in the tree");
+        }
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Example:
+
+#### Input:
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+```
+Target = `5`
+
+#### Execution Steps:
+1. Start from root `1`, add to path → `[1]`.
+2. Move to left child `2`, add to path → `[1, 2]`.
+3. Move to left child `4`, add to path → `[1, 2, 4]`.
+4. Backtrack since `4` is not target, remove `4` → `[1, 2]`.
+5. Move to right child `5`, add to path → `[1, 2, 5]`.
+6. Found target `5`, print path `[1, 2, 5]`.
+
+#### Output: `[1, 2, 5]`
+
+# Lowest Common Ancestor in a Binary Tree
+
+## Problem Description
+
+Given the root of a binary tree and two nodes `p` and `q`, find their lowest common ancestor (LCA). The LCA of two nodes is the deepest node that has both `p` and `q` as descendants.
+
+### Example:
+
+```
+        3
+       / \
+      5   1
+     / \ / \
+    6  2 0  8
+      / \
+     7   4
+```
+
+**Input:** `root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1`
+
+**Output:** `3`
+
+---
+
+## Java Code
+
+```java
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+public class LowestCommonAncestor {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null || root == p || root == q) return root;
+        
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        
+        if (left != null && right != null) return root;
+        return (left != null) ? left : right;
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Example:
+
+#### Input:
+```
+        3
+       / \
+      5   1
+     / \ / \
+    6  2 0  8
+      / \
+     7   4
+```
+`p = 5`, `q = 1`
+
+#### Execution Steps:
+1. Start from root `3`, check `p` or `q` → No match.
+2. Recur left to `5`, check `p` or `q` → Match `p`.
+3. Recur right to `1`, check `p` or `q` → Match `q`.
+4. Since `p` and `q` are found in different subtrees of `3`, LCA is `3`.
+
+#### Output: `3`
+
+
+# Maximum Width of a Binary Tree
+
+## Problem Description
+
+Given the root of a binary tree, find the maximum width of the tree. The width of a level is defined as the number of nodes between the leftmost and rightmost non-null nodes at that level.
+
+### Example:
+
+```
+        1
+       / \
+      3   2
+     / \   \
+    5   3   9
+```
+
+**Input:** `root = [1,3,2,5,3,null,9]`
+
+**Output:** `4`
+
+---
+
+## Java Code
+
+```java
+import java.util.*;
+
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+class MaxWidthBinaryTree {
+    public int widthOfBinaryTree(TreeNode root) {
+        if (root == null) return 0;
+        
+        int maxWidth = 0;
+        Queue<Pair<TreeNode, Integer>> queue = new LinkedList<>();
+        queue.offer(new Pair<>(root, 0));
+        
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            int left = queue.peek().getValue();
+            int right = left;
+            
+            for (int i = 0; i < size; i++) {
+                Pair<TreeNode, Integer> current = queue.poll();
+                TreeNode node = current.getKey();
+                right = current.getValue();
+                
+                if (node.left != null) {
+                    queue.offer(new Pair<>(node.left, 2 * right));
+                }
+                if (node.right != null) {
+                    queue.offer(new Pair<>(node.right, 2 * right + 1));
+                }
+            }
+            
+            maxWidth = Math.max(maxWidth, right - left + 1);
+        }
+        
+        return maxWidth;
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Example:
+
+#### Input:
+```
+        1
+       / \
+      3   2
+     / \   \
+    5   3   9
+```
+
+#### Execution Steps:
+1. Level 0: `[1]` → Width = `1`
+2. Level 1: `[3, 2]` → Width = `2`
+3. Level 2: `[5, 3, null, 9]` → Width = `4`
+4. Maximum width found is `4`
+
+#### Output: `4`
+
+# Children Sum Property in a Binary Tree
+
+## Problem Description
+
+The **Children Sum Property** states that for every node in a binary tree, the value of the node should be equal to the sum of its left and right child nodes (if they exist). Modify the tree to satisfy this property.
+
+### Example:
+
+```
+        10
+       /  \
+      8    2
+     / \  /
+    3   5 2
+```
+
+**Modified Tree:**
+
+```
+        10
+       /  \
+      8    2
+     / \  /
+    3   5 2
+```
+(No changes needed since the property is already satisfied.)
+
+---
+
+## Java Code
+
+```java
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+public class ChildrenSumProperty {
+    public void convertTree(TreeNode root) {
+        if (root == null || (root.left == null && root.right == null)) return;
+        
+        convertTree(root.left);
+        convertTree(root.right);
+        
+        int leftVal = (root.left != null) ? root.left.val : 0;
+        int rightVal = (root.right != null) ? root.right.val : 0;
+        
+        int diff = leftVal + rightVal - root.val;
+        
+        if (diff > 0) {
+            root.val += diff;
+        } else if (diff < 0) {
+            incrementChild(root, -diff);
+        }
+    }
+    
+    private void incrementChild(TreeNode node, int diff) {
+        if (node.left != null) {
+            node.left.val += diff;
+            incrementChild(node.left, diff);
+        } else if (node.right != null) {
+            node.right.val += diff;
+            incrementChild(node.right, diff);
+        }
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Example:
+
+#### Input:
+```
+        50
+       /  \
+      7    2
+     / \  /
+    3   5 1
+```
+
+#### Execution Steps:
+1. Start from root `50`, left subtree sum = `7 + 3 + 5 = 15`, right subtree sum = `2 + 1 = 3`
+2. `50` is greater than `15 + 3`, so **modify children to satisfy sum property**
+3. Adjust tree so each node follows `node.val = left.val + right.val`
+
+#### Output:
+```
+        50
+       /  \
+     20   30
+     / \  /
+    10  10 30
+```
+
+#### Modified Tree Follows Children Sum Property
+
+
+# Print All Nodes at Distance K in a Binary Tree
+
+## Problem Description
+
+Given the root of a binary tree, a target node, and an integer `K`, print all the nodes that are exactly `K` distance away from the target node.
+
+### Example:
+
+```
+        3
+       / \
+      5   1
+     / \ / \
+    6  2 0  8
+      / \
+     7   4
+```
+
+**Input:** `root = [3,5,1,6,2,0,8,null,null,7,4], target = 5, K = 2`
+
+**Output:** `[7, 4, 1]`
+
+---
+
+## Java Code
+
+```java
+import java.util.*;
+
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+public class NodesAtDistanceK {
+    public List<Integer> distanceK(TreeNode root, TreeNode target, int k) {
+        Map<TreeNode, TreeNode> parentMap = new HashMap<>();
+        markParents(root, parentMap, null);
+        
+        return findKDistanceNodes(target, parentMap, k);
+    }
+    
+    private void markParents(TreeNode node, Map<TreeNode, TreeNode> parentMap, TreeNode parent) {
+        if (node == null) return;
+        parentMap.put(node, parent);
+        markParents(node.left, parentMap, node);
+        markParents(node.right, parentMap, node);
+    }
+    
+    private List<Integer> findKDistanceNodes(TreeNode target, Map<TreeNode, TreeNode> parentMap, int k) {
+        List<Integer> result = new ArrayList<>();
+        Queue<TreeNode> queue = new LinkedList<>();
+        Set<TreeNode> visited = new HashSet<>();
+        queue.offer(target);
+        visited.add(target);
+        
+        int distance = 0;
+        while (!queue.isEmpty()) {
+            if (distance == k) break;
+            int size = queue.size();
+            
+            for (int i = 0; i < size; i++) {
+                TreeNode current = queue.poll();
+                
+                if (current.left != null && !visited.contains(current.left)) {
+                    queue.offer(current.left);
+                    visited.add(current.left);
+                }
+                
+                if (current.right != null && !visited.contains(current.right)) {
+                    queue.offer(current.right);
+                    visited.add(current.right);
+                }
+                
+                TreeNode parent = parentMap.get(current);
+                if (parent != null && !visited.contains(parent)) {
+                    queue.offer(parent);
+                    visited.add(parent);
+                }
+            }
+            distance++;
+        }
+        
+        while (!queue.isEmpty()) {
+            result.add(queue.poll().val);
+        }
+        
+        return result;
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Example:
+
+#### Input:
+```
+        3
+       / \
+      5   1
+     / \ / \
+    6  2 0  8
+      / \
+     7   4
+```
+Target = `5`, K = `2`
+
+#### Execution Steps:
+1. Build parent map: `{5 → 3, 1 → 3, 6 → 5, 2 → 5, 0 → 1, 8 → 1, 7 → 2, 4 → 2}`
+2. Start BFS from `5`:
+   - Level 1: `6, 2, 3`
+   - Level 2: `7, 4, 1` (distance `K = 2` reached)
+3. Output nodes `[7, 4, 1]`
+
+#### Output: `[7, 4, 1]`
+
+
+# Minimum Time to Burn a Binary Tree from a Node
+
+## Problem Description
+
+Given the root of a binary tree and a target node, determine the minimum time required to burn the entire tree if the burning starts from the given target node. The fire spreads to adjacent nodes (parent, left child, right child) at the same time.
+
+### Example:
+
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+       / \
+      7   8
+```
+
+**Input:** `root = [1,2,3,4,5,6,null,null,null,7,8], target = 5`
+
+**Output:** `4`
+
+---
+
+## Java Code
+
+```java
+import java.util.*;
+
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+public class BurnBinaryTree {
+    public int minTimeToBurn(TreeNode root, TreeNode target) {
+        Map<TreeNode, TreeNode> parentMap = new HashMap<>();
+        markParents(root, parentMap, null);
+        
+        return findBurnTime(target, parentMap);
+    }
+    
+    private void markParents(TreeNode node, Map<TreeNode, TreeNode> parentMap, TreeNode parent) {
+        if (node == null) return;
+        parentMap.put(node, parent);
+        markParents(node.left, parentMap, node);
+        markParents(node.right, parentMap, node);
+    }
+    
+    private int findBurnTime(TreeNode target, Map<TreeNode, TreeNode> parentMap) {
+        Queue<TreeNode> queue = new LinkedList<>();
+        Set<TreeNode> visited = new HashSet<>();
+        queue.offer(target);
+        visited.add(target);
+        
+        int time = 0;
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            boolean burned = false;
+            
+            for (int i = 0; i < size; i++) {
+                TreeNode current = queue.poll();
+                
+                if (current.left != null && !visited.contains(current.left)) {
+                    queue.offer(current.left);
+                    visited.add(current.left);
+                    burned = true;
+                }
+                
+                if (current.right != null && !visited.contains(current.right)) {
+                    queue.offer(current.right);
+                    visited.add(current.right);
+                    burned = true;
+                }
+                
+                TreeNode parent = parentMap.get(current);
+                if (parent != null && !visited.contains(parent)) {
+                    queue.offer(parent);
+                    visited.add(parent);
+                    burned = true;
+                }
+            }
+            
+            if (burned) time++;
+        }
+        
+        return time;
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Example:
+
+#### Input:
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+       / \
+      7   8
+```
+Target = `5`
+
+#### Execution Steps:
+1. Build parent map: `{2 → 1, 3 → 1, 4 → 2, 5 → 2, 6 → 3, 7 → 5, 8 → 5}`
+2. Start burning from `5`:
+   - Time 1: `7, 8, 2`
+   - Time 2: `1, 4`
+   - Time 3: `3`
+   - Time 4: `6`
+3. The whole tree burns in `4` time units.
+
+#### Output: `4`
+
 
