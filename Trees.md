@@ -463,3 +463,331 @@ class Solution {
 
 ### Final Diameter: **3**
 
+# Maximum Path Sum in a Binary Tree
+
+## Problem Statement
+The **maximum path sum** of a binary tree is the highest possible sum of node values along any path in the tree. A path can start and end at any node but must follow parent-child connections.
+
+### Example
+#### Input:
+```
+       1
+      / \
+     2   3
+```
+#### Output:
+```
+6
+```
+#### Explanation:
+The maximum path sum is **2 → 1 → 3**, which sums to **6**.
+
+---
+
+## Java Solution
+```java
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+class Solution {
+    int maxSum = Integer.MIN_VALUE;
+    
+    public int maxPathSum(TreeNode root) {
+        maxGain(root);
+        return maxSum;
+    }
+    
+    private int maxGain(TreeNode node) {
+        if (node == null) return 0;
+        
+        int leftGain = Math.max(0, maxGain(node.left));
+        int rightGain = Math.max(0, maxGain(node.right));
+        
+        int priceNewPath = node.val + leftGain + rightGain;
+        maxSum = Math.max(maxSum, priceNewPath);
+        
+        return node.val + Math.max(leftGain, rightGain);
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Given Input:
+```
+       1
+      / \
+     2   3
+```
+
+### Step-by-step Execution:
+1. `maxGain(2) = 2`, `maxGain(3) = 3` → `priceNewPath = 2 + 3 + 1 = 6`
+2. `maxGain(1) = 1 + max(2,3) = 4`
+3. `maxSum = 6`
+
+### Final Maximum Path Sum: **6**
+
+# Check if Two Binary Trees are Identical
+
+## Problem Statement
+Given two binary trees, determine if they are identical. Two binary trees are considered identical if they have the same structure and node values.
+
+### Example
+#### Input:
+```
+Tree 1:      Tree 2:
+    1           1
+   / \         / \
+  2   3       2   3
+```
+#### Output:
+```
+true
+```
+#### Explanation:
+Both trees have the same structure and node values.
+
+---
+
+## Java Solution
+```java
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+class Solution {
+    public boolean isIdentical(TreeNode p, TreeNode q) {
+        if (p == null && q == null) return true;
+        if (p == null || q == null) return false;
+        if (p.val != q.val) return false;
+        
+        return isIdentical(p.left, q.left) && isIdentical(p.right, q.right);
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Given Input:
+```
+Tree 1:      Tree 2:
+    1           1
+   / \         / \
+  2   3       2   3
+```
+
+### Step-by-step Execution:
+1. `isIdentical(1,1)`: values match, check left and right subtrees.
+2. `isIdentical(2,2)`: values match, check left and right (both null, return true).
+3. `isIdentical(3,3)`: values match, check left and right (both null, return true).
+4. Since all recursive calls return `true`, the final result is **`true`**.
+
+### Final Output: **true**
+
+# Zigzag Level Order Traversal of a Binary Tree
+
+## Problem Statement
+Given the root of a binary tree, return its **zigzag level order traversal**. This means the nodes of each level are traversed in an alternating left-to-right and right-to-left order.
+
+### Example
+#### Input:
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+```
+#### Output:
+```
+[[1], [3, 2], [4, 5, 6]]
+```
+#### Explanation:
+- Level 1: Left to Right → `[1]`
+- Level 2: Right to Left → `[3, 2]`
+- Level 3: Left to Right → `[4, 5, 6]`
+
+---
+
+## Java Solution
+```java
+import java.util.*;
+
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+class Solution {
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+        
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        boolean leftToRight = true;
+        
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            LinkedList<Integer> level = new LinkedList<>();
+            
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                if (leftToRight) {
+                    level.addLast(node.val);
+                } else {
+                    level.addFirst(node.val);
+                }
+                
+                if (node.left != null) queue.offer(node.left);
+                if (node.right != null) queue.offer(node.right);
+            }
+            result.add(level);
+            leftToRight = !leftToRight;
+        }
+        
+        return result;
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Given Input:
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+```
+
+### Step-by-step Execution:
+1. **Level 1:** `[1]` (left-to-right)
+2. **Level 2:** `[3, 2]` (right-to-left)
+3. **Level 3:** `[4, 5, 6]` (left-to-right)
+
+### Final Output: **`[[1], [3, 2], [4, 5, 6]]`**
+
+# Boundary Traversal of a Binary Tree
+
+## Problem Statement
+Given the root of a binary tree, return its **boundary traversal**. The boundary traversal consists of three parts:
+1. **Left Boundary**: Nodes from the root to the left-most leaf (excluding leaf nodes).
+2. **Leaf Nodes**: All leaf nodes (from left to right).
+3. **Right Boundary**: Nodes from the right-most leaf to the root in reverse order (excluding leaf nodes).
+
+### Example
+#### Input:
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+   /       / \
+  7       8   9
+```
+#### Output:
+```
+[1, 2, 4, 7, 5, 8, 9, 6, 3]
+```
+#### Explanation:
+- **Left Boundary:** `[1, 2, 4]` (excluding leaf `7`)
+- **Leaf Nodes:** `[7, 5, 8, 9]`
+- **Right Boundary:** `[6, 3]` (excluding leaf `9` and in reverse order)
+
+---
+
+## Java Solution
+```java
+import java.util.*;
+
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int x) { val = x; }
+}
+
+class Solution {
+    public List<Integer> boundaryTraversal(TreeNode root) {
+        List<Integer> result = new ArrayList<>();
+        if (root == null) return result;
+        
+        if (!isLeaf(root)) result.add(root.val);
+        addLeftBoundary(root.left, result);
+        addLeaves(root, result);
+        addRightBoundary(root.right, result);
+        
+        return result;
+    }
+    
+    private boolean isLeaf(TreeNode node) {
+        return (node.left == null && node.right == null);
+    }
+    
+    private void addLeftBoundary(TreeNode node, List<Integer> result) {
+        while (node != null) {
+            if (!isLeaf(node)) result.add(node.val);
+            node = (node.left != null) ? node.left : node.right;
+        }
+    }
+    
+    private void addLeaves(TreeNode node, List<Integer> result) {
+        if (node == null) return;
+        if (isLeaf(node)) {
+            result.add(node.val);
+            return;
+        }
+        addLeaves(node.left, result);
+        addLeaves(node.right, result);
+    }
+    
+    private void addRightBoundary(TreeNode node, List<Integer> result) {
+        Stack<Integer> stack = new Stack<>();
+        while (node != null) {
+            if (!isLeaf(node)) stack.push(node.val);
+            node = (node.right != null) ? node.right : node.left;
+        }
+        while (!stack.isEmpty()) {
+            result.add(stack.pop());
+        }
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Given Input:
+```
+        1
+       / \
+      2   3
+     / \   \
+    4   5   6
+   /       / \
+  7       8   9
+```
+
+### Step-by-step Execution:
+1. **Left Boundary:** `[1, 2, 4]`
+2. **Leaf Nodes:** `[7, 5, 8, 9]`
+3. **Right Boundary:** `[6, 3]` (added in reverse order)
+
+### Final Output: **`[1, 2, 4, 7, 5, 8, 9, 6, 3]`**
+
+
