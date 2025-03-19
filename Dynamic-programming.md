@@ -3409,7 +3409,247 @@ class Solution {
 ✅ **Space Complexity:** `O(N)` for 2D DP, `O(1)` for optimized DP.
 
 
-## Longest Increasing Subsequence (LIS)
+# Stock Buy and Sell - Maximum Profit III
+
+## Problem Statement
+You are given an array `prices` where `prices[i]` is the price of a given stock on the `i`-th day.
+
+Design an algorithm to find the maximum profit you can achieve. You may complete **at most two transactions**.
+
+**Note:** You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before buying again).
+
+### Example 1:
+**Input:** `prices = [3,3,5,0,0,3,1,4]`  
+**Output:** `6`  
+**Explanation:** Buy on day 4 (price = 0) and sell on day 6 (price = 3), profit = 3-0 = 3.  
+Then buy on day 7 (price = 1) and sell on day 8 (price = 4), profit = 4-1 = 3.  
+
+### Example 2:
+**Input:** `prices = [1,2,3,4,5]`  
+**Output:** `4`  
+**Explanation:** Buy on day 1 (price = 1) and sell on day 5 (price = 5), profit = 5-1 = 4.
+
+### Constraints:
+- `1 <= prices.length <= 10^5`
+- `0 <= prices[i] <= 10^5`
+
+---
+
+## Approach - Dynamic Programming
+We'll maintain a DP array to track four key states:
+
+1. **`firstBuy`** - Maximum profit after buying the first stock.  
+2. **`firstSell`** - Maximum profit after selling the first stock.  
+3. **`secondBuy`** - Maximum profit after buying the second stock.  
+4. **`secondSell`** - Maximum profit after selling the second stock.
+
+### Step-by-Step Process:
+1. Initialize the variables:
+   - `firstBuy = Integer.MIN_VALUE` (lowest possible to allow maximum profit)
+   - `firstSell = 0`  
+   - `secondBuy = Integer.MIN_VALUE`  
+   - `secondSell = 0`  
+2. Iterate through each price in the array:
+   - `firstBuy = max(firstBuy, -price)`  
+   - `firstSell = max(firstSell, firstBuy + price)`  
+   - `secondBuy = max(secondBuy, firstSell - price)`  
+   - `secondSell = max(secondSell, secondBuy + price)`  
+3. The answer will be stored in `secondSell`.
+
+### Java Code Implementation
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+        if (prices == null || prices.length == 0) return 0;
+
+        int firstBuy = Integer.MIN_VALUE;
+        int firstSell = 0;
+        int secondBuy = Integer.MIN_VALUE;
+        int secondSell = 0;
+
+        for (int price : prices) {
+            firstBuy = Math.max(firstBuy, -price);   // First Buy Transaction
+            firstSell = Math.max(firstSell, firstBuy + price); // First Sell Transaction
+            secondBuy = Math.max(secondBuy, firstSell - price); // Second Buy Transaction
+            secondSell = Math.max(secondSell, secondBuy + price); // Second Sell Transaction
+        }
+        return secondSell;
+    }
+
+    public static void main(String[] args) {
+        Solution sol = new Solution();
+        int[] prices = {3,3,5,0,0,3,1,4};
+        System.out.println("Maximum Profit: " + sol.maxProfit(prices));
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:** `[3,3,5,0,0,3,1,4]`
+
+| Day | Price | firstBuy | firstSell | secondBuy | secondSell |
+|-----|--------|-----------|-------------|-------------|-------------|
+|  1  |   3    |    -3     |     0       |    -3        |      0       |
+|  2  |   3    |    -3     |     0       |    -3        |      0       |
+|  3  |   5    |    -3     |     2       |    -3        |      2       |
+|  4  |   0    |    0      |     2       |     2        |      2       |
+|  5  |   0    |    0      |     2       |     2        |      2       |
+|  6  |   3    |    0      |     3       |    -1        |      2       |
+|  7  |   1    |    0      |     3       |     2        |      3       |
+|  8  |   4    |    0      |     3       |     2        |      6       |
+
+**Final Output:** `6`
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(n)` — Each price is processed once.
+- **Space Complexity:** `O(1)` — Only four variables are used for tracking profits, making it constant space-efficient.
+
+---
+
+## Key Insights
+✅ Efficient DP approach with constant space.  
+✅ Tracks both buy/sell states for two transactions.  
+✅ Ideal for large datasets with `O(n)` time complexity.  
+
+# Stock Buy and Sell IV
+
+## Problem Statement
+You are given an integer `k` and an array `prices` where `prices[i]` is the price of a given stock on the `i`-th day.
+
+Design an algorithm to find the **maximum profit** you can achieve. You may complete at most `k` transactions (i.e., buy one and sell one share of the stock multiple times).
+
+**Note:** You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
+
+### Example 1:
+**Input:**
+```
+k = 2, prices = [3,2,6,5,0,3]
+```
+**Output:**
+```
+7
+```
+**Explanation:**
+- Buy at 2, Sell at 6 → Profit = 4
+- Buy at 0, Sell at 3 → Profit = 3
+**Total Profit = 7**
+
+### Example 2:
+**Input:**
+```
+k = 2, prices = [1,2,4,2,5,7,2,4,9,0]
+```
+**Output:**
+```
+13
+```
+**Explanation:**
+- Buy at 1, Sell at 7 → Profit = 6
+- Buy at 2, Sell at 9 → Profit = 7
+**Total Profit = 13**
+
+---
+
+## Approach - Dynamic Programming (DP)
+
+### Key Observations
+- DP is required since this problem involves multiple transactions with a limited number of trades (`k`).
+- Define `dp[i][j]` as the **maximum profit** achievable on day `j` with at most `i` transactions.
+
+### DP Transition Formula
+For each transaction state:
+```
+dp[i][j] = max(dp[i][j-1], prices[j] + max_diff)
+max_diff = max(max_diff, dp[i-1][j] - prices[j])
+```
+Where:
+- `dp[i][j-1]` → Skip the current day
+- `prices[j] + max_diff` → Best profit achievable by selling on day `j`
+- `max_diff` → Tracks the maximum profit seen so far while ensuring valid transactions
+
+### Base Case
+- `dp[0][...] = 0` (Zero transactions mean zero profit)
+- `dp[...][0] = 0` (On day zero, no profit possible)
+
+---
+
+## Code Implementation in Java
+```java
+class Solution {
+    public int maxProfit(int k, int[] prices) {
+        if (prices == null || prices.length == 0 || k == 0) return 0;
+
+        int n = prices.length;
+        if (k >= n / 2) { // Unlimited transactions possible (Greedy Approach)
+            int profit = 0;
+            for (int i = 1; i < n; i++) {
+                if (prices[i] > prices[i - 1]) {
+                    profit += prices[i] - prices[i - 1];
+                }
+            }
+            return profit;
+        }
+
+        int[][] dp = new int[k + 1][n];
+        for (int i = 1; i <= k; i++) {
+            int maxDiff = -prices[0];
+            for (int j = 1; j < n; j++) {
+                dp[i][j] = Math.max(dp[i][j - 1], prices[j] + maxDiff);
+                maxDiff = Math.max(maxDiff, dp[i - 1][j] - prices[j]);
+            }
+        }
+        return dp[k][n - 1];
+    }
+
+    public static void main(String[] args) {
+        Solution sol = new Solution();
+        System.out.println("Output for [3,2,6,5,0,3] with k = 2: " + sol.maxProfit(2, new int[]{3, 2, 6, 5, 0, 3})); // Output: 7
+        System.out.println("Output for [1,2,4,2,5,7,2,4,9,0] with k = 2: " + sol.maxProfit(2, new int[]{1, 2, 4, 2, 5, 7, 2, 4, 9, 0})); // Output: 13
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### Input:
+```
+k = 2, prices = [3, 2, 6, 5, 0, 3]
+```
+
+| Day | dp[1][j] | maxDiff (for dp[1][j]) | dp[2][j] | maxDiff (for dp[2][j]) |
+|-----|-----------|------------------------|-----------|------------------------|
+|  0  |     0     |        -3              |     0     |        -3              |
+|  1  |     0     |        -2              |     0     |        -2              |
+|  2  |     4     |        -2              |     4     |        -2              |
+|  3  |     4     |        -2              |     4     |        -2              |
+|  4  |     4     |        0               |     4     |        4               |
+|  5  |     4     |        0               |     7     |        4               |
+
+**Final Answer:** `dp[2][5] = 7`
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(k * n)` — Since we iterate through `k` transactions for `n` days.
+- **Space Complexity:** `O(k * n)` — The DP array stores `k * n` values.
+
+If optimized with a rolling array (since only previous states are required), the space complexity can be reduced to `O(n)`.
+
+---
+
+## Key Takeaways
+✅ The DP approach efficiently handles up to `k` transactions.
+✅ Greedy fails when strategic trade combinations are required.
+✅ Optimizing with `maxDiff` ensures constant-time calculation of best previous states.
+
+
+# Longest Increasing Subsequence (LIS)
 
 ### Problem Statement
 You are given an array `nums` of integers. Your task is to find the **length of the Longest Increasing Subsequence** (LIS) in the array.
@@ -3540,7 +3780,7 @@ class Solution {
 ✅ **DP Approach:** Preferred for small arrays or when you need to reconstruct the LIS sequence.
 ✅ **Optimized Approach:** Efficient for larger arrays due to its faster O(N log N) complexity.
 
-## Longest Increasing Subsequence (LIS) - Print the Sequence
+# Longest Increasing Subsequence (LIS) - Print the Sequence
 
 ### Problem Statement
 You are given an array `nums` of integers. Your task is to find the **Longest Increasing Subsequence** (LIS) and **print the actual sequence**.
@@ -3646,7 +3886,7 @@ class Solution {
 ✅ This method efficiently prints the LIS in **O(N²)** time complexity.
 
 
-## Largest Divisible Subset
+# Largest Divisible Subset
 
 ### Problem Statement
 Given a set of **distinct positive integers**, find the largest subset such that every pair `(Si, Sj)` of elements in this subset satisfies:
