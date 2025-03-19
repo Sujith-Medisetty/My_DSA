@@ -4009,6 +4009,365 @@ For each index, `inc[i] + dec[i] - 1`:
 - Space Complexity: `O(N)`
 
 
+# Number of Longest Increasing Subsequences
+
+## Problem Statement
+Given an integer array `nums`, return the number of longest increasing subsequences.
+
+**Example 1:**
+```
+Input: nums = [1,3,5,4,7]
+Output: 2
+Explanation: The two longest increasing subsequences are [1, 3, 5, 7] and [1, 3, 4, 7].
+```
+
+**Example 2:**
+```
+Input: nums = [2,2,2,2,2]
+Output: 5
+Explanation: The longest increasing subsequence is [2], occurring 5 times.
+```
+
+**Constraints:**
+- `1 <= nums.length <= 2000`
+- `-10^6 <= nums[i] <= 10^6`
+
+---
+
+## Approach
+We'll use **Dynamic Programming (DP)** to solve this problem efficiently.
+
+### Steps
+1. **Initialize DP Arrays:**
+   - `dp[i]`: Represents the **length** of the longest increasing subsequence ending at index `i`.
+   - `count[i]`: Tracks the **number of LIS** that end at index `i`.
+2. **Base Case:**
+   - Each element alone is an LIS of length 1, so initialize `dp[i] = 1` and `count[i] = 1` for all `i`.
+3. **DP Transition:**
+   - For each pair `(i, j)` where `j < i`, if `nums[j] < nums[i]`:
+     - If `dp[j] + 1 > dp[i]`: Update `dp[i]` and set `count[i] = count[j]`.
+     - If `dp[j] + 1 == dp[i]`: Add the count from `count[j]` to `count[i]`.
+4. **Result Calculation:**
+   - Find the maximum LIS length and sum all `count[i]` values corresponding to that length.
+
+---
+
+## Code Implementation (Java)
+```java
+class Solution {
+    public int findNumberOfLIS(int[] nums) {
+        int n = nums.length;
+        int[] dp = new int[n];     // Stores LIS length ending at index i
+        int[] count = new int[n];  // Stores count of LIS ending at index i
+        
+        Arrays.fill(dp, 1);   // Every element itself is an LIS of length 1
+        Arrays.fill(count, 1); // Each element alone is one valid LIS
+        
+        int maxLength = 1;    // Tracks the maximum LIS length found
+        
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < i; j++) {
+                if (nums[j] < nums[i]) {
+                    if (dp[j] + 1 > dp[i]) {
+                        dp[i] = dp[j] + 1;
+                        count[i] = count[j]; // Reset count because new LIS found
+                    } else if (dp[j] + 1 == dp[i]) {
+                        count[i] += count[j]; // Add valid LIS paths
+                    }
+                }
+            }
+            maxLength = Math.max(maxLength, dp[i]);
+        }
+
+        int totalLIS = 0;
+        for (int i = 0; i < n; i++) {
+            if (dp[i] == maxLength) {
+                totalLIS += count[i];
+            }
+        }
+
+        return totalLIS;
+    }
+
+    public static void main(String[] args) {
+        Solution sol = new Solution();
+        int[] nums1 = {1, 3, 5, 4, 7};
+        System.out.println("Output for nums1: " + sol.findNumberOfLIS(nums1)); // Output: 2
+
+        int[] nums2 = {2, 2, 2, 2, 2};
+        System.out.println("Output for nums2: " + sol.findNumberOfLIS(nums2)); // Output: 5
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:** `nums = [1, 3, 5, 4, 7]`
+
+| Index | nums | dp  | count | Explanation                    |
+|--------|-------|-----|--------|--------------------------------|
+| 0        | 1     | 1   | 1      | First element is LIS itself   |
+| 1        | 3     | 2   | 1      | Extends LIS from 1            |
+| 2        | 5     | 3   | 1      | Extends LIS from 3            |
+| 3        | 4     | 3   | 1      | Extends LIS from 3            |
+| 4        | 7     | 4   | 2      | Extends LIS from both 5 and 4 |
+
+**Result:** Maximum LIS length = 4, Number of LIS = 2
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(n^2)` — Each pair `(i, j)` is checked.
+- **Space Complexity:** `O(n)` — For `dp` and `count` arrays.
+
+# Minimum Cost to Cut the Stick
+
+## Problem Statement
+You are given a wooden stick of length `n` and an array `cuts` where `cuts[i]` denotes a position to perform a cut on the stick.
+
+Return *the minimum total cost* of cutting the stick. If you make a cut at position `x`, the cost is the length of the stick segment you are cutting. When you perform a cut, the stick is split into two smaller sticks. You may perform as many cuts as needed in any order.
+
+### Example 1:
+**Input:**
+```
+n = 7, cuts = [1, 3, 4, 5]
+```
+**Output:** `16`
+
+**Explanation:**
+- Optimal order of cuts: `1 -> 3 -> 4 -> 5`
+- Total cost = 7 (full length cut) + 4 + 3 + 2 = **16**
+
+### Example 2:
+**Input:**
+```
+n = 9, cuts = [5, 6, 1, 4, 2]
+```
+**Output:** `22`
+
+## Approach
+The key is to use **Dynamic Programming** (DP) to minimize the total cost.
+
+### Step 1: Sorting
+- Sort the `cuts` array and add the endpoints (0 and `n`) to simplify boundary conditions.
+
+### Step 2: DP Table Definition
+- Let `dp[i][j]` represent the minimum cost to cut the stick between the indices `i` and `j`.
+- Initialize `dp[i][i+1] = 0` since no cuts are needed for stick segments of length 1.
+
+### Step 3: Recurrence Relation
+For each possible cut at position `k`:
+```
+dp[i][j] = min(dp[i][j], (cuts[j] - cuts[i]) + dp[i][k] + dp[k][j])
+```
+- `(cuts[j] - cuts[i])` is the cost of cutting the stick at this position.
+- `dp[i][k]` and `dp[k][j]` are the costs of cutting the left and right segments.
+
+### Step 4: DP Table Filling
+- Iterate through increasing segment lengths and update the `dp` table accordingly.
+
+### Step 5: Result Extraction
+- The answer will be stored in `dp[0][m-1]` where `m = cuts.length`.
+
+## Code Implementation in Java
+```java
+import java.util.*;
+
+class Solution {
+    public int minCost(int n, int[] cuts) {
+        // Step 1: Sort the cuts array and add endpoints
+        int m = cuts.length;
+        int[] newCuts = new int[m + 2];
+        System.arraycopy(cuts, 0, newCuts, 1, m);
+        newCuts[0] = 0;
+        newCuts[m + 1] = n;
+        Arrays.sort(newCuts);
+
+        // Step 2: DP array initialization
+        int[][] dp = new int[m + 2][m + 2];
+
+        // Step 3: DP table filling
+        for (int len = 2; len <= m + 1; len++) {
+            for (int i = 0; i <= m + 1 - len; i++) {
+                int j = i + len;
+                dp[i][j] = Integer.MAX_VALUE;
+
+                for (int k = i + 1; k < j; k++) {
+                    dp[i][j] = Math.min(dp[i][j],
+                                        dp[i][k] + dp[k][j] + (newCuts[j] - newCuts[i]));
+                }
+            }
+        }
+
+        // Step 4: Return the final result
+        return dp[0][m + 1];
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        System.out.println("Output for n = 7, cuts = [1, 3, 4, 5]: " + solution.minCost(7, new int[]{1, 3, 4, 5})); // Output: 16
+        System.out.println("Output for n = 9, cuts = [5, 6, 1, 4, 2]: " + solution.minCost(9, new int[]{5, 6, 1, 4, 2})); // Output: 22
+    }
+}
+```
+
+## Detailed Dry Run
+**Input:** `n = 7, cuts = [1, 3, 4, 5]`
+
+### Step 1: Sorting
+```
+newCuts = [0, 1, 3, 4, 5, 7]
+```
+
+### Step 2: DP Table Initialization
+```
+dp[i][i+1] = 0 (base case)
+```
+
+### Step 3: DP Table Filling
+- For segment [0, 1, 3]: Minimum cost = `7 (full stick)`
+- For segment [1, 3, 4]: Minimum cost = `4`
+- For segment [3, 4, 5]: Minimum cost = `3`
+- For segment [4, 5, 7]: Minimum cost = `2`
+
+### Step 4: Final Calculation
+```
+dp[0][5] = 7 + 4 + 3 + 2 = 16
+```
+
+## Complexity Analysis
+- **Time Complexity:** `O(m^3)` — Since we are filling a DP table with `O(m^2)` entries and each entry may involve iterating through `m` possible cuts.
+- **Space Complexity:** `O(m^2)` — The DP table requires `m^2` space.
+
+## Key Insights
+✅ Sorting helps maintain correct boundaries.  
+✅ DP efficiently calculates minimum cost by dividing the problem into smaller subproblems.  
+✅ The approach leverages the optimal substructure property of DP.  
+
+# Burst Balloons
+
+## Problem Statement
+You are given `n` balloons, indexed from `0` to `n - 1`. Each balloon is painted with a number on it represented by an array `nums`. You are asked to burst all the balloons. If you burst balloon `i`, you will get `nums[left] * nums[i] * nums[right]` coins. Here `left` and `right` are adjacent indices of `i`. After the burst, the left and right balloons become adjacent.
+
+Return **the maximum coins** you can collect by bursting the balloons wisely.
+
+**Note:** If `i - 1` or `i + 1` goes out of bounds, then treat it as if there is a balloon with a `1` there.
+
+### Example 1:
+**Input:** nums = [3,1,5,8]  
+**Output:** 167  
+**Explanation:**
+```
+nums = [3,1,5,8]
+Max coins = 3*1*5 + 3*5*8 + 1*5*8 + 1*8*1 = 167
+```
+
+### Example 2:
+**Input:** nums = [1,5]  
+**Output:** 10  
+
+### Constraints:
+- `n == nums.length`
+- `1 <= n <= 500`
+- `0 <= nums[i] <= 100`
+
+---
+
+## Approach
+### Dynamic Programming (DP)
+**Key Idea:** Use DP to track maximum coins from subarrays by choosing optimal burst orders.
+
+### Steps to Solve:
+1. **Add Boundary Values:** Since the first and last balloon are treated as 1, add `1` at the beginning and end of the array.
+2. **DP Array Definition:** Create a `dp[][]` array where `dp[left][right]` represents the maximum coins obtainable from bursting balloons between index `left` and `right` (inclusive).
+3. **Fill DP Table:** Iterate the DP table in increasing window sizes. For each window size:
+   - Select a possible balloon `k` to burst last within this range.
+   - Calculate `dp[left][right]` as:
+
+   
+   ```java
+   dp[left][right] = max(dp[left][k] + dp[k][right] + nums[left] * nums[k] * nums[right])
+   ```
+
+4. **Result:** The answer is stored in `dp[0][n+1]`, where `n` is the original array size.
+
+---
+
+## Java Code Implementation
+```java
+class Solution {
+    public int maxCoins(int[] nums) {
+        int n = nums.length;
+        int[] arr = new int[n + 2];
+        arr[0] = arr[n + 1] = 1; // Boundary values as 1
+
+        for (int i = 0; i < n; i++) {
+            arr[i + 1] = nums[i];
+        }
+
+        int[][] dp = new int[n + 2][n + 2];
+
+        // Fill DP table
+        for (int len = 1; len <= n; len++) {
+            for (int left = 1; left <= n - len + 1; left++) {
+                int right = left + len - 1;
+
+                for (int k = left; k <= right; k++) {
+                    dp[left][right] = Math.max(
+                        dp[left][right],
+                        dp[left][k - 1] + arr[left - 1] * arr[k] * arr[right + 1] + dp[k + 1][right]
+                    );
+                }
+            }
+        }
+
+        return dp[1][n];
+    }
+
+    public static void main(String[] args) {
+        Solution sol = new Solution();
+        int[] nums = {3, 1, 5, 8};
+        System.out.println("Maximum coins: " + sol.maxCoins(nums));
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:** nums = [3,1,5,8]  
+
+### Step 1: Array Initialization
+```
+nums = [1, 3, 1, 5, 8, 1]
+```
+
+### Step 2: DP Table Filling
+- For `len = 1`, fill individual elements.
+- For `len = 2`, find max by bursting each `k`.
+- For `len = 3`, continue finding the optimal combination.
+- Continue this until all values are filled in `dp[][]`.
+
+### Step 3: Final DP Table (important values)
+```
+dp[1][4] = 167
+```
+
+**Output:** 167
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(n^3)` - Due to nested loops for filling the DP table.
+- **Space Complexity:** `O(n^2)` - DP table storing maximum coins for each subarray range.
+
+---
+
+## Key Takeaways
+✅ Efficiently leverages DP for optimal calculation.  
+✅ Proper use of boundaries with extra `1` values ensures correctness.  
+✅ Step-by-step dry run helps in understanding the logic flow.  
 
 
 
