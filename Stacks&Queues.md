@@ -460,3 +460,331 @@ Final Sum: **`17`**
 - ✅ **Stack Solution:** Most optimal with `O(n)` complexity — Recommended for real-world scenarios.
 - 🚫 **DP Solution:** Less efficient with `O(n²)` complexity — Good for understanding subarray behavior but not optimal.
 
+
+---
+
+# **Sum Subaarat Ranges**
+Given an integer array `arr`, find the **sum of all subarray ranges**.
+- A **range** of a subarray is defined as the difference between the maximum and minimum element in that subarray.
+- Return the sum of all subarray ranges.
+
+### **Example**
+#### **Input:**
+```java
+arr = {1, 2, 3}
+```
+#### **Output:**
+```java
+Sum of subarray ranges: 4
+```
+#### **Explanation:**
+- The subarrays and their ranges are:
+  - `[1]` → max=1, min=1, range=0
+  - `[2]` → max=2, min=2, range=0
+  - `[3]` → max=3, min=3, range=0
+  - `[1,2]` → max=2, min=1, range=1
+  - `[2,3]` → max=3, min=2, range=1
+  - `[1,2,3]` → max=3, min=1, range=2
+  
+Total sum of ranges: `1 + 1 + 2 = 4`
+
+---
+
+# **Approach**
+To efficiently compute the sum of subarray ranges, we use a **monotonic stack approach**:
+1. Compute the **sum of subarray maximum elements**.
+2. Compute the **sum of subarray minimum elements**.
+3. Compute the **final result**:
+   
+   ```
+   Sum of subarray ranges = sumOfSubarrayMax - sumOfSubarrayMin
+   ```
+4. Use **monotonic stacks** to efficiently find the previous and next **greater** (for max) and **smaller** (for min) elements, reducing the time complexity to **O(n)**.
+
+---
+
+# **Java Code**
+```java
+import java.util.Stack;
+
+/**
+ * Class to calculate the sum of subarray ranges.
+ * Formula: Sum of subarray max elements - Sum of subarray min elements
+ */
+public class SumOfSubarrayRanges {
+    
+    public long subArrayRanges(int[] arr) {
+        return sumOfSubarrayMax(arr) - sumOfSubarrayMin(arr);
+    }
+    
+    /**
+     * Computes the sum of minimum elements in all subarrays.
+     */
+    private long sumOfSubarrayMin(int[] arr) {
+        int n = arr.length;
+        long sum = 0;
+        Stack<Integer> stack = new Stack<>();
+        int[] left = new int[n]; // Stores distances to the previous smaller element
+        int[] right = new int[n]; // Stores distances to the next smaller or equal element
+        
+        // Compute left[]
+        for (int i = 0; i < n; i++) {
+            while (!stack.isEmpty() && arr[stack.peek()] > arr[i]) {
+                stack.pop();
+            }
+            left[i] = stack.isEmpty() ? i + 1 : i - stack.peek();
+            stack.push(i);
+        }
+        
+        stack.clear();
+        
+        // Compute right[]
+        for (int i = n - 1; i >= 0; i--) {
+            while (!stack.isEmpty() && arr[stack.peek()] >= arr[i]) {
+                stack.pop();
+            }
+            right[i] = stack.isEmpty() ? n - i : stack.peek() - i;
+            stack.push(i);
+        }
+        
+        // Compute sum using contribution formula
+        for (int i = 0; i < n; i++) {
+            sum += (long) arr[i] * left[i] * right[i];
+        }
+        
+        return sum;
+    }
+    
+    /**
+     * Computes the sum of maximum elements in all subarrays.
+     */
+    private long sumOfSubarrayMax(int[] arr) {
+        int n = arr.length;
+        long sum = 0;
+        Stack<Integer> stack = new Stack<>();
+        int[] left = new int[n]; // Stores distances to the previous larger element
+        int[] right = new int[n]; // Stores distances to the next larger or equal element
+        
+        // Compute left[]
+        for (int i = 0; i < n; i++) {
+            while (!stack.isEmpty() && arr[stack.peek()] < arr[i]) {
+                stack.pop();
+            }
+            left[i] = stack.isEmpty() ? i + 1 : i - stack.peek();
+            stack.push(i);
+        }
+        
+        stack.clear();
+        
+        // Compute right[]
+        for (int i = n - 1; i >= 0; i--) {
+            while (!stack.isEmpty() && arr[stack.peek()] <= arr[i]) {
+                stack.pop();
+            }
+            right[i] = stack.isEmpty() ? n - i : stack.peek() - i;
+            stack.push(i);
+        }
+        
+        // Compute sum using contribution formula
+        for (int i = 0; i < n; i++) {
+            sum += (long) arr[i] * left[i] * right[i];
+        }
+        
+        return sum;
+    }
+
+    /**
+     * Main function to test the sum of subarray ranges.
+     */
+    public static void main(String[] args) {
+        SumOfSubarrayRanges obj = new SumOfSubarrayRanges();
+        int[] arr = {1, 2, 3};
+        System.out.println("Sum of subarray ranges: " + obj.subArrayRanges(arr));
+    }
+}
+```
+
+---
+
+# **Dry Run**
+### **Input:** `{1, 2, 3}`
+
+### **Step 1: Compute `left[]` and `right[]` for Min Contribution**
+| Index | arr[i] | left[i] | right[i] | Contribution |
+|--------|--------|--------|--------|----------------|
+| 0 | 1 | 1 | 3 | `1 × 1 × 3 = 3` |
+| 1 | 2 | 1 | 2 | `2 × 1 × 2 = 4` |
+| 2 | 3 | 1 | 1 | `3 × 1 × 1 = 3` |
+**Sum of min contributions** = `3 + 4 + 3 = 10`
+
+### **Step 2: Compute `left[]` and `right[]` for Max Contribution**
+| Index | arr[i] | left[i] | right[i] | Contribution |
+|--------|--------|--------|--------|----------------|
+| 0 | 1 | 1 | 1 | `1 × 1 × 1 = 1` |
+| 1 | 2 | 2 | 1 | `2 × 2 × 1 = 4` |
+| 2 | 3 | 3 | 1 | `3 × 3 × 1 = 9` |
+**Sum of max contributions** = `1 + 4 + 9 = 14`
+
+### **Final Result:**
+```
+Sum of subarray ranges = 14 - 10 = 4
+```
+
+**Output:**
+```
+Sum of subarray ranges: 4
+```
+
+---
+
+
+# Asteroid Collision Problem
+
+## Problem Statement
+You are given an array of integers `asteroids` where:
+- Positive values represent asteroids moving right.
+- Negative values represent asteroids moving left.
+- If two asteroids collide, the smaller one (absolute value) is destroyed.
+- If both have the same size, both are destroyed.
+- If a moving left asteroid collides with a moving right asteroid, they interact based on their sizes.
+
+Return the state of asteroids after all collisions.
+
+## Approach
+1. Use a stack to simulate asteroid movement.
+2. Iterate through the `asteroids` array:
+   - If the stack is empty or the asteroid is moving right (`>0`), push it onto the stack.
+   - If the asteroid is moving left (`<0`), check the top of the stack:
+     - If the top is moving right (`>0`), a collision occurs.
+     - Compare sizes and remove the smaller one.
+     - If they are equal, remove both.
+     - If the moving left asteroid is larger, keep checking the stack.
+3. Convert the stack to an array and return it.
+
+## Code Implementation
+```java
+import java.util.Stack;
+
+public class AsteroidCollision {
+    public static int[] asteroidCollision(int[] asteroids) {
+        Stack<Integer> stack = new Stack<>();
+        for (int asteroid : asteroids) {
+            boolean destroyed = false;
+            while (!stack.isEmpty() && asteroid < 0 && stack.peek() > 0) {
+                if (stack.peek() < -asteroid) {
+                    stack.pop();
+                    continue;
+                } else if (stack.peek() == -asteroid) {
+                    stack.pop();
+                }
+                destroyed = true;
+                break;
+            }
+            if (!destroyed) {
+                stack.push(asteroid);
+            }
+        }
+        return stack.stream().mapToInt(i -> i).toArray();
+    }
+    
+    public static void main(String[] args) {
+        int[] asteroids = {5, 10, -5};
+        int[] result = asteroidCollision(asteroids);
+        
+        System.out.print("Result: ");
+        for (int r : result) {
+            System.out.print(r + " ");
+        }
+    }
+}
+```
+
+## Dry Run Example
+### Input
+```
+asteroids = [5, 10, -5]
+```
+
+### Step-by-Step Execution
+1. Stack is empty.
+2. `5` is positive, push to stack → `[5]`
+3. `10` is positive, push to stack → `[5, 10]`
+4. `-5` is negative:
+   - Compare with `10`, no collision as `10 > |-5|`
+   - `-5` is destroyed
+
+### Final Stack
+```
+[5, 10]
+```
+
+### Output
+```
+[5, 10]
+```
+
+# Largest Rectangle in Histogram
+
+## Problem Statement
+Given an array `heights` representing the heights of histogram bars, find the largest rectangular area that can be formed using these bars.
+
+## Approach
+1. Use a **monotonic increasing stack** to keep track of indices of histogram bars.
+2. Iterate through the array, maintaining the stack:
+   - If the current height is greater than the stack's top, push it.
+   - If it is smaller, pop elements from the stack and compute the area with the popped bar as height.
+3. Continue until all elements are processed.
+4. Return the maximum computed area.
+
+## Code Implementation
+```java
+import java.util.Stack;
+
+public class LargestRectangleHistogram {
+    public static int largestRectangleArea(int[] heights) {
+        Stack<Integer> stack = new Stack<>();
+        int maxArea = 0;
+        int n = heights.length;
+        
+        for (int i = 0; i <= n; i++) {
+            int h = (i == n) ? 0 : heights[i];
+            while (!stack.isEmpty() && h < heights[stack.peek()]) {
+                int height = heights[stack.pop()];
+                int width = stack.isEmpty() ? i : i - stack.peek() - 1;
+                maxArea = Math.max(maxArea, height * width);
+            }
+            stack.push(i);
+        }
+        return maxArea;
+    }
+    
+    public static void main(String[] args) {
+        int[] heights = {2, 1, 5, 6, 2, 3};
+        System.out.println("Largest Rectangle Area: " + largestRectangleArea(heights));
+    }
+}
+```
+
+## Dry Run Example
+### Input
+```
+heights = [2, 1, 5, 6, 2, 3]
+```
+
+### Step-by-Step Execution
+1. Push index `0` (height `2`) → Stack: `[0]`
+2. Pop index `0` (height `2`), calculate area `2 × 1 = 2`
+3. Push index `1` (height `1`) → Stack: `[1]`
+4. Push index `2` (height `5`), Push index `3` (height `6`) → Stack: `[1, 2, 3]`
+5. Pop index `3` (height `6`), calculate area `6 × 1 = 6`
+6. Pop index `2` (height `5`), calculate area `5 × 2 = 10`
+7. Push index `4` (height `2`), Push index `5` (height `3`) → Stack: `[1, 4, 5]`
+8. Pop index `5` (height `3`), calculate area `3 × 1 = 3`
+9. Pop index `4` (height `2`), calculate area `2 × 4 = 8`
+10. Pop index `1` (height `1`), calculate area `1 × 6 = 6`
+
+### Final Maximum Area
+```
+10
+```
+
