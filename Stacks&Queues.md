@@ -340,32 +340,44 @@ import java.util.Stack;
 
 public class SubarrayMinStack {
     public int sumSubarrayMins(int[] arr) {
-        int MOD = 1_000_000_007;
+        int MOD = 1_000_000_007; // Modulo to prevent overflow
         int n = arr.length;
-        long result = 0;
-        Stack<Integer> stack = new Stack<>();
-        int[] left = new int[n];
-        int[] right = new int[n];
+        long result = 0; // Store the final result
+        
+        Stack<Integer> stack = new Stack<>(); // Monotonic increasing stack
+        int[] left = new int[n]; // Stores how many elements are greater on the left
+        int[] right = new int[n]; // Stores how many elements are greater or equal on the right
 
+        // Step 1: Compute left[] (distance to previous smaller element)
         for (int i = 0; i < n; i++) {
+            // Pop elements from stack while they are greater than arr[i]
             while (!stack.isEmpty() && arr[stack.peek()] > arr[i]) {
                 stack.pop();
             }
+            // If stack is empty, all elements to the left are greater -> i+1 subarrays
+            // Otherwise, distance from previous smaller element
             left[i] = stack.isEmpty() ? i + 1 : i - stack.peek();
-            stack.push(i);
+            stack.push(i); // Push current index to stack
         }
 
+        // Clear stack to reuse for right[] computation
         stack.clear();
         
+        // Step 2: Compute right[] (distance to next smaller or equal element)
         for (int i = n - 1; i >= 0; i--) {
+            // Pop elements from stack while they are greater or equal to arr[i]
             while (!stack.isEmpty() && arr[stack.peek()] >= arr[i]) {
                 stack.pop();
             }
+            // If stack is empty, all elements to the right are greater -> n-i subarrays
+            // Otherwise, distance to next smaller element
             right[i] = stack.isEmpty() ? n - i : stack.peek() - i;
-            stack.push(i);
+            stack.push(i); // Push current index to stack
         }
 
+        // Step 3: Calculate final result using left[] and right[]
         for (int i = 0; i < n; i++) {
+            // Contribution formula: arr[i] * left[i] * right[i]
             result = (result + (long) arr[i] * left[i] * right[i]) % MOD;
         }
 
@@ -374,7 +386,7 @@ public class SubarrayMinStack {
 
     public static void main(String[] args) {
         SubarrayMinStack obj = new SubarrayMinStack();
-        int[] arr = {3, 1, 2, 4};
+        int[] arr = {3, 1, 2, 4}; // Example input
         System.out.println("Sum of subarray minimums (Stack): " + obj.sumSubarrayMins(arr));
     }
 }
