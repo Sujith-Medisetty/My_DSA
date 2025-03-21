@@ -1031,3 +1031,74 @@ k = 3
 [3, 3, 5, 5, 6, 7]
 ```
 ```
+# Simplify Unix Path
+
+## Problem Statement
+Given an absolute path for a Unix-style file system, simplify it to its canonical form following these rules:
+1. A single period `.` represents the current directory.
+2. A double period `..` represents the parent directory.
+3. Multiple consecutive slashes `//` should be treated as a single `/`.
+4. Any sequence of periods that doesn’t match the above (e.g., `...`) is treated as a directory name.
+5. The output must be a valid absolute path:
+   - Starts with a single `/`.
+   - Does not end with `/`, unless it is the root.
+   - Does not contain redundant `.` or `..`.
+
+## Approach
+1. **Split the Path**: Use `/` as a delimiter to extract directory names.
+2. **Use a Stack**: Traverse through the extracted components:
+   - Ignore empty components and `.`.
+   - If `..` is encountered, pop the last directory if possible.
+   - Otherwise, push valid directory names onto the stack.
+3. **Construct the Result**: Join the stack elements with `/` and ensure the result starts with `/`.
+4. **Edge Cases**:
+   - `path = "/../"` should return `/`.
+   - `path = "/.../a/../b/"` should return `/.../b`.
+
+## Code Implementation
+```java
+import java.util.*;
+
+public class SimplifyUnixPath {
+    public static String simplifyPath(String path) {
+        Stack<String> stack = new Stack<>();
+        String[] components = path.split("/");
+        
+        for (String dir : components) {
+            if (dir.equals("..")) {
+                if (!stack.isEmpty()) stack.pop();
+            } else if (!dir.isEmpty() && !dir.equals(".")) {
+                stack.push(dir);
+            }
+        }
+        
+        return "/" + String.join("/", stack);
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(simplifyPath("/home/")); // Output: "/home"
+        System.out.println(simplifyPath("/home//foo/")); // Output: "/home/foo"
+        System.out.println(simplifyPath("/home/user/Documents/../Pictures")); // Output: "/home/user/Pictures"
+        System.out.println(simplifyPath("/../")); // Output: "/"
+        System.out.println(simplifyPath("/.../a/../b/c/../d/./")); // Output: "/.../b/d"
+    }
+}
+```
+
+## Dry Run Example
+### Input
+```
+path = "/home//foo/"
+```
+
+### Step-by-Step Execution
+| Step | Component | Stack State |
+|------|----------|-------------|
+| 1    | "home"   | ["home"]     |
+| 2    | "foo"    | ["home", "foo"] |
+
+### Final Output
+```
+"/home/foo"
+```
+```
