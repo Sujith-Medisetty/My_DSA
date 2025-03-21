@@ -788,3 +788,246 @@ heights = [2, 1, 5, 6, 2, 3]
 10
 ```
 
+# Maximal Rectangle
+
+## Problem Statement
+Given a `rows x cols` binary matrix filled with `0s` and `1s`, find the largest rectangle containing only `1s` and return its area.
+
+## Approach
+1. **Convert the problem into Largest Rectangle in Histogram:**
+   - Treat each row as the base of a histogram where consecutive `1s` contribute to bar heights.
+2. **Use the Largest Rectangle Histogram approach:**
+   - Maintain an array `heights[]` to store the histogram heights.
+   - For each row, update `heights[]` and compute the maximum area using a monotonic stack.
+
+## Code Implementation
+```java
+import java.util.Stack;
+
+public class MaximalRectangle {
+    public int maximalRectangle(char[][] matrix) {
+        if (matrix.length == 0) return 0;
+        int maxArea = 0;
+        int[] heights = new int[matrix[0].length];
+        
+        for (char[] row : matrix) {
+            // Update the histogram heights
+            for (int j = 0; j < row.length; j++) {
+                heights[j] = (row[j] == '1') ? heights[j] + 1 : 0;
+            }
+            // Compute the largest rectangle in histogram
+            maxArea = Math.max(maxArea, largestRectangleArea(heights));
+        }
+        return maxArea;
+    }
+    
+    private int largestRectangleArea(int[] heights) {
+        Stack<Integer> stack = new Stack<>();
+        int maxArea = 0;
+        int n = heights.length;
+        
+        for (int i = 0; i <= n; i++) {
+            int h = (i == n) ? 0 : heights[i];
+            while (!stack.isEmpty() && h < heights[stack.peek()]) {
+                int height = heights[stack.pop()];
+                int width = stack.isEmpty() ? i : i - stack.peek() - 1;
+                maxArea = Math.max(maxArea, height * width);
+            }
+            stack.push(i);
+        }
+        return maxArea;
+    }
+    
+    public static void main(String[] args) {
+        MaximalRectangle obj = new MaximalRectangle();
+        char[][] matrix = {
+            {'1', '0', '1', '0', '0'},
+            {'1', '0', '1', '1', '1'},
+            {'1', '1', '1', '1', '1'},
+            {'1', '0', '0', '1', '0'}
+        };
+        System.out.println("Maximal Rectangle Area: " + obj.maximalRectangle(matrix));
+    }
+}
+```
+
+## Dry Run Example
+### Input
+```
+Matrix:
+1  0  1  0  0
+1  0  1  1  1
+1  1  1  1  1
+1  0  0  1  0
+```
+
+### Step-by-Step Execution
+**Step 1: Convert rows to histogram heights**
+```
+After processing row 1: [1, 0, 1, 0, 0]
+After processing row 2: [2, 0, 2, 1, 1]
+After processing row 3: [3, 1, 3, 2, 2]
+After processing row 4: [4, 0, 0, 3, 0]
+```
+
+**Step 2: Compute the largest rectangle for each row histogram**
+- For row 1: Largest area = 1
+- For row 2: Largest area = 3
+- For row 3: Largest area = 6
+- For row 4: Largest area = 6
+
+### Final Maximum Area
+```
+6
+```
+```
+# Stock Span Problem
+
+## Problem Statement
+Given the daily price of a stock, find the span of the stock price for each day. The span of a stock’s price for the current day is defined as the maximum number of consecutive days (including the current day) the price has been less than or equal to today’s price.
+
+## Approach
+1. **Use a Monotonic Decreasing Stack**
+   - The stack stores indices of days where the price has not been exceeded by a future day.
+2. **Iterate through the stock prices**
+   - If the stack is empty, all previous days had lower prices, so span = `i + 1`.
+   - Otherwise, pop elements until a greater price is found, and compute span as `i - stack.peek()`.
+3. **Push the current index onto the stack**
+   - This helps in efficiently tracking spans.
+
+## Code Implementation
+```java
+import java.util.Stack;
+
+public class StockSpan {
+    public int[] calculateSpan(int[] prices) {
+        int n = prices.length;
+        int[] span = new int[n];
+        Stack<Integer> stack = new Stack<>();
+        
+        for (int i = 0; i < n; i++) {
+            while (!stack.isEmpty() && prices[stack.peek()] <= prices[i]) {
+                stack.pop();
+            }
+            span[i] = stack.isEmpty() ? i + 1 : i - stack.peek();
+            stack.push(i);
+        }
+        return span;
+    }
+    
+    public static void main(String[] args) {
+        StockSpan obj = new StockSpan();
+        int[] prices = {100, 80, 60, 70, 60, 75, 85};
+        int[] result = obj.calculateSpan(prices);
+        
+        System.out.print("Stock Spans: ");
+        for (int span : result) {
+            System.out.print(span + " ");
+        }
+    }
+}
+```
+
+## Dry Run Example
+### Input
+```
+prices = [100, 80, 60, 70, 60, 75, 85]
+```
+
+### Step-by-Step Execution
+| Day | Price | Stack (Indices) | Computed Span |
+|-----|-------|----------------|---------------|
+| 0   | 100   | [0]            | 1             |
+| 1   | 80    | [0,1]          | 1             |
+| 2   | 60    | [0,1,2]        | 1             |
+| 3   | 70    | [0,1]          | 2             |
+| 4   | 60    | [0,1,4]        | 1             |
+| 5   | 75    | [0]            | 4             |
+| 6   | 85    | [0]            | 6             |
+
+### Final Output
+```
+Stock Spans: [1, 1, 1, 2, 1, 4, 6]
+```
+```
+# Sliding Window Maximum
+
+## Problem Statement
+Given an array of integers `nums` and an integer `k`, return an array representing the maximum values of each contiguous subarray of size `k`.
+
+## Approach
+1. **Use a Monotonic Decreasing Deque (Double-ended Queue)**:
+   - Maintain a deque where elements are stored in decreasing order.
+   - The front of the deque always contains the maximum element of the current window.
+2. **Iterate through the array**:
+   - Remove elements from the back of the deque that are smaller than the current element (as they won’t be needed).
+   - Remove the front element if it’s out of the current window.
+   - Add the current element’s index to the deque.
+   - Once `i >= k - 1`, store `nums[deque.peekFirst()]` as the maximum of the current window.
+
+## Code Implementation
+```java
+import java.util.*;
+
+public class SlidingWindowMaximum {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        if (nums == null || k == 0) return new int[0];
+        int n = nums.length;
+        int[] result = new int[n - k + 1];
+        Deque<Integer> deque = new LinkedList<>();
+        
+        for (int i = 0; i < n; i++) {
+            // Remove elements that are out of this window
+            if (!deque.isEmpty() && deque.peekFirst() < i - k + 1) {
+                deque.pollFirst();
+            }
+            
+            // Remove elements smaller than current element from back
+            while (!deque.isEmpty() && nums[deque.peekLast()] < nums[i]) {
+                deque.pollLast();
+            }
+            
+            // Add current element index
+            deque.offerLast(i);
+            
+            // Store result for windows starting from index k-1
+            if (i >= k - 1) {
+                result[i - k + 1] = nums[deque.peekFirst()];
+            }
+        }
+        return result;
+    }
+    
+    public static void main(String[] args) {
+        SlidingWindowMaximum obj = new SlidingWindowMaximum();
+        int[] nums = {1, 3, -1, -3, 5, 3, 6, 7};
+        int k = 3;
+        int[] result = obj.maxSlidingWindow(nums, k);
+        
+        System.out.println("Sliding Window Maximum: " + Arrays.toString(result));
+    }
+}
+```
+
+## Dry Run Example
+### Input
+```
+nums = [1, 3, -1, -3, 5, 3, 6, 7]
+k = 3
+```
+
+### Step-by-Step Execution
+| Step | Window        | Deque (Indices) | Max |
+|------|--------------|----------------|-----|
+| 1    | [1, 3, -1]   | [1]            | 3   |
+| 2    | [3, -1, -3]  | [1,2,3]        | 3   |
+| 3    | [-1, -3, 5]  | [5]            | 5   |
+| 4    | [-3, 5, 3]   | [5,6]          | 5   |
+| 5    | [5, 3, 6]    | [6]            | 6   |
+| 6    | [3, 6, 7]    | [7]            | 7   |
+
+### Final Output
+```
+[3, 3, 5, 5, 6, 7]
+```
+```
