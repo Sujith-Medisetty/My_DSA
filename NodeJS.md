@@ -422,6 +422,45 @@ eventEmitter.on('greet', (name) => {
 eventEmitter.emit('greet', 'Alice');
 ```
 
+### Step-by-Step Execution Flow
+
+| Step | Code Execution | What Happens Internally? |
+|------|---------------|--------------------------|
+| 1️⃣  | `require('events')` | Loads the `events` module into memory |
+| 2️⃣  | `new EventEmitter()` | Creates an instance of `EventEmitter` |
+| 3️⃣  | `eventEmitter.on('greet', callback)` | Registers an event listener for "greet" |
+| 4️⃣  | `eventEmitter.emit('greet', 'Alice')` | Triggers "greet" event and executes its callback |
+| 5️⃣  | `console.log("Hello, Alice!")` | The callback runs synchronously and prints to the console |
+
+### 🔹 Final Output:
+```
+Hello, Alice!
+```
+
+---
+
+### 📌 Understanding "Registration" and "Execution"
+
+#### **1️⃣ Registration**
+- The `eventEmitter.on('greet', callback)` registers an event listener.
+- This means that whenever the "greet" event is emitted, the provided function will run.
+
+#### **2️⃣ Execution**
+- When `eventEmitter.emit('greet', 'Alice')` is called, it triggers the event, executing all registered listeners for "greet".
+- The listener function receives `'Alice'` as an argument and prints `Hello, Alice!`.
+
+---
+
+### 📌 How the Event System Works Internally
+
+#### **Registering Listeners (`on` method)**
+- The `on` method stores event listeners in an **internal event registry**.
+- When an event is emitted, Node.js **looks up all registered listeners** and executes them.
+
+#### **Emitting an Event (`emit` method)**
+- The `emit` method **synchronously** executes all callbacks for that event.
+- It passes the provided arguments (`'Alice'`) to the callback function.
+
 ---
 
 ## 🚀 Blocking vs Non-Blocking Code
