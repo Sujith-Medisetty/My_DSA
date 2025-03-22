@@ -592,3 +592,107 @@ server.listen(3000);
 
 ### 🎯 Conclusion
 Node.js efficiently handles HTTP requests using an **event-driven, non-blocking model**. Its module system, file system operations, and request handling make it ideal for building scalable applications.
+
+# Express.js Overview
+
+Express.js is a minimal and flexible Node.js web application framework that provides a robust set of features to develop web and mobile applications. It simplifies building web servers by providing a straightforward API for handling routes, middleware, and request processing.
+
+## How Express.js Works
+
+Express.js operates by:
+1. Creating an instance of an Express application.
+2. Defining middleware to process requests.
+3. Setting up routes to handle different HTTP methods.
+4. Listening on a specified port to serve requests.
+
+## Middleware in Express.js
+
+Middleware functions are functions that have access to the request (`req`), response (`res`), and the `next` function in the application’s request-response cycle. Middleware can:
+- Execute code.
+- Modify the request and response objects.
+- End the request-response cycle.
+- Call the next middleware function in the stack.
+
+### Example Middleware:
+```javascript
+const express = require('express');
+const app = express();
+
+// Middleware function
+app.use((req, res, next) => {
+    console.log(`Request Method: ${req.method}, Request URL: ${req.url}`);
+    next(); // Pass control to the next handler
+});
+```
+
+## Handling Different Routes
+
+Express allows handling different routes using `app.get()`, `app.post()`, `app.put()`, `app.delete()`, etc.
+
+### Example Route Handling:
+```javascript
+app.get('/', (req, res) => {
+    res.send('Welcome to the Home Page!');
+});
+
+app.get('/about', (req, res) => {
+    res.send('About Page');
+});
+
+app.get('/contact', (req, res) => {
+    res.send('Contact Page');
+});
+```
+
+## Parsing Incoming Requests
+
+Express provides middleware such as `express.json()` and `express.urlencoded()` to parse incoming request bodies.
+
+### Example of Parsing JSON:
+```javascript
+app.use(express.json());
+
+app.post('/data', (req, res) => {
+    console.log(req.body); // Access parsed JSON data
+    res.send('Data received');
+});
+```
+
+### Example of Parsing URL Encoded Data:
+```javascript
+app.use(express.urlencoded({ extended: true }));
+
+app.post('/form', (req, res) => {
+    console.log(req.body); // Access form data
+    res.send('Form data received');
+});
+```
+
+## Handling GET and POST Requests
+
+### Handling GET Request:
+```javascript
+app.get('/users', (req, res) => {
+    res.json({ message: 'List of users' });
+});
+```
+
+### Handling POST Request:
+```javascript
+app.post('/users', (req, res) => {
+    const user = req.body;
+    res.json({ message: 'User added', user });
+});
+```
+
+## Running the Express Server
+
+Finally, start the Express server using:
+```javascript
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+```
+
+This will start a web server on port `3000`, and it will be ready to handle incoming requests.
