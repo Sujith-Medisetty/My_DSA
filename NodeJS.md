@@ -403,7 +403,16 @@ const server = http.createServer((req, res) => {
 
 server.listen(3000, () => console.log('Server running on port 3000'));
 ```
+***
 
+- `req.on('end', callback)` registers a listener for the `'end'` event.
+- The callback function is associated with the `'end'` event but does not execute immediately.
+- Once all data has arrived, Node.js (via OS or internal mechanisms) emits the `'end'` event.
+- The registered callback is then pushed into the event loop's callback queue.
+- The event loop executes the callback when the call stack is free.
+- **Key takeaway:** `req.on('end', callback)` registers an event listener; the callback executes later when the `'end'` event is emitted.
+
+***
 ---
 
 ## ⚡ Understanding Event-Driven Execution
