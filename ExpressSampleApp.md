@@ -69,31 +69,54 @@ module.exports = mongoose.model('Task', taskSchema);
 const Task = require('../models/Task');
 
 // Create a task
-exports.createTask = async (req, res) => {
-    const { title, description } = req.body;
-    const task = new Task({ title, description });
-    await task.save();
-    res.status(201).json(task);
+exports.createTask = async (req, res, next) => {
+    try {
+        const { title, description } = req.body;
+        const task = new Task({ title, description });
+        await task.save();
+        res.status(201).json(task);
+    } catch (error) {
+        next(error); // Forward error to the error middleware
+    }
 };
 
 // Get all tasks
-exports.getTasks = async (req, res) => {
-    const tasks = await Task.find();
-    res.json(tasks);
+exports.getTasks = async (req, res, next) => {
+    try {
+        const tasks = await Task.find();
+        res.json(tasks);
+    } catch (error) {
+        next(error);
+    }
 };
 
 // Update task
-exports.updateTask = async (req, res) => {
-    const { id } = req.params;
-    const updatedTask = await Task.findByIdAndUpdate(id, req.body, { new: true });
-    res.json(updatedTask);
+exports.updateTask = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const updatedTask = await Task.findByIdAndUpdate(id, req.body, { new: true });
+        if (!updatedTask) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+        res.json(updatedTask);
+    } catch (error) {
+        next(error);
+    }
 };
 
 // Delete task
-exports.deleteTask = async (req, res) => {
-    await Task.findByIdAndDelete(req.params.id);
-    res.status(204).send();
+exports.deleteTask = async (req, res, next) => {
+    try {
+        const task = await Task.findByIdAndDelete(req.params.id);
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+        res.status(204).send();
+    } catch (error) {
+        next(error);
+    }
 };
+
 ```
 
 ## Routes
