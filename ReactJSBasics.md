@@ -547,3 +547,236 @@ export default function App() {
 - Use **`useCallback`** for memoizing functions passed to child components.
 - Use **`React.memo`** for memoizing entire components when props remain unchanged.
 
+
+# Complex Example: Context API with `useReducer` vs Redux
+
+In this guide, we'll explore a complex example using **Context API with `useReducer`** and then implement the **same functionality with Redux** to understand the key differences and identify when to use each.
+
+## Problem Statement
+We'll build a **Task Management App** with the following features:
+- Add, Edit, and Delete tasks.
+- Toggle task completion.
+- Filter tasks (All, Completed, Incomplete).
+
+---
+
+# 1. Context API with `useReducer` Implementation
+
+### Step 1: Create the `TaskReducer`
+**`TaskReducer.js`**
+```jsx
+export const taskReducer = (state, action) => {
+    switch (action.type) {
+        case 'ADD_TASK':
+            return [...state, { id: Date.now(), text: action.payload, completed: false }];
+        case 'TOGGLE_TASK':
+            return state.map(task =>
+                task.id === action.payload ? { ...task, completed: !task.completed } : task
+            );
+        case 'DELETE_TASK':
+            return state.filter(task => task.id !== action.payload);
+        default:
+            return state;
+    }
+};
+```
+
+### Step 2: Create the `TaskContext`
+**`TaskContext.js`**
+```jsx
+import React, { createContext, useReducer, useContext } from 'react';
+import { taskReducer } from './TaskReducer';
+
+const TaskContext = createContext();
+
+export const TaskProvider = ({ children }) => {
+    const [tasks, dispatch] = useReducer(taskReducer, []);
+
+    return (
+        <TaskContext.Provider value={{ tasks, dispatch }}>
+            {children}
+        </TaskContext.Provider>
+    );
+};
+
+export const useTaskContext = () => useContext(TaskContext);
+```
+
+### Step 3: Build the Task Components
+**`TaskApp.js`**
+```jsx
+import React, { useState } from 'react';
+import { TaskProvider, useTaskContext } from './TaskContext';
+
+function TaskInput() {
+    const [task, setTask] = useState('');
+    const { dispatch } = useTaskContext();
+
+    const addTask = () => {
+        if (task.trim()) {
+            dispatch({ type: 'ADD_TASK', payload: task });
+            setTask('');
+        }
+    };
+
+    return (
+        <div>
+            <input
+                value={task}
+                onChange={(e) => setTask(e.target.value)}
+                placeholder="Add a new task"
+            />
+            <button onClick={addTask}>Add Task</button>
+        </div>
+    );
+}
+
+function TaskList() {
+    const { tasks, dispatch } = useTaskContext();
+
+    return (
+        <ul>
+            {tasks.map(task => (
+                <li key={task.id}>
+                    <span style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>
+                        {task.text}
+                    </span>
+                    <button onClick={() => dispatch({ type: 'TOGGLE_TASK', payload: task.id })}>
+                        Toggle
+                    </button>
+                    <button onClick={() => dispatch({ type: 'DELETE_TASK', payload: task.id })}>
+                        Delete
+                    </button>
+                </li>
+            ))}
+        </ul>
+    );
+}
+
+export default function App() {
+    return (
+        <TaskProvider>
+            <TaskInput />
+            <TaskList />
+        </TaskProvider>
+    );
+}
+```
+
+---
+
+# 2. Redux Implementation
+
+### Step 1: Create the Redux Reducer
+**`taskSlice.js`**
+```jsx
+import { createSlice } from '@reduxjs/toolkit';
+
+const taskSlice = createSlice({
+    name: 'tasks',
+    initialState: [],
+    reducers: {
+        addTask: (state, action) => {
+            state.push({ id: Date.now(), text: action.payload, completed: false });
+        },
+        toggleTask: (state, action) => {
+            const task = state.find(task => task.id === action.payload);
+            if (task) task.completed = !task.completed;
+        },
+        deleteTask: (state, action) => {
+            return state.filter(task => task.id !== action.payload);
+        }
+    }
+});
+
+export const { addTask, toggleTask, deleteTask } = taskSlice.actions;
+export default taskSlice.reducer;
+```
+
+### Step 2: Create the Redux Store
+**`store.js`**
+```jsx
+import { configureStore } from '@reduxjs/toolkit';
+import taskReducer from './taskSlice';
+
+export const store = configureStore({
+    reducer: { tasks: taskReducer }
+});
+```
+
+### Step 3: Build the Redux Components
+**`TaskAppRedux.js`**
+```jsx
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { addTask, toggleTask, deleteTask } from './taskSlice';
+
+function TaskInput() {
+    const [task, setTask] = useState('');
+    const dispatch = useDispatch();
+
+    const handleAddTask = () => {
+        if (task.trim()) {
+            dispatch(addTask(task));
+            setTask('');
+        }
+    };
+
+    return (
+        <div>
+            <input
+                value={task}
+                onChange={(e) => setTask(e.target.value)}
+                placeholder="Add a new task"
+            />
+            <button onClick={handleAddTask}>Add Task</button>
+        </div>
+    );
+}
+
+function TaskList() {
+    const tasks = useSelector(state => state.tasks);
+    const dispatch = useDispatch();
+
+    return (
+        <ul>
+            {tasks.map(task => (
+                <li key={task.id}>
+                    <span style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>
+                        {task.text}
+                    </span>
+                    <button onClick={() => dispatch(toggleTask(task.id))}>Toggle</button>
+                    <button onClick={() => dispatch(deleteTask(task.id))}>Delete</button>
+                </li>
+            ))}
+        </ul>
+    );
+}
+
+export default function App() {
+    return (
+        <div>
+            <TaskInput />
+            <TaskList />
+        </div>
+    );
+}
+```
+
+---
+
+# 3. Key Differences and When to Use
+
+| Feature                | Context API + `useReducer` | Redux (Toolkit) |
+|------------------------|----------------------------|------------------|
+| **Setup Complexity**       | Simple, minimal boilerplate. | More setup required (actions, reducers, store). |
+| **Scalability**             | Best for small to medium apps. | Ideal for larger applications with complex state. |
+| **Performance Optimization**| Requires memoization for performance. | Built-in optimizations for efficient updates. |
+| **Debugging Tools**         | Limited debugging support. | Advanced Redux DevTools for easy debugging. |
+
+---
+
+# 4. Conclusion
+- Use **Context API with `useReducer`** for simpler state management and smaller projects.
+- Use **Redux** when dealing with **complex state logic**, **multiple data sources**, or requiring **robust debugging tools**.
+
