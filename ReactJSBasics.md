@@ -1,7 +1,7 @@
 # React Essentials: Props, Prop Drilling, and Basic App
 
 ## Introduction to React
-React is a powerful JavaScript library for building dynamic user interfaces. It is component-based, allowing developers to create reusable UI elements.
+React is a powerful JavaScript library for building dynamic user interfaces. It is component-based, allowing developers to create reusable UI elements. 
 
 ### Key Concepts
 - **Components:** Reusable building blocks of UI.
@@ -68,11 +68,12 @@ export default App;
 
 ---
 
-## Building a Basic App with Props and Prop Drilling
+## Building a CRUD Task Manager App with Props and Prop Drilling
 We'll create a **Task Manager App** with these features:
-- Display a list of tasks
-- Add new tasks
-- Mark tasks as completed
+- **Create** new tasks
+- **Read** (display) tasks
+- **Update** existing tasks
+- **Delete** tasks
 
 ### Step 1: App Structure
 ```
@@ -103,9 +104,9 @@ function AddTask({ onAddTask }) {
 
     return (
         <div>
-            <input
-                value={task}
-                onChange={(e) => setTask(e.target.value)}
+            <input 
+                value={task} 
+                onChange={(e) => setTask(e.target.value)} 
                 placeholder="Add a new task"
             />
             <button onClick={handleAdd}>Add Task</button>
@@ -118,13 +119,35 @@ export default AddTask;
 
 **`TaskItem.js`**
 ```jsx
-import React from 'react';
+import React, { useState } from 'react';
 
-function TaskItem({ task, onComplete }) {
+function TaskItem({ task, onComplete, onUpdate, onDelete }) {
+    const [isEditing, setIsEditing] = useState(false);
+    const [updatedTask, setUpdatedTask] = useState(task);
+
+    const handleUpdate = () => {
+        onUpdate(task, updatedTask);
+        setIsEditing(false);
+    };
+
     return (
         <div>
-            <span>{task}</span>
-            <button onClick={() => onComplete(task)}>Complete</button>
+            {isEditing ? (
+                <>
+                    <input 
+                        value={updatedTask} 
+                        onChange={(e) => setUpdatedTask(e.target.value)}
+                    />
+                    <button onClick={handleUpdate}>Save</button>
+                </>
+            ) : (
+                <>
+                    <span>{task}</span>
+                    <button onClick={() => setIsEditing(true)}>Edit</button>
+                    <button onClick={() => onComplete(task)}>Complete</button>
+                    <button onClick={() => onDelete(task)}>Delete</button>
+                </>
+            )}
         </div>
     );
 }
@@ -137,11 +160,17 @@ export default TaskItem;
 import React from 'react';
 import TaskItem from './TaskItem';
 
-function TaskList({ tasks, onComplete }) {
+function TaskList({ tasks, onComplete, onUpdate, onDelete }) {
     return (
         <div>
             {tasks.map((task, index) => (
-                <TaskItem key={index} task={task} onComplete={onComplete} />
+                <TaskItem 
+                    key={index} 
+                    task={task} 
+                    onComplete={onComplete} 
+                    onUpdate={onUpdate} 
+                    onDelete={onDelete} 
+                />
             ))}
         </div>
     );
@@ -165,11 +194,24 @@ function App() {
         setTasks(tasks.filter(task => task !== completedTask));
     };
 
+    const updateTask = (oldTask, updatedTask) => {
+        setTasks(tasks.map(task => task === oldTask ? updatedTask : task));
+    };
+
+    const deleteTask = (taskToDelete) => {
+        setTasks(tasks.filter(task => task !== taskToDelete));
+    };
+
     return (
         <div>
             <h1>Task Manager</h1>
             <AddTask onAddTask={addTask} />
-            <TaskList tasks={tasks} onComplete={completeTask} />
+            <TaskList 
+                tasks={tasks} 
+                onComplete={completeTask} 
+                onUpdate={updateTask} 
+                onDelete={deleteTask} 
+            />
         </div>
     );
 }
@@ -182,7 +224,8 @@ export default App;
 ### Step 3: Key Takeaways
 ✅ **Props** efficiently pass data from parent to child components.  
 ✅ **Prop Drilling** can become complex in deeply nested components. Using context or state management tools can help mitigate this.  
-✅ Building small, reusable components is key to efficient React development.
+✅ Building small, reusable components is key to efficient React development.  
+✅ Full CRUD operations ensure comprehensive task management functionality.
 
 ---
 
