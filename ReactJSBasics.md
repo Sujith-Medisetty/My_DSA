@@ -231,7 +231,151 @@ export default App;
 
 ### Next Steps
 In future steps, we can enhance this app by:
-- Adding persistent storage using `localStorage`
-- Implementing React Context to simplify prop drilling
-- Introducing better UI/UX improvements using libraries like `shadcn/ui` or `Material-UI`.
+- Implement React Context API to simplify prop drilling. 
+- Introduce useRef for referencing DOM elements directly and maintaining values without re-rendering 
+- Use useEffect for API calls and side effects.
+- Demonstrate scenarios for useMemo, useCallback, and Memo HOC to optimize performance.
+
+===================================================== 
+
+## Updated Code with Added Enhancements: Implementation of useContext API, useRef, and useEffect for Improved Functionality and Code Efficiency
+
+### Step 1: App Structure
+```
+/src
+  /components
+    - TaskList.js
+    - TaskItem.js
+    - AddTask.js
+    - TaskContext.js
+  App.js
+  index.js
+```
+
+### Step 2: Code Implementation
+
+**`TaskContext.js` (New for Context API)**
+```jsx
+import React, { createContext, useState, useContext } from 'react';
+
+const TaskContext = createContext();
+
+export const useTaskContext = () => useContext(TaskContext);
+
+export const TaskProvider = ({ children }) => {
+    const [tasks, setTasks] = useState([]);
+
+    const addTask = (task) => setTasks([...tasks, task]);
+    const completeTask = (completedTask) => setTasks(tasks.filter(task => task !== completedTask));
+    const updateTask = (oldTask, updatedTask) => setTasks(tasks.map(task => task === oldTask ? updatedTask : task));
+    const deleteTask = (taskToDelete) => setTasks(tasks.filter(task => task !== taskToDelete));
+
+    return (
+        <TaskContext.Provider value={{ tasks, addTask, completeTask, updateTask, deleteTask }}>
+            {children}
+        </TaskContext.Provider>
+    );
+};
+```
+
+**`AddTask.js`**
+```jsx
+import React, { useRef } from 'react';
+import { useTaskContext } from './TaskContext';
+
+function AddTask() {
+    const inputRef = useRef();
+    const { addTask } = useTaskContext();
+
+    const handleAdd = () => {
+        const newTask = inputRef.current.value.trim();
+        if (newTask) {
+            addTask(newTask);
+            inputRef.current.value = "";
+            inputRef.current.focus();
+        }
+    };
+
+    return (
+        <div>
+            <input ref={inputRef} placeholder="Add a new task" />
+            <button onClick={handleAdd}>Add Task</button>
+        </div>
+    );
+}
+
+export default AddTask;
+```
+
+**`TaskItem.js`**
+```jsx
+import React, { memo, useState } from 'react';
+import { useTaskContext } from './TaskContext';
+
+const TaskItem = memo(({ task }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [updatedTask, setUpdatedTask] = useState(task);
+    const { completeTask, updateTask, deleteTask } = useTaskContext();
+
+    const handleUpdate = () => {
+        updateTask(task, updatedTask);
+        setIsEditing(false);
+    };
+
+    return (
+        <div>
+            {isEditing ? (
+                <>
+                    <input 
+                        value={updatedTask} 
+                        onChange={(e) => setUpdatedTask(e.target.value)}
+                    />
+                    <button onClick={handleUpdate}>Save</button>
+                </>
+            ) : (
+                <>
+                    <span>{task}</span>
+                    <button onClick={() => setIsEditing(true)}>Edit</button>
+                    <button onClick={() => completeTask(task)}>Complete</button>
+                    <button onClick={() => deleteTask(task)}>Delete</button>
+                </>
+            )}
+        </div>
+    );
+});
+
+export default TaskItem;
+```
+
+**`App.js`**
+```jsx
+import React, { useEffect, useState } from 'react';
+import { TaskProvider, useTaskContext } from './components/TaskContext';
+import AddTask from './components/AddTask';
+import TaskList from './components/TaskList';
+
+function App() {
+    const [apiData, setApiData] = useState([]);
+
+    useEffect(() => {
+        fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
+            .then(response => response.json())
+            .then(data => setApiData(data.map(item => item.title)));
+    }, []);
+
+    return (
+        <TaskProvider>
+            <div>
+                <h1>Task Manager</h1>
+                <AddTask />
+                <TaskList tasks={apiData} />
+            </div>
+        </TaskProvider>
+    );
+}
+
+export default App;
+```
+
+---
 
