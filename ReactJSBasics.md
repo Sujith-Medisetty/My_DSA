@@ -192,5 +192,3 @@ In future steps, we can enhance this app by:
 - Implementing React Context to simplify prop drilling
 - Introducing better UI/UX improvements using libraries like `shadcn/ui` or `Material-UI`.
 
-If you'd like to explore those enhancements, let me know!
-
