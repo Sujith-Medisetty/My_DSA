@@ -379,3 +379,171 @@ export default App;
 
 ---
 
+# Understanding useMemo, useCallback, and Memo in React
+
+In this guide, we'll explore **`useMemo`**, **`useCallback`**, and **`Memo` HOC** in React with clear examples, explanations, and key differences.
+
+---
+
+## 1. `useMemo` - Memoizing Values
+
+### What is `useMemo`?
+`useMemo` is used to memoize **computed values**. It optimizes performance by caching the result of expensive calculations and recomputing only when dependencies change.
+
+### When to Use `useMemo`
+- When you have **expensive calculations** that don't need to run on every render.
+- To **optimize performance** for derived data or filtered results.
+
+### Example:
+```jsx
+import React, { useState, useMemo } from 'react';
+
+function ExpensiveCalculation({ count }) {
+    const computeValue = (num) => {
+        console.log('Calculating...');
+        let total = 0;
+        for (let i = 0; i < 100000000; i++) {
+            total += num * 2;  // Expensive calculation
+        }
+        return total;
+    };
+
+    const memoizedValue = useMemo(() => computeValue(count), [count]);
+
+    return <h1>Result: {memoizedValue}</h1>;
+}
+
+export default function App() {
+    const [count, setCount] = useState(1);
+    return (
+        <div>
+            <button onClick={() => setCount(count + 1)}>Increment</button>
+            <ExpensiveCalculation count={count} />
+        </div>
+    );
+}
+```
+
+### Key Takeaway:
+✅ `useMemo` caches the computed value until the `count` changes, preventing unnecessary recalculations.
+
+---
+
+## 2. `useCallback` - Memoizing Functions
+
+### What is `useCallback`?
+`useCallback` memoizes **functions** and returns the same function reference unless dependencies change. It’s useful when passing callback functions to child components to prevent unnecessary re-renders.
+
+### When to Use `useCallback`
+- When passing **callback functions** to child components that rely on **reference equality** (especially with `React.memo`).
+- To optimize performance in frequently rendering components.
+
+### Example:
+```jsx
+import React, { useState, useCallback } from 'react';
+import ChildComponent from './ChildComponent';
+
+function App() {
+    const [count, setCount] = useState(0);
+    const [text, setText] = useState('');
+
+    const handleClick = useCallback(() => {
+        console.log('Button clicked:', count);
+    }, [count]);
+
+    return (
+        <div>
+            <input
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Type something"
+            />
+            <button onClick={() => setCount(count + 1)}>Increment</button>
+            <ChildComponent onClick={handleClick} />
+        </div>
+    );
+}
+
+export default App;
+```
+
+**`ChildComponent.js`**
+```jsx
+import React, { memo } from 'react';
+
+const ChildComponent = memo(({ onClick }) => {
+    console.log('Child rendered');
+    return <button onClick={onClick}>Click Me</button>;
+});
+
+export default ChildComponent;
+```
+
+### Key Takeaway:
+✅ `useCallback` ensures that `handleClick` maintains the same reference unless `count` changes, preventing unnecessary re-renders of `ChildComponent`.
+
+---
+
+## 3. `Memo` - Higher Order Component (HOC)
+
+### What is `Memo`?
+`React.memo` is a **higher-order component** that memoizes an entire component. It skips rendering the component if its props haven't changed.
+
+### When to Use `Memo`
+- When you want to **prevent unnecessary renders** for components that receive the same props.
+- Best paired with `useCallback` to optimize performance further.
+
+### Example:
+```jsx
+import React, { useState } from 'react';
+import { memo } from 'react';
+
+const MemoizedComponent = memo(({ name }) => {
+    console.log('Memoized Component Rendered');
+    return <h1>Hello, {name}!</h1>;
+});
+
+export default function App() {
+    const [name, setName] = useState('Alice');
+    const [count, setCount] = useState(0);
+
+    return (
+        <div>
+            <MemoizedComponent name={name} />
+            <button onClick={() => setCount(count + 1)}>Increment Count</button>
+        </div>
+    );
+}
+```
+
+### Key Takeaway:
+✅ `Memo` ensures the `MemoizedComponent` only re-renders if its `name` prop changes.
+
+---
+
+## 4. Key Differences Between `useEffect`, `useMemo`, and `useCallback`
+
+| Feature        | `useEffect` | `useMemo`  | `useCallback` |
+|----------------|--------------|-------------|----------------|
+| **Purpose**       | Used for side effects like data fetching, subscriptions, or manually modifying the DOM. | Used to memoize **computed values**. | Used to memoize **callback functions**. |
+| **Returns**        | No return value (manages side effects only).  | Returns the **memoized value**. | Returns the **memoized function**. |
+| **When to Use**   | For API calls, DOM manipulations, or cleanup logic. | For optimizing expensive calculations. | For memoizing functions passed as props to child components. |
+
+---
+
+## 5. When to Use Each Hook
+| Scenario                        | Best Choice       |
+|----------------------------------|-------------------|
+| Performing **API calls** or **side effects**     | `useEffect` |
+| Preventing re-render of **memoized values**        | `useMemo`   |
+| Optimizing **callback functions** passed to child components | `useCallback` |
+| Preventing re-render of **entire components** with unchanged props | `Memo` HOC    |
+
+---
+
+## 6. Final Thoughts
+- Use **`useEffect`** for side effects like data fetching or DOM manipulation.
+- Use **`useMemo`** for optimizing expensive calculations.
+- Use **`useCallback`** for memoizing functions passed to child components.
+- Use **`React.memo`** for memoizing entire components when props remain unchanged.
+
