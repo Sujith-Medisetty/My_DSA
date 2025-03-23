@@ -1,12 +1,12 @@
-# Express.js CRUD API with SQL Database Integration
+# Express.js CRUD API with PostgreSQL Integration
 
-This guide walks you through building a RESTful CRUD API using **Express.js** with **SQL Database** (e.g., **PostgreSQL**, **MySQL**). The project will cover:
+This guide walks you through building a RESTful CRUD API using **Express.js** with **PostgreSQL**. The project follows industry best practices with proper separation of concerns.
 
-✅ CRUD Operations (Create, Read, Update, Delete)
-✅ Path Parameters
-✅ Query Parameters
-✅ Error Handling
-✅ SQL Database Integration
+✅ CRUD Operations (Create, Read, Update, Delete)  
+✅ Path & Query Parameters  
+✅ Error Handling  
+✅ SQL Database Integration  
+✅ Model-Based Database Interaction  
 
 ---
 
@@ -76,13 +76,45 @@ module.exports = pool;
 
 ## 🗂️ Step 3: User Model (`/models/User.js`)
 
-```sql
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    age INTEGER
-);
+```javascript
+const pool = require('../config/db');
+
+class User {
+    static async create(name, email, age) {
+        const result = await pool.query(
+            'INSERT INTO users (name, email, age) VALUES ($1, $2, $3) RETURNING *',
+            [name, email, age]
+        );
+        return result.rows[0];
+    }
+
+    static async findAll(minAge) {
+        const query = minAge ? 'SELECT * FROM users WHERE age >= $1' : 'SELECT * FROM users';
+        const values = minAge ? [minAge] : [];
+        const result = await pool.query(query, values);
+        return result.rows;
+    }
+
+    static async findById(id) {
+        const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+        return result.rows[0] || null;
+    }
+
+    static async update(id, name, email, age) {
+        const result = await pool.query(
+            'UPDATE users SET name = $1, email = $2, age = $3 WHERE id = $4 RETURNING *',
+            [name, email, age, id]
+        );
+        return result.rows[0] || null;
+    }
+
+    static async delete(id) {
+        const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
+        return result.rows[0] || null;
+    }
+}
+
+module.exports = User;
 ```
 
 ---
@@ -90,71 +122,50 @@ CREATE TABLE users (
 ## 🚀 Step 4: Controller Methods (`/controllers/userController.js`)
 
 ```javascript
-const pool = require('../config/db');
+const User = require('../models/User');
 
-// Create User
 exports.createUser = async (req, res, next) => {
-    const { name, email, age } = req.body;
     try {
-        const result = await pool.query(
-            'INSERT INTO users (name, email, age) VALUES ($1, $2, $3) RETURNING *',
-            [name, email, age]
-        );
-        res.status(201).json(result.rows[0]);
+        const user = await User.create(req.body.name, req.body.email, req.body.age);
+        res.status(201).json(user);
     } catch (error) {
         next(error);
     }
 };
 
-// Get All Users (with optional query filter)
 exports.getUsers = async (req, res, next) => {
-    const { minAge } = req.query;
     try {
-        const query = minAge
-            ? 'SELECT * FROM users WHERE age >= $1'
-            : 'SELECT * FROM users';
-        const values = minAge ? [minAge] : [];
-        const result = await pool.query(query, values);
-        res.json(result.rows);
+        const users = await User.findAll(req.query.minAge);
+        res.json(users);
     } catch (error) {
         next(error);
     }
 };
 
-// Get User by ID
 exports.getUserById = async (req, res, next) => {
-    const { id } = req.params;
     try {
-        const result = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-        if (!result.rows.length) return res.status(404).json({ message: 'User not found' });
-        res.json(result.rows[0]);
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json(user);
     } catch (error) {
         next(error);
     }
 };
 
-// Update User
 exports.updateUser = async (req, res, next) => {
-    const { id } = req.params;
-    const { name, email, age } = req.body;
     try {
-        const result = await pool.query(
-            'UPDATE users SET name = $1, email = $2, age = $3 WHERE id = $4 RETURNING *',
-            [name, email, age, id]
-        );
-        if (!result.rows.length) return res.status(404).json({ message: 'User not found' });
-        res.json(result.rows[0]);
+        const user = await User.update(req.params.id, req.body.name, req.body.email, req.body.age);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json(user);
     } catch (error) {
         next(error);
     }
 };
 
-// Delete User
 exports.deleteUser = async (req, res, next) => {
-    const { id } = req.params;
     try {
-        const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
-        if (!result.rows.length) return res.status(404).json({ message: 'User not found' });
+        const user = await User.delete(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
         res.status(204).send();
     } catch (error) {
         next(error);
@@ -189,70 +200,27 @@ const express = require('express');
 const userRoutes = require('./routes/users');
 const app = express();
 
-// Middleware
 app.use(express.json());
-
-// Routes
 app.use('/api/users', userRoutes);
 
-// Error Handling Middleware
 app.use((err, req, res, next) => {
     res.status(err.status || 500).json({
         error: err.message || 'Internal Server Error'
     });
 });
 
-// Start Server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 ```
 
 ---
 
-## 📋 Step 7: Sample API Endpoints
-
-### ➕ Create User (POST)
-```
-POST /api/users
-Body: { "name": "John Doe", "email": "john@example.com", "age": 30 }
-```
-
-### 📋 Get All Users (GET)
-```
-GET /api/users?minAge=25
-```
-
-### 🔍 Get User by ID (GET)
-```
-GET /api/users/1
-```
-
-### 🛠️ Update User (PUT)
-```
-PUT /api/users/1
-Body: { "name": "Updated Name", "email": "updated@example.com", "age": 35 }
-```
-
-### ❌ Delete User (DELETE)
-```
-DELETE /api/users/1
-```
-
----
-
-## 🚀 Step 8: Run the Project
-1. Create the database and `users` table in your SQL system.
-2. Run the app:
-```bash
-node server.js
-```
-3. Test the endpoints with **Postman**, **Thunder Client**, or **curl**.
-
----
-
 ## 🎯 Best Practices Followed
-✅ RESTful API structure
-✅ Clear error handling with proper status codes
-✅ SQL injection prevention using parameterized queries
-✅ Organized project structure for scalability
+✅ RESTful API structure  
+✅ Clear error handling with proper status codes  
+✅ SQL injection prevention using parameterized queries  
+✅ Organized project structure for scalability  
+✅ Encapsulation of database logic within a model  
+
+By structuring the project this way, each layer (model, controller, route) has a clear responsibility, making the application easier to maintain and scale.
 
