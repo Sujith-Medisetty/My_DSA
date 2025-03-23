@@ -137,3 +137,135 @@ app.get('/user/:id', async (req, res) => {
 ✅ `async/await` leads to cleaner, more maintainable code while still leveraging Node.js's non-blocking nature.  
 
 ---
+
+# Database Operations in Node.js with PostgreSQL
+
+## 1. Callback-Based DB Operation
+
+Using callbacks was the traditional way of handling asynchronous operations in Node.js, but it can lead to callback hell and unmanageable code.
+
+```javascript
+const { Pool } = require('pg');
+const pool = new Pool({
+  user: 'user',
+  host: 'localhost',
+  database: 'testdb',
+  password: 'password',
+  port: 5432,
+});
+
+pool.query('SELECT * FROM users', (err, res) => {
+  if (err) {
+    console.error('Query error', err.stack);
+  } else {
+    console.log(res.rows);
+  }
+});
+```
+
+### Pros:
+- Works without additional libraries.
+- Simple for small operations.
+
+### Cons:
+- Leads to callback hell in complex operations.
+- Harder to manage and debug.
+
+## 2. Promise-Based DB Operation
+
+Using Promises makes the code cleaner and avoids deeply nested callbacks.
+
+```javascript
+const { Pool } = require('pg');
+const pool = new Pool({
+  user: 'user',
+  host: 'localhost',
+  database: 'testdb',
+  password: 'password',
+  port: 5432,
+});
+
+pool.query('SELECT * FROM users')
+  .then(res => {
+    console.log(res.rows);
+  })
+  .catch(err => {
+    console.error('Error', err.stack);
+  });
+```
+
+### Pros:
+- Better readability than callbacks.
+- Easier to handle errors.
+
+### Cons:
+- Still can become complex with multiple queries.
+
+## 3. Async/Await DB Operation
+
+The `async/await` syntax simplifies asynchronous code and improves readability.
+
+```javascript
+const { Pool } = require('pg');
+const pool = new Pool({
+  user: 'user',
+  host: 'localhost',
+  database: 'testdb',
+  password: 'password',
+  port: 5432,
+});
+
+async function fetchUsers() {
+  try {
+    const res = await pool.query('SELECT * FROM users');
+    console.log(res.rows);
+  } catch (err) {
+    console.error('Error', err.stack);
+  }
+}
+
+fetchUsers();
+```
+
+### Pros:
+- Cleaner syntax and better readability.
+- Avoids promise chaining.
+- Easier error handling with try/catch.
+
+### Cons:
+- If not used carefully, `await` can cause performance issues in parallel operations.
+
+## 4. When `await` is Inefficient
+
+Using `await` inside loops can be inefficient when multiple queries need to be executed concurrently. Example of inefficient usage:
+
+```javascript
+async function fetchUsersByIds(userIds) {
+  for (let id of userIds) {
+    const res = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+    console.log(res.rows);
+  }
+}
+```
+
+This runs queries sequentially, waiting for each to complete before executing the next, which is slow.
+
+### Best Practice: Using `Promise.all()`
+
+To execute queries in parallel, use `Promise.all()`:
+
+```javascript
+async function fetchUsersByIds(userIds) {
+  const queries = userIds.map(id => pool.query('SELECT * FROM users WHERE id = $1', [id]));
+  const results = await Promise.all(queries);
+  results.forEach(res => console.log(res.rows));
+}
+```
+
+### When to Use Which Approach:
+- **Use async/await** for sequential logic or when order matters.
+- **Use Promise.all()** for parallel execution when order doesn't matter.
+- **Use streaming** for large datasets to avoid memory overload.
+
+By choosing the right approach, you can optimize database performance in your Node.js applications.
+
