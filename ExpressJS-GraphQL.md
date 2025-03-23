@@ -54,6 +54,9 @@ const root = {
   books: () => books,
   book: ({ id }) => books.find(book => book.id === id),
   addBook: ({ title, author }) => {
+    if (!title || !author) {
+      throw new Error("Title and author are required fields");
+    }
     const newBook = { id: String(books.length + 1), title, author };
     books.push(newBook);
     return newBook;
@@ -75,10 +78,20 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 
+// Global Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: err.message });
+});
+
 app.use('/graphql', graphqlHTTP({
   schema: schema,
   rootValue: root,
-  graphiql: true
+  graphiql: true,
+  customFormatErrorFn: (err) => ({
+    message: err.message,
+    code: err.originalError && err.originalError.code ? err.originalError.code : 500
+  })
 }));
 
 const PORT = 4000;
@@ -124,6 +137,11 @@ Server starts at: `http://localhost:4000/graphql`
 ```
 
 ## Advanced Features
+### **Error Handling**
+- Added error handling for missing required fields in `addBook`
+- Implemented global error handling middleware in Express
+- Customized GraphQL error formatting using `customFormatErrorFn`
+
 ### **Subscriptions (Real-time Updates)**
 GraphQL subscriptions require WebSockets. To enable subscriptions, install WebSockets support:
 ```sh
@@ -132,4 +150,3 @@ npm install ws
 Then, configure WebSocket handling separately.
 
 ---
-
