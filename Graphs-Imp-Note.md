@@ -199,3 +199,30 @@ class Dijkstra {
     }
 }
 ```
+# Word Ladder Problem: BFS vs DP
+
+## Why BFS is Preferred Over DP?
+
+### 🔎 BFS Characteristics
+- BFS efficiently finds the **shortest path** in an **unweighted graph** — which aligns perfectly with this problem.
+- BFS explores **all possible transformations layer by layer** (like moving through levels of the graph).
+- Each node represents a **word**, and each edge represents a **valid one-letter transformation**.
+
+### 📌 DP Characteristics
+- DP is ideal when we need to find the **optimal solution through overlapping subproblems** and **optimal substructure**.
+- DP often requires a **fixed state structure**, whereas this problem involves exploring a **dynamic word graph** where possible transitions are unpredictable.
+
+## 🚨 Key Issue with DP in Word Ladder
+- The problem's nature doesn’t involve clear **subproblem relationships** that DP thrives on.
+- DP typically works best when there's a **recursive pattern** with optimal decisions at each step.
+- In this case, the transitions between words are more like **graph edges** than predictable subproblems.
+
+## 🌟 Why BFS is Ideal Here
+- BFS efficiently handles the shortest path problem by exploring all possible transformations in increasing depth.
+- BFS will efficiently explore all possible paths by visiting words at the same "transformation depth" before proceeding to the next level.
+- This ensures we find the **shortest path** efficiently — exactly what BFS is designed for.
+
+## 🔥 Key Takeaway
+- **BFS** efficiently handles the shortest path problem by exploring all possible transformations in increasing depth.
+- **DP** is not well-suited here because there’s no clear **subproblem structure** or **optimal decision-making process** that DP typically requires.
+
