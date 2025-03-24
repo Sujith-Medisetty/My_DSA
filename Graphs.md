@@ -2894,3 +2894,160 @@ class Solution {
     }
 }
 ```
+
+# Snakes and Ladders Game Solution in Java
+
+```Ref
+https://leetcode.com/problems/snakes-and-ladders/description/?envType=study-plan-v2&envId=top-interview-150
+```
+
+## Problem Statement
+You are given an `n x n` integer matrix `board` where the cells are labeled from `1` to `n^2` in a Boustrophedon style starting from the bottom left of the board and alternating direction each row.
+
+### Objective
+- Starting at square `1`, determine the minimum number of dice rolls required to reach square `n^2`.
+- If reaching the destination is impossible, return `-1`.
+
+## Approach
+We'll use **BFS (Breadth-First Search)** for this problem since BFS efficiently finds the shortest path in an unweighted graph-like structure.
+
+### Step 1: Flatten the Board
+- Convert the 2D board into a 1D array where `arr[1]` corresponds to cell `1` on the board.
+- While filling the array, respect the Boustrophedon order (left-to-right and right-to-left alternation per row).
+
+### Step 2: BFS Traversal
+- Initialize a queue starting at cell `1` with `0` moves.
+- While processing each cell:
+  - For each possible dice roll (1 to 6):
+    - If the next cell has a snake or ladder, jump to its destination.
+    - If the cell is visited, skip it. Otherwise, mark it as visited and continue.
+- Return the number of moves when reaching the final cell (`n^2`).
+
+### Step 3: Edge Cases
+- Handle cases where:
+  - The board has no valid path to the goal (`return -1`).
+  - The goal is reached in the first roll.
+
+## Java Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public int snakesAndLadders(int[][] board) {
+        int n = board.length;
+        int[] arr = new int[n * n + 1]; // Flattened array to represent the board
+        boolean leftToRight = true;
+        int idx = 1;
+
+        // Flatten the board
+        for (int row = n - 1; row >= 0; row--) {
+            if (leftToRight) {
+                for (int col = 0; col < n; col++) {
+                    arr[idx++] = board[row][col];
+                }
+            } else {
+                for (int col = n - 1; col >= 0; col--) {
+                    arr[idx++] = board[row][col];
+                }
+            }
+            leftToRight = !leftToRight;
+        }
+
+        // BFS Setup
+        Queue<int[]> queue = new LinkedList<>();
+        queue.offer(new int[]{1, 0}); // Start at position 1 with 0 moves
+        boolean[] visited = new boolean[n * n + 1];
+        visited[1] = true;
+
+        // BFS Traversal
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            int pos = current[0];
+            int moves = current[1];
+
+            if (pos == n * n) return moves; // Reached the final square
+
+            for (int i = 1; i <= 6; i++) {
+                int nextPos = pos + i;
+                if (nextPos > n * n) continue; // Out of board boundaries
+
+                // If the cell has a ladder or snake, jump to its destination
+                if (arr[nextPos] != -1) {
+                    nextPos = arr[nextPos];
+                }
+
+                if (!visited[nextPos]) {
+                    visited[nextPos] = true;
+                    queue.offer(new int[]{nextPos, moves + 1});
+                }
+            }
+        }
+
+        return -1; // No valid path to the goal
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+
+        int[][] board1 = {
+            {-1, -1, -1, -1, -1, -1},
+            {-1, -1, -1, -1, -1, -1},
+            {-1, -1, -1, -1, -1, -1},
+            {-1, 35, -1, -1, 13, -1},
+            {-1, -1, -1, -1, -1, -1},
+            {-1, 15, -1, -1, -1, -1}
+        };
+
+        System.out.println("Result: " + solution.snakesAndLadders(board1)); // Output: 4
+
+        int[][] board2 = {
+            {-1, -1},
+            {-1, 3}
+        };
+
+        System.out.println("Result: " + solution.snakesAndLadders(board2)); // Output: 1
+    }
+}
+```
+
+## Dry Run
+### Input 1:
+```java
+board = [
+  [-1,-1,-1,-1,-1,-1],
+  [-1,-1,-1,-1,-1,-1],
+  [-1,-1,-1,-1,-1,-1],
+  [-1,35,-1,-1,13,-1],
+  [-1,-1,-1,-1,-1,-1],
+  [-1,15,-1,-1,-1,-1]
+]
+```
+### Step-by-Step Execution
+- Start at `1` → Roll dice to reach `2` → Ladder to `15`
+- From `15` → Roll dice to `17` → Snake to `13`
+- From `13` → Roll dice to `14` → Ladder to `35`
+- From `35` → Roll dice to `36` (Final Square)
+
+**Result:** 4 moves
+
+### Input 2:
+```java
+board = [
+  [-1, -1],
+  [-1, 3]
+]
+```
+### Step-by-Step Execution
+- Start at `1` → Roll dice to reach `2` → Ladder to `3`
+
+**Result:** 1 move
+
+## Complexity Analysis
+- **Time Complexity:** `O(n^2)` — Each cell can be visited at most once.
+- **Space Complexity:** `O(n^2)` — BFS queue and visited array can both store up to `n^2` elements.
+
+## Key Takeaways
+✅ BFS efficiently handles the shortest path logic.
+✅ The board-flattening logic simplifies the traversal.
+✅ Clear handling of ladders, snakes, and unreachable paths.
+
