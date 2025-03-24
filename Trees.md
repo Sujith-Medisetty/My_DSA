@@ -1732,3 +1732,141 @@ Target = `5`
 #### Output: `4`
 
 
+# ⚛️ Construct Binary Tree from Preorder & Inorder / Postorder & Inorder
+
+## 📄 Problem Statement
+Given two arrays:
+- **Preorder** and **Inorder** traversals of a Binary Tree.
+- **Postorder** and **Inorder** traversals of a Binary Tree.
+
+Construct the binary tree from these traversals.
+
+---
+
+## ✨ Key Observations
+### 🔹 Preorder + Inorder
+- **Preorder's first element** is always the **root**.
+- Find this root in the **Inorder** array — all elements to the left are the **left subtree**, and all elements to the right are the **right subtree**.
+
+### 🔹 Postorder + Inorder
+- **Postorder's last element** is always the **root**.
+- Find this root in the **Inorder** array — all elements to the left are the **left subtree**, and all elements to the right are the **right subtree**.
+
+---
+
+## 📚 Algorithm
+### For Preorder + Inorder
+1. Identify the **root** from the first element of **Preorder**.
+2. Locate this root in the **Inorder** array.
+3. Recursively construct the **left subtree** and **right subtree** by slicing the arrays accordingly.
+
+### For Postorder + Inorder
+1. Identify the **root** from the last element of **Postorder**.
+2. Locate this root in the **Inorder** array.
+3. Recursively construct the **left subtree** and **right subtree** by slicing the arrays accordingly.
+
+---
+
+## 🖥️ Java Code Implementation
+### Preorder + Inorder
+```java
+import java.util.*;
+
+class TreeNode {
+    int val;
+    TreeNode left, right;
+    TreeNode(int val) { this.val = val; }
+}
+
+public class ConstructTree {
+
+    public TreeNode buildTreeFromPreIn(int[] preorder, int[] inorder) {
+        return buildPreIn(preorder, 0, preorder.length - 1, inorder, 0, inorder.length - 1);
+    }
+
+    private TreeNode buildPreIn(int[] preorder, int preStart, int preEnd,
+                                int[] inorder, int inStart, int inEnd) {
+        if (preStart > preEnd || inStart > inEnd) return null;
+
+        TreeNode root = new TreeNode(preorder[preStart]);
+        int inIndex = 0;
+        for (int i = inStart; i <= inEnd; i++) {
+            if (inorder[i] == root.val) {
+                inIndex = i;
+                break;
+            }
+        }
+
+        root.left = buildPreIn(preorder, preStart + 1, preStart + (inIndex - inStart),
+                               inorder, inStart, inIndex - 1);
+        root.right = buildPreIn(preorder, preStart + (inIndex - inStart) + 1, preEnd,
+                                inorder, inIndex + 1, inEnd);
+
+        return root;
+    }
+}
+```
+
+### Postorder + Inorder
+```java
+public class ConstructTreePost {
+
+    public TreeNode buildTreeFromPostIn(int[] postorder, int[] inorder) {
+        return buildPostIn(postorder, 0, postorder.length - 1, inorder, 0, inorder.length - 1);
+    }
+
+    private TreeNode buildPostIn(int[] postorder, int postStart, int postEnd,
+                                 int[] inorder, int inStart, int inEnd) {
+        if (postStart > postEnd || inStart > inEnd) return null;
+
+        TreeNode root = new TreeNode(postorder[postEnd]);
+        int inIndex = 0;
+        for (int i = inStart; i <= inEnd; i++) {
+            if (inorder[i] == root.val) {
+                inIndex = i;
+                break;
+            }
+        }
+
+        root.left = buildPostIn(postorder, postStart, postStart + (inIndex - inStart) - 1,
+                                inorder, inStart, inIndex - 1);
+        root.right = buildPostIn(postorder, postStart + (inIndex - inStart), postEnd - 1,
+                                 inorder, inIndex + 1, inEnd);
+
+        return root;
+    }
+}
+```
+
+---
+
+## 🧰 Dry Run
+### Example:
+```
+Preorder: [3, 9, 20, 15, 7]
+Inorder:  [9, 3, 15, 20, 7]
+```
+**Steps:**
+- Root = `3`
+- Left Subtree (Inorder: [9]) → Left Child = `9`
+- Right Subtree (Inorder: [15, 20, 7])
+    - Root = `20`
+    - Left Subtree (Inorder: [15]) → Left Child = `15`
+    - Right Subtree (Inorder: [7]) → Right Child = `7`
+
+**Output Tree:**
+```
+      3
+     / \
+    9   20
+       /  \
+      15   7
+```
+
+---
+
+## ⚖️ Complexity Analysis
+- **Time Complexity:** `O(n)` (Each node is processed once).
+- **Space Complexity:** `O(n)` (For recursion stack in worst case).
+
+---
