@@ -3051,3 +3051,136 @@ board = [
 ✅ The board-flattening logic simplifies the traversal.
 ✅ Clear handling of ladders, snakes, and unreachable paths.
 
+## Minimum Genetic Mutation Problem
+
+```Ref
+https://leetcode.com/problems/minimum-genetic-mutation/description/?envType=study-plan-v2&envId=top-interview-150
+```
+
+### Problem Statement
+A gene string can be represented by an 8-character long string, with choices from 'A', 'C', 'G', and 'T'.
+
+Suppose we need to investigate a mutation from a gene string `startGene` to a gene string `endGene` where one mutation is defined as one single character changed in the gene string.
+
+For example, "AACCGGTT" --> "AACCGGTA" is one mutation.
+
+There is also a gene bank `bank` that records all the valid gene mutations. A gene must be in `bank` to make it a valid gene string.
+
+Given the two gene strings `startGene` and `endGene` and the gene bank `bank`, return the **minimum number of mutations** needed to mutate from `startGene` to `endGene`. If there is no such mutation, return `-1`.
+
+**Note:** The starting point is assumed to be valid, so it might not be included in the bank.
+
+### Example 1
+**Input:**  
+```
+startGene = "AACCGGTT"
+endGene = "AACCGGTA"
+bank = ["AACCGGTA"]
+```
+**Output:** `1`
+
+### Example 2
+**Input:**  
+```
+startGene = "AACCGGTT"
+endGene = "AAACGGTA"
+bank = ["AACCGGTA","AACCGCTA","AAACGGTA"]
+```
+**Output:** `2`
+
+### Constraints
+- `0 <= bank.length <= 10`
+- `startGene.length == endGene.length == bank[i].length == 8`
+- `startGene`, `endGene`, and `bank[i]` consist of only the characters ['A', 'C', 'G', 'T'].
+
+---
+
+## Approach
+
+### Step 1: BFS Traversal
+- Since this is a shortest path problem (minimum mutations), **BFS** is the ideal choice.
+- BFS explores all possible mutations level by level, ensuring the first time you reach the `endGene`, it is the shortest path.
+
+### Step 2: BFS Logic
+1. **Initialize a queue:** Store the starting gene along with the mutation count.
+2. **Track visited genes:** Use a `set` to avoid re-processing the same gene.
+3. **Mutation Process:** For each gene in the queue:
+   - Try mutating each character (position) with 'A', 'C', 'G', and 'T'.
+   - If the new gene is in the `bank` and hasn't been visited, add it to the queue.
+4. If the `endGene` is found, return the mutation count.
+5. If the queue is empty without finding `endGene`, return `-1`.
+
+### Step 3: Java Code Implementation
+```java
+import java.util.*;
+
+public class GeneMutation {
+    public int minMutation(String startGene, String endGene, String[] bank) {
+        Set<String> bankSet = new HashSet<>(Arrays.asList(bank));
+        if (!bankSet.contains(endGene)) return -1;
+
+        char[] charSet = {'A', 'C', 'G', 'T'};
+        Queue<String> queue = new LinkedList<>();
+        queue.offer(startGene);
+
+        Set<String> visited = new HashSet<>();
+        visited.add(startGene);
+
+        int mutations = 0;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                String currentGene = queue.poll();
+                if (currentGene.equals(endGene)) return mutations;
+
+                char[] currArray = currentGene.toCharArray();
+                for (int j = 0; j < currArray.length; j++) {
+                    char originalChar = currArray[j];
+                    for (char c : charSet) {
+                        if (c == originalChar) continue;
+                        currArray[j] = c;
+                        String mutatedGene = new String(currArray);
+
+                        if (bankSet.contains(mutatedGene) && !visited.contains(mutatedGene)) {
+                            visited.add(mutatedGene);
+                            queue.offer(mutatedGene);
+                        }
+                    }
+                    currArray[j] = originalChar; // Restore original character
+                }
+            }
+            mutations++;
+        }
+
+        return -1;
+    }
+
+    public static void main(String[] args) {
+        GeneMutation gm = new GeneMutation();
+        System.out.println(gm.minMutation("AACCGGTT", "AACCGGTA", new String[]{"AACCGGTA"})); // Output: 1
+        System.out.println(gm.minMutation("AACCGGTT", "AAACGGTA", new String[]{"AACCGGTA","AACCGCTA","AAACGGTA"})); // Output: 2
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:**  `startGene = "AACCGGTT"`, `endGene = "AAACGGTA"`, `bank = ["AACCGGTA", "AACCGCTA", "AAACGGTA"]`
+
+| Step | Current Gene | Queue State             | Visited Genes          | Mutation Count |
+|------|---------------|-------------------------|-------------------------|-----------------|
+| 1    | AACCGGTT       | ["AACCGGTA"]             | {AACCGGTT}               | 0               |
+| 2    | AACCGGTA       | ["AAACGGTA"]             | {AACCGGTT, AACCGGTA}     | 1               |
+| 3    | AAACGGTA       | []                       | {AACCGGTT, AACCGGTA, AAACGGTA} | 2 |
+
+**Result:** `2` mutations
+
+---
+
+## Key Takeaways
+✅ BFS efficiently explores mutations level-by-level ensuring the shortest path.  
+✅ Using a `visited` set prevents cycles and redundant processing.  
+✅ BFS naturally fits problems involving minimal steps in graph traversal.  
+
