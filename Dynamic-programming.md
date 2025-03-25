@@ -594,11 +594,31 @@ public class UniquePathsInMaze {
 }
 ```
 
+# DP vs Non-DP for Grid Problems
+
+### When to Use DP
+✅ DP is ideal when movements are **one-directional** (e.g., right and down only) because:
+- Each cell's state depends only on previous cells.
+- Efficient for counting paths or finding minimum path sums with restricted movement.
+
+### When DP is Not Ideal
+❌ DP is **not** the best choice for:
+- Exploring **all four directions** (up, down, left, right) since this may require **backtracking** or **DFS/BFS**.
+- Problems that involve multiple revisits to the same cell with different conditions (e.g., maze-solving with cycles).
+
+### Key Rule
+Use DP for **restricted directional movement**; use **DFS/BFS** for unrestricted, multi-directional movement.
+
+
 # Minimum Path Sum in Ninjaland
 
 ```Ref
 https://www.naukri.com/code360/problems/minimum-path-sum_985349?source=youtube&campaign=striver_dp_videos&utm_source=youtube&utm_medium=affiliate&utm_campaign=striver_dp_videos
 ```
+*** 
+The current DP solution is designed for right and down movements only — the typical grid pathfinding constraint.
+
+If the problem asks for the minimum path sum allowing movement in all 4 directions (up, down, left, right), the standard DP approach won’t be enough. Instead, we need a different algorithm — Dijkstra's Algorithm or 0-1 BFS is ideal for this scenario. ***
 
 ### Approach
 The problem can be solved using **Dynamic Programming (DP)** to find the minimum path sum from the top-left corner `(0,0)` to the bottom-right corner `(N-1, M-1)`. Since we can only move **right** or **down**, we can use the following approach:
