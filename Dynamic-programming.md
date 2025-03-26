@@ -2608,6 +2608,134 @@ public class OptimizedLPS {
 Optimized Longest Palindromic Subsequence Length: 4
 ```
 
+### Dry Run of Optimized Longest Palindromic Subsequence (LPS) (1D dp array)
+
+### **Input:** `"bbbab"`  
+
+### Step 1: Initialize DP Array
+```
+n = 5
+dp = [0, 0, 0, 0, 0]
+```
+
+### Step 2: Outer Loop (Processing from right to left)
+---
+
+### **Iteration 1:** `i = 4` (`s[4] = 'b'`)  
+✅ `dp[4] = 1` (Single character is a palindrome)  
+```
+dp = [0, 0, 0, 0, 1]
+prev = 0
+temp = N/A
+```
+
+---
+
+### **Iteration 2:** `i = 3` (`s[3] = 'a'`)  
+✅ `dp[3] = 1` (Single character is a palindrome)  
+➡️ Inner Loop:  
+- `j = 4` → `s[3] != s[4]`  
+```
+temp = dp[4] = 1
+dp[4] = max(dp[4], dp[3]) = max(1, 1) = 1
+prev = 1
+```
+```
+dp = [0, 0, 0, 1, 1]
+```
+
+---
+
+### **Iteration 3:** `i = 2` (`s[2] = 'b'`)  
+✅ `dp[2] = 1`  
+➡️ Inner Loop:  
+- `j = 3` → `s[2] != s[3]`  
+```
+temp = dp[3] = 1
+dp[3] = max(dp[3], dp[2]) = max(1, 1) = 1
+prev = 1
+```
+- `j = 4` → `s[2] == s[4]`  
+```
+temp = dp[4] = 1
+dp[4] = prev + 2 = 0 + 2 = 2
+prev = 1
+```
+```
+dp = [0, 0, 1, 1, 2]
+```
+
+---
+
+### **Iteration 4:** `i = 1` (`s[1] = 'b'`)  
+✅ `dp[1] = 1`  
+➡️ Inner Loop:  
+- `j = 2` → `s[1] == s[2]`  
+```
+temp = dp[2] = 1
+dp[2] = prev + 2 = 0 + 2 = 2
+prev = 1
+```
+- `j = 3` → `s[1] != s[3]`  
+```
+temp = dp[3] = 1
+dp[3] = max(dp[3], dp[2]) = max(1, 2) = 2
+prev = 1
+```
+- `j = 4` → `s[1] == s[4]`  
+```
+temp = dp[4] = 2
+dp[4] = prev + 2 = 1 + 2 = 3
+prev = 2
+```
+```
+dp = [0, 1, 2, 2, 3]
+```
+
+---
+
+### **Iteration 5:** `i = 0` (`s[0] = 'b'`)  
+✅ `dp[0] = 1`  
+➡️ Inner Loop:  
+- `j = 1` → `s[0] == s[1]`  
+```
+temp = dp[1] = 1
+dp[1] = prev + 2 = 0 + 2 = 2
+prev = 1
+```
+- `j = 2` → `s[0] == s[2]`  
+```
+temp = dp[2] = 2
+dp[2] = prev + 2 = 1 + 2 = 3
+prev = 2
+```
+- `j = 3` → `s[0] != s[3]`  
+```
+temp = dp[3] = 2
+dp[3] = max(dp[3], dp[2]) = max(2, 3) = 3
+prev = 2
+```
+- `j = 4` → `s[0] == s[4]`  
+```
+temp = dp[4] = 3
+dp[4] = prev + 2 = 2 + 2 = 4
+prev = 3
+```
+```
+dp = [1, 2, 3, 3, 4]
+```
+
+---
+
+### Step 3: Final Answer
+The result is stored in `dp[n - 1]` → `dp[4] = 4`.
+
+### ✅ Final Output
+```
+Optimized Longest Palindromic Subsequence Length: 4
+```
+
+
 ## Minimum Insertions to Make String Palindrome
 
 ### Problem Statement
