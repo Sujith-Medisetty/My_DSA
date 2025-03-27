@@ -2073,5 +2073,595 @@ class Solution {
 
 **Final Result:** `true`
 
+## Two Sum II - Input Array Is Sorted
+
+### Problem Statement
+Given a 1-indexed array of integers `numbers` that is already sorted in non-decreasing order, find two numbers such that they add up to a specific `target` number. Let these two numbers be `numbers[index1]` and `numbers[index2]` where `1 <= index1 < index2 <= numbers.length`.
+
+Return the indices of the two numbers, `index1` and `index2`, added by one as an integer array `[index1, index2]` of length 2.
+
+The tests are generated such that there is exactly one solution. You may not use the same element twice.
+
+Your solution must use only constant extra space.
+
+### Examples
+**Input:** numbers = [2,7,11,15], target = 9  
+**Output:** [1,2]  
+**Explanation:** The sum of 2 and 7 is 9. Therefore, index1 = 1, index2 = 2. We return [1, 2].
+
+**Input:** numbers = [2,3,4], target = 6  
+**Output:** [1,3]  
+**Explanation:** The sum of 2 and 4 is 6. Therefore index1 = 1, index2 = 3. We return [1, 3].
+
+**Input:** numbers = [-1,0], target = -1  
+**Output:** [1,2]  
+**Explanation:** The sum of -1 and 0 is -1. Therefore index1 = 1, index2 = 2. We return [1, 2].
+
+### Constraints
+- `2 <= numbers.length <= 3 * 10^4`
+- `-1000 <= numbers[i] <= 1000`
+- `numbers` is sorted in **non-decreasing order**.
+- `-1000 <= target <= 1000`
+- The tests are generated such that there is exactly one solution.
+
+### Solution
+```java
+class Solution {
+    public int[] twoSum(int[] numbers, int target) {
+        int left = 0, right = numbers.length - 1;
+        
+        while (left < right) {
+            int sum = numbers[left] + numbers[right];
+            if (sum == target) {
+                return new int[]{left + 1, right + 1};
+            } else if (sum < target) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+        
+        return new int[]{-1, -1}; // Should never be reached as per constraints
+    }
+}
+```
+
+### Approach
+1. **Two Pointers Technique:**
+   - Initialize two pointers: `left` at the start of the array and `right` at the end of the array.
+   - While `left < right`:
+     - Calculate `sum = numbers[left] + numbers[right]`.
+     - If `sum == target`, return `[left + 1, right + 1]` as per the 1-indexed requirement.
+     - If `sum < target`, move the `left` pointer one step to the right (to increase the sum).
+     - If `sum > target`, move the `right` pointer one step to the left (to decrease the sum).
+
+2. **Why Two Pointers?**
+   - The array is sorted, so this method efficiently narrows the search space in `O(n)` time complexity.
+   - Only constant extra space (`O(1)`) is used, meeting the requirement.
+
+### Dry Run
+**Input:** numbers = [2, 7, 11, 15], target = 9  
+
+**Step 1:** `left = 0`, `right = 3`, `sum = 2 + 15 = 17` → `sum > target` → Move `right` to index 2.  
+**Step 2:** `left = 0`, `right = 2`, `sum = 2 + 11 = 13` → `sum > target` → Move `right` to index 1.  
+**Step 3:** `left = 0`, `right = 1`, `sum = 2 + 7 = 9` → Found target → Return `[1, 2]`.  
+
+**Final Output:** `[1, 2]`
+
+## Container With Most Water
+
+### Problem Statement
+You are given an integer array `height` of length `n`. There are `n` vertical lines drawn such that the two endpoints of the `i`-th line are `(i, 0)` and `(i, height[i])`.
+
+Find two lines that together with the x-axis form a container, such that the container contains the most water.
+
+Return the maximum amount of water a container can store.
+
+**Notice that you may not slant the container.**
+
+### Examples
+**Input:** height = [1,8,6,2,5,4,8,3,7]  
+**Output:** 49  
+**Explanation:** The lines at index 1 (height 8) and index 8 (height 7) form the container with the maximum area (width 7 and height 7). The area = 7 * 7 = 49.
+
+**Input:** height = [1,1]  
+**Output:** 1  
+
+### Constraints
+- `n == height.length`
+- `2 <= n <= 10^5`
+- `0 <= height[i] <= 10^4`
+
+---
+
+### Java Code Implementation
+```java
+class Solution {
+    public int maxArea(int[] height) {
+        int left = 0, right = height.length - 1;
+        int maxArea = 0;
+
+        while (left < right) {
+            int width = right - left;
+            int minHeight = Math.min(height[left], height[right]);
+            maxArea = Math.max(maxArea, width * minHeight);
+
+            if (height[left] < height[right]) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+
+        return maxArea;
+    }
+}
+```
+
+---
+
+### Approach
+This problem requires finding two lines that maximize the area they enclose with the x-axis.
+
+**Steps to Solve:**
+1. **Initialize Two Pointers:**
+   - Start with one pointer (`left`) at the beginning of the array and another pointer (`right`) at the end of the array.
+2. **Calculate Area:**
+   - Calculate the area between the two pointers: `width = right - left` and `minHeight = Math.min(height[left], height[right])`.
+   - Update `maxArea` accordingly.
+3. **Move the Pointer:**
+   - Move the pointer pointing to the **shorter line** inward. This is because reducing the width can only improve the area if the height improves.
+4. **Continue Until Pointers Meet:**
+   - Repeat the process until the two pointers meet.
+
+**Why Does This Work Efficiently?**  
+- The two-pointer strategy efficiently eliminates unnecessary comparisons and ensures optimal results in `O(n)` time complexity.
+
+---
+
+### Dry Run
+**Input:** `height = [1,8,6,2,5,4,8,3,7]`
+
+**Step 1:** Initialize `left = 0`, `right = 8`, `maxArea = 0`  
+**Step 2:** Calculate area: `min(1, 7) * (8 - 0) = 1 * 8 = 8` → Update `maxArea = 8`
+
+**Step 3:** Move `left` → New area: `min(8, 7) * (8 - 1) = 7 * 7 = 49` → Update `maxArea = 49`
+
+**Step 4:** Continue moving pointers until `left` meets `right`.
+
+**Final Output:** `49`
+
+---
+
+### Complexity Analysis
+- **Time Complexity:** `O(n)` — Each element is visited at most once.
+- **Space Complexity:** `O(1)` — No extra space required beyond constant variables.
+
+## Three Sum Problem
+
+### Problem Statement
+Given an integer array `nums`, return all the triplets `[nums[i], nums[j], nums[k]]` such that:
+- `i != j`, `i != k`, and `j != k`
+- `nums[i] + nums[j] + nums[k] == 0`
+
+**Note:** The solution set must not contain duplicate triplets.
+
+### Examples
+**Input:** `nums = [-1,0,1,2,-1,-4]`
+
+**Output:** `[[ -1, -1, 2 ], [ -1, 0, 1 ]]`
+
+**Input:** `nums = [0,1,1]`
+
+**Output:** `[]`
+
+**Input:** `nums = [0,0,0]`
+
+**Output:** `[[0, 0, 0]]`
+
+### Constraints
+- `3 <= nums.length <= 3000`
+- `-10^5 <= nums[i] <= 10^5`
+
+---
+
+### Java Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        Arrays.sort(nums); // Step 1: Sort the array
+        List<List<Integer>> result = new ArrayList<>();
+
+        for (int i = 0; i < nums.length - 2; i++) {
+            if (i > 0 && nums[i] == nums[i - 1]) continue; // Skip duplicates
+
+            int left = i + 1;
+            int right = nums.length - 1;
+
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
+
+                if (sum == 0) {
+                    result.add(Arrays.asList(nums[i], nums[left], nums[right]));
+                    left++;
+                    right--;
+                    
+                    // Skip duplicate values for left and right pointers
+                    while (left < right && nums[left] == nums[left - 1]) left++;
+                    while (left < right && nums[right] == nums[right + 1]) right--;
+                } else if (sum < 0) {
+                    left++; // Move left pointer to increase sum
+                } else {
+                    right--; // Move right pointer to decrease sum
+                }
+            }
+        }
+        return result;
+    }
+}
+```
+
+---
+
+### Approach Explanation
+1. **Sorting:**
+   - Sorting simplifies handling duplicates and allows the two-pointer technique to work efficiently.
+2. **Iteration:**
+   - Iterate through each element `nums[i]`.
+   - Skip duplicates to avoid redundant triplets.
+3. **Two-pointer technique:**
+   - Initialize `left` to `i + 1` and `right` to the last index.
+   - Calculate the sum of `nums[i] + nums[left] + nums[right]`:
+     - If the sum equals zero, add the triplet to the result.
+     - If the sum is less than zero, move the `left` pointer rightward to increase the sum.
+     - If the sum is greater than zero, move the `right` pointer leftward to decrease the sum.
+4. **Avoid Duplicates:**
+   - After finding a valid triplet, skip any repeating values to ensure unique triplets in the result.
+
+---
+
+### Dry Run Example
+**Input:** `nums = [-1, 0, 1, 2, -1, -4]`
+
+**Step 1:** Sorted array → `[-4, -1, -1, 0, 1, 2]`
+
+**Step 2:** Iteration and Two-pointer approach
+- **i = 0:** nums[0] = -4 → No valid triplet
+- **i = 1:** nums[1] = -1 → Found triplet `[-1, -1, 2]`
+- **i = 2:** nums[2] = -1 (duplicate, skip)
+- **i = 3:** nums[3] = 0 → Found triplet `[-1, 0, 1]`
+
+**Output:** `[[ -1, -1, 2 ], [ -1, 0, 1 ]]`
+
+---
+
+### Complexity Analysis
+- **Time Complexity:** `O(n^2)` — Sorting takes `O(n log n)`, and iterating with the two-pointer approach takes `O(n^2)`.
+- **Space Complexity:** `O(log n)` — For sorting in Java (quick sort's space complexity) plus `O(k)` for the result list.
+
+## Minimum Size Subarray Sum
+
+### Problem Statement
+Given an array of positive integers `nums` and a positive integer `target`, return the minimal length of a subarray whose sum is greater than or equal to `target`. If there is no such subarray, return 0 instead.
+
+### Examples
+**Example 1:**
+- **Input:** target = 7, nums = [2,3,1,2,4,3]
+- **Output:** 2
+- **Explanation:** The subarray [4,3] has the minimal length under the problem constraint.
+
+**Example 2:**
+- **Input:** target = 4, nums = [1,4,4]
+- **Output:** 1
+
+**Example 3:**
+- **Input:** target = 11, nums = [1,1,1,1,1,1,1,1]
+- **Output:** 0
+
+### Constraints
+- `1 <= target <= 10^9`
+- `1 <= nums.length <= 10^5`
+- `1 <= nums[i] <= 10^4`
+
+### Solution - Sliding Window (O(n))
+This solution uses the sliding window technique to efficiently find the minimal subarray.
+
+### Java Code
+```java
+class Solution {
+    public int minSubArrayLen(int target, int[] nums) {
+        int left = 0, sum = 0;
+        int minLength = Integer.MAX_VALUE;
+
+        for (int right = 0; right < nums.length; right++) {
+            sum += nums[right];
+
+            while (sum >= target) {
+                minLength = Math.min(minLength, right - left + 1);
+                sum -= nums[left++];
+            }
+        }
+
+        return minLength == Integer.MAX_VALUE ? 0 : minLength;
+    }
+}
+```
+
+### Approach
+1. **Initialize Variables:**
+   - `left` pointer at the start.
+   - `sum` to track the current window sum.
+   - `minLength` to store the minimum subarray length found.
+2. **Traverse the Array:**
+   - Iterate `right` from 0 to `nums.length - 1`.
+   - Add `nums[right]` to `sum`.
+3. **Check Condition:**
+   - While `sum >= target`, update `minLength` to track the smallest window.
+   - Shrink the window by incrementing `left` and subtracting `nums[left]` from `sum`.
+4. **Final Check:**
+   - If no valid subarray was found, return 0.
+   - Otherwise, return `minLength`.
+
+### Dry Run
+**Input:** target = 7, nums = [2,3,1,2,4,3]
+
+| Left | Right | Sum | MinLength | Window      |
+|-------|--------|------|--------------|-----------------|
+| 0     | 0      | 2    | MAX          | [2]              |
+| 0     | 1      | 5    | MAX          | [2, 3]           |
+| 0     | 2      | 6    | MAX          | [2, 3, 1]        |
+| 0     | 3      | 8    | 4            | [2, 3, 1, 2]     |
+| 1     | 3      | 6    | 4            | [3, 1, 2]        |
+| 1     | 4      | 10   | 4            | [3, 1, 2, 4]     |
+| 2     | 4      | 9    | 3            | [1, 2, 4]        |
+| 3     | 4      | 7    | 2            | [2, 4]           |
+
+**Final Output:** 2
+
+### Follow-up Solution - Binary Search (O(n log n))
+This method leverages prefix sums with binary search for improved efficiency.
+
+### Java Code for O(n log n) Solution
+```java
+import java.util.*;
+
+class Solution {
+    public int minSubArrayLen(int target, int[] nums) {
+        int n = nums.length;
+        int[] prefixSum = new int[n + 1];
+        
+        for (int i = 1; i <= n; i++) {
+            prefixSum[i] = prefixSum[i - 1] + nums[i - 1];
+        }
+
+        int minLength = Integer.MAX_VALUE;
+        
+        for (int i = 1; i <= n; i++) {
+            int targetSum = target + prefixSum[i - 1];
+            int bound = Arrays.binarySearch(prefixSum, targetSum);
+            if (bound < 0) bound = -bound - 1;
+            if (bound <= n) {
+                minLength = Math.min(minLength, bound - (i - 1));
+            }
+        }
+
+        return minLength == Integer.MAX_VALUE ? 0 : minLength;
+    }
+}
+```
+
+### Approach for O(n log n)
+1. **Prefix Sum Array:** Build a prefix sum array where `prefixSum[i]` represents the sum of elements from index 0 to `i-1`.
+2. **Binary Search:** For each prefix sum, use `Arrays.binarySearch()` to locate the required subarray sum efficiently.
+3. **Track Minimum Length:** Update `minLength` whenever a valid subarray is found.
+
+### Complexity Analysis
+- **Sliding Window Time Complexity:** `O(n)`
+- **Binary Search Time Complexity:** `O(n log n)`
+- **Space Complexity:** `O(1)` for the sliding window solution and `O(n)` for the binary search solution.
+
+## Longest Substring Without Repeating Characters
+
+### Problem Statement
+Given a string `s`, find the length of the longest substring without repeating characters.
+
+### Examples
+**Input:** s = "abcabcbb"
+
+**Output:** `3`
+
+**Explanation:** The answer is "abc", with the length of 3.
+
+---
+**Input:** s = "bbbbb"
+
+**Output:** `1`
+
+**Explanation:** The answer is "b", with the length of 1.
+
+---
+**Input:** s = "pwwkew"
+
+**Output:** `3`
+
+**Explanation:** The answer is "wke", with the length of 3. Notice that "pwke" is a subsequence, not a substring.
+
+### Constraints
+- `0 <= s.length <= 5 * 10^4`
+- `s` consists of English letters, digits, symbols, and spaces.
+
+---
+
+### Solution (Sliding Window Approach)
+```java
+import java.util.*;
+
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int maxLength = 0;
+        int left = 0;
+        Map<Character, Integer> map = new HashMap<>();
+
+        for (int right = 0; right < s.length(); right++) {
+            char currentChar = s.charAt(right);
+            if (map.containsKey(currentChar)) {
+                // Move left pointer to ensure no duplicates in window
+                left = Math.max(map.get(currentChar) + 1, left);
+            }
+            map.put(currentChar, right); // Update character's latest position
+            maxLength = Math.max(maxLength, right - left + 1);
+        }
+        return maxLength;
+    }
+}
+```
+
+### Approach Explanation
+- **Initialize Variables:**
+  - `maxLength` stores the maximum length of a valid substring.
+  - `left` is the starting point of the window.
+  - A `HashMap` stores each character's most recent position.
+
+- **Iterate Through String:**
+  - For each character `currentChar`, check if it exists in the map.
+  - If it does, move the `left` pointer to the right of the previous occurrence to avoid duplicates.
+  - Update the map with the current character's position.
+  - Update `maxLength` by calculating the window size: `right - left + 1`.
+
+- **Return `maxLength`** at the end.
+
+---
+
+### Dry Run
+**Input:** s = "abcabcbb"
+
+| Step | Left | Right | Current Char | Map (Character : Index) | maxLength |
+|------|-------|--------|----------------|-------------------------|------------|
+| 1    | 0     | 0      | a              | {a: 0}                  | 1          |
+| 2    | 0     | 1      | b              | {a: 0, b: 1}            | 2          |
+| 3    | 0     | 2      | c              | {a: 0, b: 1, c: 2}      | 3          |
+| 4    | 1     | 3      | a              | {a: 3, b: 1, c: 2}      | 3          |
+| 5    | 2     | 4      | b              | {a: 3, b: 4, c: 2}      | 3          |
+| 6    | 3     | 5      | c              | {a: 3, b: 4, c: 5}      | 3          |
+| 7    | 5     | 6      | b              | {a: 3, b: 6, c: 5}      | 3          |
+| 8    | 7     | 7      | b              | {a: 3, b: 7, c: 5}      | 3          |
+
+**Final Output:** `3`
+
+---
+
+### Complexity Analysis
+- **Time Complexity:** `O(n)` — Each character is visited at most twice.
+- **Space Complexity:** `O(min(n, m))` — Where `n` is the string length and `m` is the character set size (maximum 128 for ASCII characters).
+
+## Substring with Concatenation of All Words
+
+### Problem Statement
+Given a string `s` and an array of strings `words`. All the strings in `words` are of the same length.
+
+A **concatenated string** is a string that exactly contains all the strings of any permutation of `words` concatenated.
+
+For example, if `words = ["ab","cd","ef"]`, then `"abcdef"`, `"abefcd"`, `"cdabef"`, `"cdefab"`, `"efabcd"`, and `"efcdab"` are all concatenated strings. `"acdbef"` is not a concatenated string because it is not the concatenation of any permutation of `words`.
+
+**Return** an array of the starting indices of all the concatenated substrings in `s`. You can return the answer in any order.
+
+### Examples
+**Input:** s = "barfoothefoobarman", words = ["foo","bar"]  
+**Output:** `[0, 9]`
+
+**Input:** s = "wordgoodgoodgoodbestword", words = ["word","good","best","word"]  
+**Output:** `[]`
+
+**Input:** s = "barfoofoobarthefoobarman", words = ["bar","foo","the"]  
+**Output:** `[6, 9, 12]`
+
+### Constraints
+- `1 <= s.length <= 10^4`
+- `1 <= words.length <= 5000`
+- `1 <= words[i].length <= 30`
+- `s` and `words[i]` consist of lowercase English letters.
+
+---
+
+### Java Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public List<Integer> findSubstring(String s, String[] words) {
+        List<Integer> result = new ArrayList<>();
+        if (s == null || s.length() == 0 || words == null || words.length == 0) {
+            return result;
+        }
+
+        int wordLength = words[0].length();
+        int totalWordsLength = wordLength * words.length;
+        Map<String, Integer> wordCount = new HashMap<>();
+
+        for (String word : words) {
+            wordCount.put(word, wordCount.getOrDefault(word, 0) + 1);
+        }
+
+        for (int i = 0; i <= s.length() - totalWordsLength; i++) {
+            String substring = s.substring(i, i + totalWordsLength);
+            if (isValid(substring, wordLength, wordCount)) {
+                result.add(i);
+            }
+        }
+
+        return result;
+    }
+
+    private boolean isValid(String substring, int wordLength, Map<String, Integer> wordCount) {
+        Map<String, Integer> seen = new HashMap<>();
+        for (int i = 0; i < substring.length(); i += wordLength) {
+            String word = substring.substring(i, i + wordLength);
+            seen.put(word, seen.getOrDefault(word, 0) + 1);
+        }
+        return seen.equals(wordCount);
+    }
+}
+```
+
+---
+
+### Approach
+1. **Input Validation:**
+   - If `s` or `words` is empty, return an empty list.
+2. **Initial Setup:**
+   - Calculate `wordLength` (length of a word in `words`).
+   - Compute `totalWordsLength` as `wordLength * words.length`.
+   - Store the frequency of each word in `words` using a HashMap (`wordCount`).
+3. **Sliding Window Technique:**
+   - Iterate through each possible starting index in `s` where a valid substring could begin.
+   - Extract the substring of length `totalWordsLength`.
+4. **Validation Check:**
+   - In the `isValid()` method, create a new HashMap (`seen`) that counts the words in the extracted substring.
+   - If `seen` matches `wordCount`, add the starting index to the result.
+5. **Return the Result:** Return the list of starting indices.
+
+---
+
+### Dry Run
+**Input:** `s = "barfoofoobarthefoobarman"`, `words = ["bar","foo","the"]`
+
+**Step 1:** Frequency Map for `words`:  
+`{ "bar": 1, "foo": 1, "the": 1 }`
+
+**Step 2:** Iterate through possible starting points:
+- **Index 6:** Substring = "foobarthe" → Valid ✅ Add 6
+- **Index 9:** Substring = "barthefoo" → Valid ✅ Add 9
+- **Index 12:** Substring = "thefoobar" → Valid ✅ Add 12
+
+**Output:** `[6, 9, 12]`
+
+---
+
+### Complexity Analysis
+- **Time Complexity:** `O(n * wordLength)` — For each possible starting index, the substring is checked in constant time.
+- **Space Complexity:** `O(totalWordsLength)` — For the `wordCount` and `seen` HashMaps.
+
 
 
