@@ -1110,3 +1110,159 @@ public class CandyDistribution {
 # The two-way traversal like above problem (or bidirectional pass) approach is particularly useful when solving problems that involve relative dependencies between elements in an array — especially when conditions apply both before and after a given element.
 ***
 
+# Trapping Rain Water Problem
+
+## Problem Statement
+Given `n` non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.
+
+### Example 1:
+**Input:** `height = [0,1,0,2,1,0,1,3,2,1,2,1]`  
+**Output:** `6`  
+**Explanation:** The array represents an elevation map where 6 units of rainwater are trapped.
+
+### Example 2:
+**Input:** `height = [4,2,0,3,2,5]`  
+**Output:** `9`
+
+### Constraints:
+- `n == height.length`
+- `1 <= n <= 2 * 10^4`
+- `0 <= height[i] <= 10^5`
+
+---
+
+## Approach 1: Greedy Two-Pass Solution (Prefix & Suffix Trick)
+### Key Idea:
+1. Use two arrays:
+   - `leftMax[]`: Tracks the maximum height seen so far from the **left**.
+   - `rightMax[]`: Tracks the maximum height seen so far from the **right**.
+2. For each index, calculate the trapped water as:
+
+`water[i] = min(leftMax[i], rightMax[i]) - height[i]`
+
+### Code Implementation (Greedy Solution)
+```java
+class Solution {
+    public int trap(int[] height) {
+        if (height == null || height.length == 0) return 0;
+
+        int n = height.length;
+        int[] leftMax = new int[n];
+        int[] rightMax = new int[n];
+
+        // Fill leftMax array
+        leftMax[0] = height[0];
+        for (int i = 1; i < n; i++) {
+            leftMax[i] = Math.max(leftMax[i - 1], height[i]);
+        }
+
+        // Fill rightMax array
+        rightMax[n - 1] = height[n - 1];
+        for (int i = n - 2; i >= 0; i--) {
+            rightMax[i] = Math.max(rightMax[i + 1], height[i]);
+        }
+
+        // Calculate trapped water
+        int totalWater = 0;
+        for (int i = 0; i < n; i++) {
+            totalWater += Math.min(leftMax[i], rightMax[i]) - height[i];
+        }
+
+        return totalWater;
+    }
+}
+```
+
+### Dry Run (Greedy Approach)
+**Input:** `[0,1,0,2,1,0,1,3,2,1,2,1]`  
+
+| Index | Height | LeftMax | RightMax | Water  |
+|--------|--------|----------|-----------|---------|
+| 0        | 0         | 0              | 3                | 0             |
+| 1        | 1         | 1              | 3                | 0             |
+| 2        | 0         | 1              | 3                | 1             |
+| 3        | 2         | 2              | 3                | 0             |
+| 4        | 1         | 2              | 3                | 1             |
+| 5        | 0         | 2              | 3                | 2             |
+| 6        | 1         | 2              | 3                | 1             |
+| 7        | 3         | 3              | 3                | 0             |
+| 8        | 2         | 3              | 2                | 0             |
+| 9        | 1         | 3              | 2                | 1             |
+| 10      | 2         | 3              | 2                | 0             |
+| 11      | 1         | 3              | 1                | 0             |
+
+**Total Water:** 6 units
+
+---
+
+## Approach 2: Stack-Based Solution (Efficient Space Optimization)
+### Key Idea:
+- Use a **stack** to track the indices of bars.
+- Traverse the array and apply the following logic:
+  - While the current bar is greater than the bar at the top of the stack:
+    - Pop the top element (this is the **bottom** of the trapped water).
+    - Calculate the width (distance between left and right boundary).
+    - Calculate the height of the trapped water and accumulate it.
+
+### Code Implementation (Stack Solution)
+```java
+import java.util.Stack;
+
+class Solution {
+    public int trap(int[] height) {
+        if (height == null || height.length == 0) return 0;
+
+        Stack<Integer> stack = new Stack<>();
+        int totalWater = 0;
+
+        for (int i = 0; i < height.length; i++) {
+            while (!stack.isEmpty() && height[i] > height[stack.peek()]) {
+                int bottom = stack.pop();
+                if (stack.isEmpty()) break; // No left boundary
+
+                int left = stack.peek();
+                int width = i - left - 1;
+                int heightDiff = Math.min(height[left], height[i]) - height[bottom];
+
+                totalWater += width * heightDiff;
+            }
+            stack.push(i);
+        }
+
+        return totalWater;
+    }
+}
+```
+
+### Dry Run (Stack Approach)
+**Input:** `[0,1,0,2,1,0,1,3,2,1,2,1]`
+
+| Step | Stack | Water Trapped |
+|------|--------|----------------|
+| 0      | [0]      | 0                     |
+| 1      | [0, 1]   | 0                     |
+| 2      | [0, 1, 2] | 0                    |
+| 3      | [0, 1, 3] | 1                    |
+| 4      | [0, 1, 3, 4] | 1                |
+| 5      | [0, 1, 3, 5] | 3                |
+| 6      | [0, 1, 3, 6] | 4                |
+| 7      | [0, 1, 3, 7] | 6                |
+
+**Total Water:** 6 units
+
+---
+
+## Comparison
+| Approach | Time Complexity | Space Complexity |
+|-----------|-------------------|--------------------|
+| **Greedy (Prefix/Suffix)** | `O(n)`  | `O(n)` |
+| **Stack-Based Solution** | `O(n)` | `O(n)` |
+
+Both approaches have the same time complexity. The **stack-based solution** is preferable for optimizing space in scenarios where manipulating two extra arrays is inefficient.
+
+---
+
+## Key Takeaways
+✅ Use the **Greedy Two-Pass** approach for straightforward prefix-suffix conditions.  
+✅ Use the **Stack-Based** method when space efficiency is crucial, and you can track boundaries using a stack structure.  
+
