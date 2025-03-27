@@ -1266,3 +1266,812 @@ Both approaches have the same time complexity. The **stack-based solution** is p
 ✅ Use the **Greedy Two-Pass** approach for straightforward prefix-suffix conditions.  
 ✅ Use the **Stack-Based** method when space efficiency is crucial, and you can track boundaries using a stack structure.  
 
+# Roman to Integer Conversion
+
+## Problem Statement
+Roman numerals are represented by seven different symbols:
+
+| Symbol | Value |
+|---------|--------|
+| I       | 1      |
+| V       | 5      |
+| X       | 10     |
+| L       | 50     |
+| C       | 100    |
+| D       | 500    |
+| M       | 1000   |
+
+Given a Roman numeral string, convert it to an integer.
+
+### Example 1:
+**Input:** `s = "III"`  
+**Output:** `3`  
+**Explanation:** `III = 3`  
+
+### Example 2:
+**Input:** `s = "LVIII"`  
+**Output:** `58`  
+**Explanation:** `L = 50, V = 5, III = 3`  
+
+### Example 3:
+**Input:** `s = "MCMXCIV"`  
+**Output:** `1994`  
+**Explanation:** `M = 1000, CM = 900, XC = 90, IV = 4`
+
+### Constraints:
+- `1 <= s.length <= 15`
+- `s` contains only characters ('I', 'V', 'X', 'L', 'C', 'D', 'M').
+- It is guaranteed that `s` is a valid Roman numeral in the range [1, 3999].
+
+---
+
+## Approach
+### Key Idea
+- Use a **HashMap** to map Roman numerals to their integer values.
+- Iterate through the string from left to right:
+  - If the current character's value is **less than** the next character's value, **subtract** it.
+  - Otherwise, **add** it to the total.
+
+### Java Code Implementation
+```java
+import java.util.HashMap;
+
+class Solution {
+    public int romanToInt(String s) {
+        HashMap<Character, Integer> map = new HashMap<>();
+        map.put('I', 1);
+        map.put('V', 5);
+        map.put('X', 10);
+        map.put('L', 50);
+        map.put('C', 100);
+        map.put('D', 500);
+        map.put('M', 1000);
+
+        int total = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (i < s.length() - 1 && map.get(s.charAt(i)) < map.get(s.charAt(i + 1))) {
+                total -= map.get(s.charAt(i));
+            } else {
+                total += map.get(s.charAt(i));
+            }
+        }
+
+        return total;
+    }
+}
+```
+
+---
+
+## Dry Run
+### Input: `s = "MCMXCIV"`
+
+| Step | Current Char | Next Char | Operation | Total |
+|-------|---------------|------------|------------|--------|
+| 1     | M             | C          | +1000       | 1000   |
+| 2     | C             | M          | -100        | 900    |
+| 3     | M             | X          | +1000        | 1900   |
+| 4     | X             | C          | -10          | 1890   |
+| 5     | C             | I          | +100         | 1990   |
+| 6     | I             | V          | -1           | 1989   |
+| 7     | V             | -          | +5           | 1994   |
+
+**Final Answer:** `1994`
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(n)` — Traverses the string once.
+- **Space Complexity:** `O(1)` — Constant space for the HashMap (fixed size for Roman numeral symbols).
+
+---
+
+# Integer to Roman Conversion
+
+## Problem Statement
+Given an integer, convert it to a Roman numeral.
+
+### Roman Numeral Values
+| Symbol | Value |
+|---------|--------|
+| I       | 1      |
+| V       | 5      |
+| X       | 10     |
+| L       | 50     |
+| C       | 100    |
+| D       | 500    |
+| M       | 1000   |
+
+### Rules for Conversion
+- If the value does **not** start with 4 or 9, append the maximum Roman numeral value possible, then reduce the number by that value.
+- If the value **starts** with 4 or 9, use the subtractive form:
+  - 4 -> `IV`, 9 -> `IX`
+  - 40 -> `XL`, 90 -> `XC`
+  - 400 -> `CD`, 900 -> `CM`
+
+---
+
+## Approach
+1. Create two arrays:
+   - `values[]` for corresponding decimal values.
+   - `symbols[]` for Roman numeral symbols.
+2. Iterate through the `values[]` array and check how many times the current value can fit into `num`.
+3. Append the corresponding symbol that many times.
+4. Subtract the matched value from `num` and continue until `num` becomes zero.
+
+---
+
+## Java Code Implementation
+```java
+class Solution {
+    public String intToRoman(int num) {
+        int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+        String[] symbols = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+        
+        StringBuilder roman = new StringBuilder();
+
+        for (int i = 0; i < values.length; i++) {
+            while (num >= values[i]) {
+                roman.append(symbols[i]);
+                num -= values[i];
+            }
+        }
+
+        return roman.toString();
+    }
+}
+```
+
+---
+
+## Dry Run
+### Input: `num = 3749`
+
+| Step | Value to Match | Remaining Num | Roman Numeral |
+|------|----------------|----------------|----------------|
+| 1    | 1000 (M)         | 3749 - 1000 = 2749  | MMM             |
+| 2    | 1000 (M)         | 2749 - 1000 = 1749  | MMMM            |
+| 3    | 500 (D)          | 1749 - 500 = 1249   | MMMD            |
+| 4    | 100 (C)          | 1249 - 100 = 1149   | MMMDCC          |
+| 5    | 100 (C)          | 1149 - 100 = 1049   | MMMDCCC         |
+| 6    | 40 (XL)          | 1049 - 40 = 1009    | MMMDCCXL        |
+| 7    | 9 (IX)           | 1009 - 9 = 1000     | MMMDCCXLIX      |
+
+**Output:** `MMMDCCXLIX`
+
+---
+
+### Input: `num = 58`
+**Output:** `LVIII`
+
+### Input: `num = 1994`
+**Output:** `MCMXCIV`
+
+---
+
+# Length of Last Word
+
+## Problem Statement
+Given a string `s` consisting of words and spaces, return the **length of the last word** in the string.
+
+A word is defined as a **maximal substring** consisting of non-space characters only.
+
+### Example 1:
+**Input:** `s = "Hello World"`  
+**Output:** `5`  
+**Explanation:** The last word is `"World"` with length 5.
+
+### Example 2:
+**Input:** `s = "   fly me   to   the moon  "`  
+**Output:** `4`  
+**Explanation:** The last word is `"moon"` with length 4.
+
+### Example 3:
+**Input:** `s = "luffy is still joyboy"`  
+**Output:** `6`  
+**Explanation:** The last word is `"joyboy"` with length 6.
+
+### Constraints:
+- `1 <= s.length <= 10^4`
+- `s` consists of only English letters and spaces `' '`.
+- There will be at least one word in `s`.
+
+---
+
+## Approach
+### Key Idea
+- Trim the string to remove any trailing spaces.
+- Split the string by spaces to extract individual words.
+- Return the length of the **last word** in the resulting array.
+
+### Code Implementation (Java)
+```java
+class Solution {
+    public int lengthOfLastWord(String s) {
+        // Trim any leading or trailing spaces
+        s = s.trim();
+        
+        // Split the string by spaces
+        String[] words = s.split(" ");
+        
+        // Return the length of the last word
+        return words[words.length - 1].length();
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:** `"   fly me   to   the moon  "`
+
+| Step | Operation             | Result                  |
+|------|-----------------------|--------------------------|
+| 1    | `Trim()`               | "fly me   to   the moon" |
+| 2    | `Split(" ")`            | ["fly", "me", "to", "the", "moon"] |
+| 3    | `words[words.length-1]`| "moon"                     |
+| 4    | `.length()`             | 4                        |
+
+**Output:** `4`
+
+---
+
+## Optimized Approach (Without Split)
+Instead of using `.split()`, we can improve efficiency by scanning the string from the end.
+
+### Code Implementation (Optimized Java Solution)
+```java
+class Solution {
+    public int lengthOfLastWord(String s) {
+        int length = 0;
+        int i = s.length() - 1;
+
+        // Skip trailing spaces
+        while (i >= 0 && s.charAt(i) == ' ') {
+            i--;
+        }
+
+        // Count the last word's length
+        while (i >= 0 && s.charAt(i) != ' ') {
+            length++;
+            i--;
+        }
+
+        return length;
+    }
+}
+```
+
+---
+
+# Longest Common Prefix Problem
+
+## Problem Statement
+Write a function to find the **longest common prefix** string amongst an array of strings.
+
+If there is no common prefix, return an empty string `""`.
+
+### Example 1:
+**Input:** `strs = ["flower","flow","flight"]`  
+**Output:** `"fl"`
+
+### Example 2:
+**Input:** `strs = ["dog","racecar","car"]`  
+**Output:** `""`  
+**Explanation:** There is no common prefix among the input strings.
+
+### Constraints:
+- `1 <= strs.length <= 200`
+- `0 <= strs[i].length <= 200`
+- `strs[i]` consists of only lowercase English letters if it is non-empty.
+
+---
+
+## Approach 1: Vertical Scanning (Recommended for Simplicity)
+### Key Idea
+- Assume the first string as the prefix.
+- Iterate through each character position in the prefix and compare it with all other strings.
+- If any character mismatches, return the prefix up to that point.
+
+### Java Code Implementation (Vertical Scanning)
+```java
+class Solution {
+    public String longestCommonPrefix(String[] strs) {
+        if (strs == null || strs.length == 0) return "";
+        
+        // Assume the first string as prefix
+        String prefix = strs[0];
+        
+        // Iterate through remaining strings
+        for (int i = 1; i < strs.length; i++) {
+            while (!strs[i].startsWith(prefix)) {
+                prefix = prefix.substring(0, prefix.length() - 1);
+                if (prefix.isEmpty()) return ""; // No common prefix
+            }
+        }
+        
+        return prefix;
+    }
+}
+```
+
+### Dry Run (Vertical Scanning)
+**Input:** `strs = ["flower", "flow", "flight"]`
+
+| Step | Prefix | Comparison String | Action  |
+|------|---------|--------------------|-----------|
+| 1      | `flower` | `flow`                        | Prefix becomes `flow` |
+| 2      | `flow`      | `flight`                       | Prefix becomes `fl` |
+| **Output:** `"fl"` |
+
+---
+
+## Approach 2: Horizontal Scanning (Alternative Approach)
+### Key Idea
+- Assume the first string as the prefix.
+- Compare this prefix with each string, updating the prefix as needed.
+- Efficient when common prefixes are large.
+
+### Java Code Implementation (Horizontal Scanning)
+```java
+class Solution {
+    public String longestCommonPrefix(String[] strs) {
+        if (strs == null || strs.length == 0) return "";
+        
+        String prefix = strs[0];
+        for (int i = 1; i < strs.length; i++) {
+            int j = 0;
+            while (j < prefix.length() && j < strs[i].length() && prefix.charAt(j) == strs[i].charAt(j)) {
+                j++;
+            }
+            prefix = prefix.substring(0, j);
+            if (prefix.isEmpty()) return "";
+        }
+        return prefix;
+    }
+}
+```
+
+### Dry Run (Horizontal Scanning)
+**Input:** `strs = ["dog", "racecar", "car"]`
+
+| Step | Prefix | Comparison String | Action  |
+|------|---------|--------------------|-----------|
+| 1      | `dog`      | `racecar`                     | Prefix becomes `""` |
+| **Output:** `""` |
+
+---
+
+## Comparison of Approaches
+| Approach               | Time Complexity | Space Complexity |
+|------------------------|-------------------|--------------------|
+| **Vertical Scanning**       | `O(N * M)`        | `O(1)`                     |
+| **Horizontal Scanning**   | `O(N * M)`        | `O(1)`                     |
+
+**N:** Number of strings in the array  
+**M:** Length of the shortest string
+
+Both approaches offer optimal time complexity, but the **Vertical Scanning** method is generally simpler and easier to implement in practice.
+
+---
+# Zigzag Conversion Problem
+
+## Problem Statement
+The string `"PAYPALISHIRING"` is written in a zigzag pattern on a given number of rows like this:
+
+```
+P   A   H   N
+A P L S I I G
+Y   I   R
+```
+
+Then read line by line to get the output: `"PAHNAPLSIIGYIR"`
+
+### Example 1
+**Input:** `s = "PAYPALISHIRING", numRows = 3`
+
+**Output:** `"PAHNAPLSIIGYIR"`
+
+### Example 2
+**Input:** `s = "PAYPALISHIRING", numRows = 4`
+
+**Output:** `"PINALSIGYAHRPI"`
+
+**Explanation:**
+```
+P     I    N
+A   L S  I G
+Y A   H R
+P     I
+```
+
+### Example 3
+**Input:** `s = "A", numRows = 1`
+
+**Output:** `"A"`
+
+### Constraints
+- `1 <= s.length <= 1000`
+- `s` consists of English letters (lower-case and upper-case), `,` and `.`
+- `1 <= numRows <= 1000`
+
+---
+
+## Approach
+### Key Idea
+- Use an array of `StringBuilder` objects to store each row's characters.
+- Traverse the string and track the current row index.
+- Change direction (up or down) whenever you reach the top or bottom row.
+
+### Steps
+1. **Edge Case:** If `numRows` is 1, return the original string since no zigzag is needed.
+2. Create an array of `StringBuilder` with `numRows` elements.
+3. Iterate through the string:
+   - Append each character to the corresponding `StringBuilder`.
+   - Change direction when reaching the first or last row.
+4. Combine all rows into a single string and return it.
+
+---
+
+## Code Implementation (Java)
+```java
+class Solution {
+    public String convert(String s, int numRows) {
+        if (numRows == 1 || s.length() <= numRows) return s;
+
+        StringBuilder[] rows = new StringBuilder[numRows];
+        for (int i = 0; i < numRows; i++) {
+            rows[i] = new StringBuilder();
+        }
+
+        int index = 0;
+        boolean goingDown = false;
+
+        for (char c : s.toCharArray()) {
+            rows[index].append(c);
+            if (index == 0 || index == numRows - 1) {
+                goingDown = !goingDown;
+            }
+            index += goingDown ? 1 : -1;
+        }
+
+        StringBuilder result = new StringBuilder();
+        for (StringBuilder row : rows) {
+            result.append(row);
+        }
+
+        return result.toString();
+    }
+}
+```
+
+---
+
+## Dry Run (Input: `"PAYPALISHIRING", numRows = 3`)
+| Step | Character | Row Index | Rows Content       |
+|------|------------|-------------|---------------------|
+| 1     | P          | 0           | [P] [ ] [ ]         |
+| 2     | A          | 1           | [P] [A] [ ]         |
+| 3     | Y          | 2           | [P] [A] [Y]         |
+| 4     | P          | 1           | [P] [AP] [Y]        |
+| 5     | A          | 0           | [PA] [AP] [Y]       |
+| 6     | L          | 1           | [PA] [APL] [Y]      |
+| 7     | I          | 2           | [PA] [APL] [YI]     |
+| 8     | S          | 1           | [PA] [APLS] [YI]    |
+| 9     | H          | 0           | [PAH] [APLS] [YI]   |
+| 10    | I          | 1           | [PAH] [APLSI] [YI]  |
+| 11    | R          | 2           | [PAH] [APLSI] [YIR] |
+| 12    | I          | 1           | [PAH] [APLSII] [YIR]|
+| 13    | N          | 0           | [PAHN] [APLSII] [YIR]|
+| 14    | G          | 1           | [PAHN] [APLSIIG] [YIR]|
+
+**Final Output:** `"PAHNAPLSIIGYIR"`
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(n)` — Each character is processed once.
+- **Space Complexity:** `O(n)` — Each row stores part of the string.
+
+
+# Text Justification Problem
+
+## Problem Statement
+Given an array of strings `words` and a width `maxWidth`, format the text such that each line has exactly `maxWidth` characters and is fully justified (left and right).
+
+### Key Rules:
+- Pack words greedily — each line should hold as many words as possible without exceeding `maxWidth`.
+- Extra spaces should be distributed evenly. If the number of spaces doesn't divide evenly, assign more spaces to the left slots.
+- The **last line** should be left-justified with no extra space between words.
+
+---
+
+## Approach: Greedy Algorithm
+### Steps:
+1. Initialize a list `result` to store the justified lines.
+2. Iterate through the `words` array and build lines by adding words until the `maxWidth` limit is reached.
+3. Once a line is filled:
+   - Calculate spaces to be added.
+   - Distribute spaces evenly across the words in the line.
+4. Handle the **last line** separately (left-justified with no extra space between words).
+
+---
+
+## Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public List<String> fullJustify(String[] words, int maxWidth) {
+        List<String> result = new ArrayList<>();
+        int index = 0;
+
+        while (index < words.length) {
+            int count = words[index].length();
+            int last = index + 1;
+
+            while (last < words.length) {
+                if (count + 1 + words[last].length() > maxWidth) break;
+                count += 1 + words[last].length();
+                last++;
+            }
+
+            StringBuilder line = new StringBuilder();
+            int numberOfWords = last - index;
+
+            if (last == words.length || numberOfWords == 1) { // Last line or single word
+                for (int i = index; i < last; i++) {
+                    line.append(words[i]);
+                    if (i < last - 1) line.append(" ");
+                }
+                while (line.length() < maxWidth) line.append(" ");
+            } else { // Fully justified text
+                int totalSpaces = maxWidth - count + (numberOfWords - 1);
+                int spacesBetweenWords = totalSpaces / (numberOfWords - 1);
+                int extraSpaces = totalSpaces % (numberOfWords - 1);
+
+                for (int i = index; i < last; i++) {
+                    line.append(words[i]);
+                    if (i < last - 1) {
+                        for (int j = 0; j < spacesBetweenWords; j++) line.append(" ");
+                        if (extraSpaces > 0) {
+                            line.append(" ");
+                            extraSpaces--;
+                        }
+                    }
+                }
+            }
+
+            result.add(line.toString());
+            index = last;
+        }
+
+        return result;
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:** `words = ["This", "is", "an", "example", "of", "text", "justification."]`, `maxWidth = 16`
+
+| Line No. | Words in Line | Formatted Line          |
+|-----------|-----------------|--------------------------|
+| 1                | This is an            | `"This    is    an"`           |
+| 2                | example of text | `"example  of text"`    |
+| 3                | justification.        | `"justification.  "`         |
+
+**Output:**
+```
+[
+   "This    is    an",
+   "example  of text",
+   "justification.  "
+]
+```
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(n)` — Each word is processed once.
+- **Space Complexity:** `O(n)` — For the result array.
+
+---
+
+# Valid Palindrome Problem
+
+## Problem Statement
+Given a string `s`, return `true` if it is a palindrome, or `false` otherwise.
+
+A palindrome is a phrase that reads the same forward and backward after:
+- Converting all uppercase letters to lowercase.
+- Removing all non-alphanumeric characters.
+
+### Example 1:
+**Input:** `s = "A man, a plan, a canal: Panama"`
+
+**Output:** `true`
+
+**Explanation:** "amanaplanacanalpanama" is a palindrome.
+
+### Example 2:
+**Input:** `s = "race a car"`
+
+**Output:** `false`
+
+**Explanation:** "raceacar" is not a palindrome.
+
+### Example 3:
+**Input:** `s = " "`
+
+**Output:** `true`
+
+**Explanation:** An empty string is considered a palindrome.
+
+---
+
+### Code Implementation
+```java
+class Solution {
+    public boolean isPalindrome(String s) {
+        // Clean the string: Convert to lowercase and remove non-alphanumeric characters
+        s = s.toLowerCase().replaceAll("[^a-z0-9]", "");
+        
+        int left = 0, right = s.length() - 1;
+        
+        while (left < right) {
+            if (s.charAt(left) != s.charAt(right)) {
+                return false; // Characters don't match
+            }
+            left++;
+            right--;
+        }
+        
+        return true; // All characters matched
+    }
+}
+```
+
+## Complexity Analysis
+- **Time Complexity:** `O(n)` - Each character is processed at most once.
+- **Space Complexity:** `O(1)` - Only two pointers are used for tracking positions.
+
+## Is Subsequence
+
+### Problem Statement
+Given two strings `s` and `t`, return `true` if `s` is a subsequence of `t`, or `false` otherwise.
+
+A subsequence of a string is a new string that is formed from the original string by deleting some (can be none) of the characters without disturbing the relative positions of the remaining characters. (i.e., "ace" is a subsequence of "abcde" while "aec" is not).
+
+### Examples
+**Input:** s = "abc", t = "ahbgdc"
+
+**Output:** `true`
+
+**Input:** s = "axc", t = "ahbgdc"
+
+**Output:** `false`
+
+### Constraints
+- `0 <= s.length <= 100`
+- `0 <= t.length <= 10^4`
+- `s` and `t` consist only of lowercase English letters.
+
+### Solution
+```java
+class Solution {
+    public boolean isSubsequence(String s, String t) {
+        int sPointer = 0, tPointer = 0;
+        while (sPointer < s.length() && tPointer < t.length()) {
+            if (s.charAt(sPointer) == t.charAt(tPointer)) {
+                sPointer++;
+            }
+            tPointer++;
+        }
+        return sPointer == s.length();
+    }
+}
+```
+
+### Explanation
+- Initialize two pointers `sPointer` and `tPointer` to 0.
+- Traverse both strings:
+  - If characters at `sPointer` and `tPointer` match, move `sPointer` forward.
+  - Always move `tPointer` forward.
+- If `sPointer` reaches the end of `s`, it confirms `s` is a subsequence of `t`.
+
+### Follow-up Solution
+For the follow-up scenario where multiple `s` strings need to be checked efficiently:
+
+**Approach:** Binary Search with Hash Map
+- Create a HashMap that maps each character in `t` to its list of indices in sorted order.
+- For each `s`, perform a binary search to efficiently find matching characters in the correct sequence.
+
+```java
+import java.util.*;
+
+class Solution {
+    public boolean isSubsequence(String s, String t) {
+        Map<Character, List<Integer>> map = new HashMap<>();
+        for (int i = 0; i < t.length(); i++) {
+            map.computeIfAbsent(t.charAt(i), k -> new ArrayList<>()).add(i);
+        }
+
+        int prevIndex = -1;
+        for (char c : s.toCharArray()) {
+            if (!map.containsKey(c)) return false;
+            List<Integer> indices = map.get(c);
+            int index = binarySearch(indices, prevIndex);
+            if (index == -1) return false;
+            prevIndex = indices.get(index);
+        }
+        return true;
+    }
+
+    private int binarySearch(List<Integer> indices, int target) {
+        int left = 0, right = indices.size();
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (indices.get(mid) <= target) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return left < indices.size() ? left : -1;
+    }
+}
+```
+
+### Why Use Binary Search?
+- This optimized solution efficiently handles multiple `s` strings by precomputing character positions in `t`.
+- Each query is processed in `O(log n)` for each character in `s`.
+
+### Complexity Analysis
+- **Time Complexity for Preprocessing:** `O(t.length)`
+- **Time Complexity for Each Query:** `O(s.length * log n)`
+- **Space Complexity:** `O(t.length)`
+
+### Dry Run for Follow-up Solution
+**Input:** s = "abc", t = "ahbgdc"
+
+**Step 1:** Preprocess `t`:
+- HashMap: `{ a: [0], h: [1], b: [2], g: [3], d: [4], c: [5] }`
+
+**Step 2:** Process `s`:
+- `prevIndex = -1`
+- For character `a`: Found at index 0 → Update `prevIndex = 0`
+- For character `b`: Found at index 2 → Update `prevIndex = 2`
+- For character `c`: Found at index 5 → Update `prevIndex = 5`
+
+**Final Result:** `true`
+
+**Input:** s = "axc", t = "ahbgdc"
+
+**Step 1:** Preprocess `t`:
+- HashMap: `{ a: [0], h: [1], b: [2], g: [3], d: [4], c: [5] }`
+
+**Step 2:** Process `s`:
+- `prevIndex = -1`
+- For character `a`: Found at index 0 → Update `prevIndex = 0`
+- For character `x`: Not found → Return `false`
+
+**Final Result:** `false`
+
+### Advanced Example with Binary Search
+**Input:** s = "ace", t = "abcdeabcde"
+
+**Step 1:** Preprocess `t`:
+- HashMap: `{ a: [0, 5], b: [1, 6], c: [2, 7], d: [3, 8], e: [4, 9] }`
+
+**Step 2:** Process `s`:
+- `prevIndex = -1`
+- For character `a`: Found at index 0 → Update `prevIndex = 0`
+- For character `c`: Found at index 2 → Update `prevIndex = 2`
+- For character `e`: Found at index 4 → Update `prevIndex = 4`
+
+**Final Result:** `true`
+
+
+
