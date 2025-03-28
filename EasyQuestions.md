@@ -3448,6 +3448,1011 @@ class Solution {
 - **Space Complexity:** `O(1)`, as we use a HashMap to store character counts, which has at most 26 entries for lowercase letters.
 
 
+# Isomorphic Strings
+
+## Problem Statement
+Given two strings `s` and `t`, determine if they are **isomorphic**.
+
+Two strings `s` and `t` are isomorphic if the characters in `s` can be replaced to get `t`.
+
+- All occurrences of a character must be replaced with another character while preserving the order of characters.
+- No two characters may map to the same character, but a character may map to itself.
+
+### Example 1:
+**Input:**  
+```plaintext
+s = "egg", t = "add"
+```
+**Output:**  
+```plaintext
+true
+```
+**Explanation:**
+- 'e' maps to 'a'.
+- 'g' maps to 'd'.
+
+### Example 2:
+**Input:**  
+```plaintext
+s = "foo", t = "bar"
+```
+**Output:**  
+```plaintext
+false
+```
+**Explanation:**
+- 'o' would need to map to both 'a' and 'r', which is not allowed.
+
+### Example 3:
+**Input:**  
+```plaintext
+s = "paper", t = "title"
+```
+**Output:**  
+```plaintext
+true
+```
+
+## Constraints:
+- `1 <= s.length <= 5 * 10^4`
+- `t.length == s.length`
+- `s` and `t` consist of any valid ASCII character.
+
+## Approach
+1. Use **two HashMaps**:
+   - One to map characters from `s` to `t`.
+   - Another to map characters from `t` to `s`.
+2. Iterate through both strings simultaneously:
+   - If a mapping for `s[i]` already exists, it must match `t[i]`.
+   - If a mapping for `t[i]` already exists, it must match `s[i]`.
+   - Otherwise, create new mappings.
+3. If any contradiction occurs, return `false`. Otherwise, return `true`.
+
+## Java Code
+```java
+import java.util.HashMap;
+
+class Solution {
+    public boolean isIsomorphic(String s, String t) {
+        if (s.length() != t.length()) return false;
+        
+        HashMap<Character, Character> sToT = new HashMap<>();
+        HashMap<Character, Character> tToS = new HashMap<>();
+        
+        for (int i = 0; i < s.length(); i++) {
+            char charS = s.charAt(i);
+            char charT = t.charAt(i);
+            
+            if (sToT.containsKey(charS)) {
+                if (sToT.get(charS) != charT) return false;
+            } else {
+                sToT.put(charS, charT);
+            }
+            
+            if (tToS.containsKey(charT)) {
+                if (tToS.get(charT) != charS) return false;
+            } else {
+                tToS.put(charT, charS);
+            }
+        }
+        
+        return true;
+    }
+}
+```
+
+## Complexity Analysis
+- **Time Complexity:** `O(n)`, where `n` is the length of `s` (or `t`).
+- **Space Complexity:** `O(1)`, as there are at most **256** possible ASCII characters.
+
+This solution ensures an efficient check using HashMaps while maintaining a one-to-one character mapping.
+
+
+# Word Pattern Problem
+
+## Problem Statement
+Given a pattern and a string `s`, determine if `s` follows the same pattern.
+
+### Definition of Following a Pattern:
+- Each letter in `pattern` maps to exactly one unique word in `s`.
+- Each unique word in `s` maps to exactly one letter in `pattern`.
+- No two letters map to the same word, and no two words map to the same letter.
+
+### Example 1:
+**Input:**
+```plaintext
+pattern = "abba"
+s = "dog cat cat dog"
+```
+**Output:**
+```plaintext
+true
+```
+**Explanation:**
+The bijection can be established as:
+- 'a' maps to "dog".
+- 'b' maps to "cat".
+
+### Example 2:
+**Input:**
+```plaintext
+pattern = "abba"
+s = "dog cat cat fish"
+```
+**Output:**
+```plaintext
+false
+```
+
+### Example 3:
+**Input:**
+```plaintext
+pattern = "aaaa"
+s = "dog cat cat dog"
+```
+**Output:**
+```plaintext
+false
+```
+
+## Constraints:
+- `1 <= pattern.length <= 300`
+- `pattern` contains only lowercase English letters.
+- `1 <= s.length <= 3000`
+- `s` contains only lowercase English letters and spaces `' '`.
+- `s` does not contain any leading or trailing spaces.
+- All the words in `s` are separated by a single space.
+
+---
+
+## Java Solution
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+public class WordPattern {
+    public static boolean wordPattern(String pattern, String s) {
+        String[] words = s.split(" ");
+        if (pattern.length() != words.length) {
+            return false;
+        }
+        
+        Map<Character, String> charToWord = new HashMap<>();
+        Map<String, Character> wordToChar = new HashMap<>();
+        
+        for (int i = 0; i < pattern.length(); i++) {
+            char c = pattern.charAt(i);
+            String word = words[i];
+            
+            if (charToWord.containsKey(c)) {
+                if (!charToWord.get(c).equals(word)) {
+                    return false;
+                }
+            } else {
+                charToWord.put(c, word);
+            }
+            
+            if (wordToChar.containsKey(word)) {
+                if (wordToChar.get(word) != c) {
+                    return false;
+                }
+            } else {
+                wordToChar.put(word, c);
+            }
+        }
+        
+        return true;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(wordPattern("abba", "dog cat cat dog")); // true
+        System.out.println(wordPattern("abba", "dog cat cat fish")); // false
+        System.out.println(wordPattern("aaaa", "dog cat cat dog")); // false
+    }
+}
+```
+
+# Valid Anagram Problem
+
+## Problem Statement
+Given two strings `s` and `t`, return `true` if `t` is an anagram of `s`, and `false` otherwise.
+
+### Example 1:
+**Input:**
+```plaintext
+s = "anagram"
+t = "nagaram"
+```
+**Output:**
+```plaintext
+true
+```
+
+### Example 2:
+**Input:**
+```plaintext
+s = "rat"
+t = "car"
+```
+**Output:**
+```plaintext
+false
+```
+
+## Constraints:
+- `1 <= s.length, t.length <= 5 * 10^4`
+- `s` and `t` consist of lowercase English letters.
+
+### Follow-up:
+What if the inputs contain Unicode characters? How would you adapt your solution to such a case?
+
+---
+
+## Java Solution
+
+```java
+import java.util.Arrays;
+
+public class ValidAnagram {
+    public static boolean isAnagram(String s, String t) {
+        if (s.length() != t.length()) {
+            return false;
+        }
+        
+        char[] sArr = s.toCharArray();
+        char[] tArr = t.toCharArray();
+        Arrays.sort(sArr);
+        Arrays.sort(tArr);
+        
+        return Arrays.equals(sArr, tArr);
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(isAnagram("anagram", "nagaram")); // true
+        System.out.println(isAnagram("rat", "car")); // false
+    }
+}
+```
+
+### Optimized Follow-up Solution for Unicode Characters
+We can use a single `Map<Character, Integer>` to reduce space complexity:
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+public class ValidAnagramUnicode {
+    public static boolean isAnagram(String s, String t) {
+        if (s.length() != t.length()) {
+            return false;
+        }
+        
+        Map<Character, Integer> charCount = new HashMap<>();
+        for (int i = 0; i < s.length(); i++) {
+            charCount.put(s.charAt(i), charCount.getOrDefault(s.charAt(i), 0) + 1);
+            charCount.put(t.charAt(i), charCount.getOrDefault(t.charAt(i), 0) - 1);
+        }
+        
+        for (int count : charCount.values()) {
+            if (count != 0) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(isAnagram("anagram", "nagaram")); // true
+        System.out.println(isAnagram("rat", "car")); // false
+    }
+}
+```
+
+# Group Anagrams Problem
+
+## Problem Statement
+Given an array of strings `strs`, group the anagrams together. You can return the answer in any order.
+
+### Example 1:
+**Input:**
+```plaintext
+strs = ["eat","tea","tan","ate","nat","bat"]
+```
+**Output:**
+```plaintext
+[["bat"],["nat","tan"],["ate","eat","tea"]]
+```
+
+### Example 2:
+**Input:**
+```plaintext
+strs = [""]
+```
+**Output:**
+```plaintext
+[[""]]
+```
+
+### Example 3:
+**Input:**
+```plaintext
+strs = ["a"]
+```
+**Output:**
+```plaintext
+[["a"]]
+```
+
+### Constraints:
+- `1 <= strs.length <= 10^4`
+- `0 <= strs[i].length <= 100`
+- `strs[i]` consists of lowercase English letters.
+
+### Java Solution
+
+```java
+import java.util.*;
+
+public class GroupAnagrams {
+    public static List<List<String>> groupAnagrams(String[] strs) {
+        Map<String, List<String>> anagramMap = new HashMap<>();
+        
+        for (String str : strs) {
+            char[] charArray = str.toCharArray();
+            Arrays.sort(charArray);
+            String sortedStr = new String(charArray);
+            
+            anagramMap.computeIfAbsent(sortedStr, k -> new ArrayList<>()).add(str);
+        }
+        
+        return new ArrayList<>(anagramMap.values());
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(groupAnagrams(new String[]{"eat", "tea", "tan", "ate", "nat", "bat"}));
+        System.out.println(groupAnagrams(new String[]{""}));
+        System.out.println(groupAnagrams(new String[]{"a"}));
+    }
+}
+```
+
+# Two Sum Problem
+
+## Problem Statement
+Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`.
+
+You may assume that each input would have exactly one solution, and you may not use the same element twice.
+
+You can return the answer in any order.
+
+### Example 1:
+**Input:**
+```plaintext
+nums = [2,7,11,15], target = 9
+```
+**Output:**
+```plaintext
+[0,1]
+```
+**Explanation:** Because `nums[0] + nums[1] == 9`, we return `[0, 1]`.
+
+### Example 2:
+**Input:**
+```plaintext
+nums = [3,2,4], target = 6
+```
+**Output:**
+```plaintext
+[1,2]
+```
+
+### Example 3:
+**Input:**
+```plaintext
+nums = [3,3], target = 6
+```
+**Output:**
+```plaintext
+[0,1]
+```
+
+### Constraints:
+- `2 <= nums.length <= 10^4`
+- `-10^9 <= nums[i] <= 10^9`
+- `-10^9 <= target <= 10^9`
+- Only one valid answer exists.
+
+### Java Solution
+
+```java
+import java.util.*;
+
+public class TwoSum {
+    public static int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> numMap = new HashMap<>();
+        
+        for (int i = 0; i < nums.length; i++) {
+            int complement = target - nums[i];
+            if (numMap.containsKey(complement)) {
+                return new int[]{numMap.get(complement), i};
+            }
+            numMap.put(nums[i], i);
+        }
+        
+        throw new IllegalArgumentException("No solution found");
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(Arrays.toString(twoSum(new int[]{2, 7, 11, 15}, 9))); // [0,1]
+        System.out.println(Arrays.toString(twoSum(new int[]{3, 2, 4}, 6))); // [1,2]
+        System.out.println(Arrays.toString(twoSum(new int[]{3, 3}, 6))); // [0,1]
+    }
+}
+```
+
+# Happy Number Problem
+
+## Problem Statement
+Write an algorithm to determine if a number `n` is happy.
+
+A happy number is a number defined by the following process:
+- Starting with any positive integer, replace the number by the sum of the squares of its digits.
+- Repeat the process until the number equals `1` (where it will stay), or it loops endlessly in a cycle that does not include `1`.
+- Those numbers for which this process ends in `1` are happy numbers.
+
+Return `true` if `n` is a happy number, and `false` if not.
+
+### Example 1:
+**Input:**
+```plaintext
+n = 19
+```
+**Output:**
+```plaintext
+true
+```
+**Explanation:**
+```plaintext
+1² + 9² = 82
+8² + 2² = 68
+6² + 8² = 100
+1² + 0² + 0² = 1
+```
+
+### Example 2:
+**Input:**
+```plaintext
+n = 2
+```
+**Output:**
+```plaintext
+false
+```
+
+### Constraints:
+- `1 <= n <= 2^31 - 1`
+
+### Java Solution
+
+```java
+import java.util.*;
+
+public class HappyNumber {
+    public static boolean isHappy(int n) {
+        Set<Integer> seen = new HashSet<>();
+        while (n != 1 && !seen.contains(n)) {
+            seen.add(n);
+            n = getNext(n);
+        }
+        return n == 1;
+    }
+    
+    private static int getNext(int n) {
+        int sum = 0;
+        while (n > 0) {
+            int digit = n % 10;
+            sum += digit * digit;
+            n /= 10;
+        }
+        return sum;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(isHappy(19)); // true
+        System.out.println(isHappy(2));  // false
+    }
+}
+```
+
+# Contains Duplicate II Problem
+
+## Problem Statement
+Given an integer array `nums` and an integer `k`, return `true` if there are two distinct indices `i` and `j` in the array such that `nums[i] == nums[j]` and `abs(i - j) <= k`.
+
+### Example 1:
+**Input:**
+```plaintext
+nums = [1,2,3,1], k = 3
+```
+**Output:**
+```plaintext
+true
+```
+
+### Example 2:
+**Input:**
+```plaintext
+nums = [1,0,1,1], k = 1
+```
+**Output:**
+```plaintext
+true
+```
+
+### Example 3:
+**Input:**
+```plaintext
+nums = [1,2,3,1,2,3], k = 2
+```
+**Output:**
+```plaintext
+false
+```
+
+### Constraints:
+- `1 <= nums.length <= 10^5`
+- `-10^9 <= nums[i] <= 10^9`
+- `0 <= k <= 10^5`
+
+### Java Solution
+
+```java
+import java.util.*;
+
+public class ContainsDuplicateII {
+    public static boolean containsNearbyDuplicate(int[] nums, int k) {
+        Map<Integer, Integer> numMap = new HashMap<>();
+        
+        for (int i = 0; i < nums.length; i++) {
+            if (numMap.containsKey(nums[i]) && i - numMap.get(nums[i]) <= k) {
+                return true;
+            }
+            numMap.put(nums[i], i);
+        }
+        
+        return false;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(containsNearbyDuplicate(new int[]{1, 2, 3, 1}, 3)); // true
+        System.out.println(containsNearbyDuplicate(new int[]{1, 0, 1, 1}, 1)); // true
+        System.out.println(containsNearbyDuplicate(new int[]{1, 2, 3, 1, 2, 3}, 2)); // false
+    }
+}
+```
+
+# Longest Consecutive Sequence Problem
+
+## Problem Statement
+Given an unsorted array of integers `nums`, return the length of the longest consecutive elements sequence.
+
+You must write an algorithm that runs in `O(n)` time.
+
+### Example 1:
+**Input:**
+```plaintext
+nums = [100,4,200,1,3,2]
+```
+**Output:**
+```plaintext
+4
+```
+**Explanation:**
+The longest consecutive elements sequence is `[1, 2, 3, 4]`. Therefore, its length is `4`.
+
+### Example 2:
+**Input:**
+```plaintext
+nums = [0,3,7,2,5,8,4,6,0,1]
+```
+**Output:**
+```plaintext
+9
+```
+
+### Example 3:
+**Input:**
+```plaintext
+nums = [1,0,1,2]
+```
+**Output:**
+```plaintext
+3
+```
+
+### Constraints:
+- `0 <= nums.length <= 10^5`
+- `-10^9 <= nums[i] <= 10^9`
+
+### Java Solution
+
+```java
+import java.util.*;
+
+public class LongestConsecutiveSequence {
+    public static int longestConsecutive(int[] nums) {
+        Set<Integer> numSet = new HashSet<>();
+        for (int num : nums) {
+            numSet.add(num);
+        }
+        
+        int longestStreak = 0;
+        
+        for (int num : numSet) {
+            if (!numSet.contains(num - 1)) {
+                int currentNum = num;
+                int currentStreak = 1;
+                
+                while (numSet.contains(currentNum + 1)) {
+                    currentNum++;
+                    currentStreak++;
+                }
+                
+                longestStreak = Math.max(longestStreak, currentStreak);
+            }
+        }
+        
+        return longestStreak;
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(longestConsecutive(new int[]{100,4,200,1,3,2})); // 4
+        System.out.println(longestConsecutive(new int[]{0,3,7,2,5,8,4,6,0,1})); // 9
+        System.out.println(longestConsecutive(new int[]{1,0,1,2})); // 3
+    }
+}
+```
+
+## Summary Ranges Problem
+
+### Problem Statement
+You are given a sorted unique integer array `nums`.
+
+A range `[a,b]` is the set of all integers from `a` to `b` (inclusive).
+
+Return the smallest sorted list of ranges that cover all the numbers in the array exactly. That is, each element of `nums` is covered by exactly one of the ranges, and there is no integer `x` such that `x` is in one of the ranges but not in `nums`.
+
+Each range `[a,b]` in the list should be output as:
+
+- `"a->b"` if `a != b`
+- `"a"` if `a == b`
+
+### Examples
+#### Example 1:
+**Input:**
+```java
+nums = [0,1,2,4,5,7]
+```
+**Output:**
+```java
+["0->2","4->5","7"]
+```
+**Explanation:**
+- `[0,2]` --> `"0->2"`
+- `[4,5]` --> `"4->5"`
+- `[7,7]` --> `"7"`
+
+#### Example 2:
+**Input:**
+```java
+nums = [0,2,3,4,6,8,9]
+```
+**Output:**
+```java
+["0","2->4","6","8->9"]
+```
+**Explanation:**
+- `[0,0]` --> `"0"`
+- `[2,4]` --> `"2->4"`
+- `[6,6]` --> `"6"`
+- `[8,9]` --> `"8->9"`
+
+### Constraints
+- `0 <= nums.length <= 20`
+- `-2^{31} <= nums[i] <= 2^{31} - 1`
+- All the values of `nums` are unique.
+- `nums` is sorted in ascending order.
+
+---
+
+### Java Solution
+```java
+import java.util.*;
+
+public class SummaryRanges {
+    public List<String> summaryRanges(int[] nums) {
+        List<String> result = new ArrayList<>();
+        if (nums == null || nums.length == 0) {
+            return result;
+        }
+        
+        int start = nums[0];
+        int end = nums[0];
+        
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] == end + 1) {
+                end = nums[i];
+            } else {
+                result.add(formatRange(start, end));
+                start = nums[i];
+                end = nums[i];
+            }
+        }
+        result.add(formatRange(start, end));
+        
+        return result;
+    }
+    
+    private String formatRange(int start, int end) {
+        return start == end ? String.valueOf(start) : start + "->" + end;
+    }
+    
+    public static void main(String[] args) {
+        SummaryRanges sr = new SummaryRanges();
+        System.out.println(sr.summaryRanges(new int[]{0,1,2,4,5,7}));
+        System.out.println(sr.summaryRanges(new int[]{0,2,3,4,6,8,9}));
+    }
+}
+```
+
+# Merge Overlapping Intervals
+
+## Problem Statement
+Given an array of intervals where `intervals[i] = [starti, endi]`, merge all overlapping intervals and return an array of the non-overlapping intervals that cover all the intervals in the input.
+
+### Example 1:
+**Input:** `intervals = [[1,3],[2,6],[8,10],[15,18]]`  
+**Output:** `[[1,6],[8,10],[15,18]]`  
+**Explanation:** Since intervals `[1,3]` and `[2,6]` overlap, merge them into `[1,6]`.
+
+### Example 2:
+**Input:** `intervals = [[1,4],[4,5]]`  
+**Output:** `[[1,5]]`  
+**Explanation:** Intervals `[1,4]` and `[4,5]` are considered overlapping.
+
+### Constraints:
+- `1 <= intervals.length <= 10^4`
+- `intervals[i].length == 2`
+- `0 <= starti <= endi <= 10^4`
+
+---
+
+## Approach
+1. **Sort the Intervals:** Sort the given list of intervals based on their start time.
+2. **Merge Intervals:**
+   - Initialize an empty list `merged`.
+   - Iterate through the sorted intervals:
+     - If the `merged` list is empty or the last interval in `merged` does not overlap with the current interval, add the current interval.
+     - If there is an overlap, merge the intervals by updating the end time of the last interval in `merged`.
+3. **Return the merged intervals.**
+
+---
+
+## Java Code
+```java
+import java.util.*;
+
+public class MergeIntervals {
+    public static int[][] merge(int[][] intervals) {
+        if (intervals.length <= 1) return intervals;
+
+        // Step 1: Sort intervals based on the start time
+        Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));
+
+        List<int[]> merged = new ArrayList<>();
+        int[] currentInterval = intervals[0];
+        merged.add(currentInterval);
+
+        for (int[] interval : intervals) {
+            int currentEnd = currentInterval[1];
+            int nextStart = interval[0];
+            int nextEnd = interval[1];
+
+            if (currentEnd >= nextStart) { // Overlapping intervals
+                currentInterval[1] = Math.max(currentEnd, nextEnd);
+            } else { // No overlap
+                currentInterval = interval;
+                merged.add(currentInterval);
+            }
+        }
+
+        return merged.toArray(new int[merged.size()][]);
+    }
+
+    public static void main(String[] args) {
+        int[][] intervals = {{1,3},{2,6},{8,10},{15,18}};
+        int[][] result = merge(intervals);
+
+        for (int[] interval : result) {
+            System.out.println(Arrays.toString(interval));
+        }
+    }
+}
+```
+
+---
+
+## Dry Run
+
+### **Input:** `[[1,3],[2,6],[8,10],[15,18]]`
+
+### **Step 1: Sorting**
+Sorted intervals: `[[1,3],[2,6],[8,10],[15,18]]` (Already sorted)
+
+### **Step 2: Merging**
+1. `merged = [[1,3]]`
+2. Compare `[1,3]` with `[2,6]` → Overlapping → Merge to `[1,6]`
+3. Compare `[1,6]` with `[8,10]` → No Overlap → Add `[8,10]`
+4. Compare `[8,10]` with `[15,18]` → No Overlap → Add `[15,18]`
+
+### **Final Output:** `[[1,6],[8,10],[15,18]]`
+
+# Insert Interval
+
+## Problem Statement
+Given an array of **non-overlapping** intervals `intervals` where `intervals[i] = [starti, endi]` represents the start and end of the `i-th` interval, and `intervals` is sorted in ascending order by `starti`, insert a new interval `newInterval = [start, end]` into `intervals` such that `intervals` is still sorted and does not have any overlapping intervals.
+
+Return the updated intervals after insertion.
+
+### Example 1:
+**Input:** `intervals = [[1,3],[6,9]], newInterval = [2,5]`
+**Output:** `[[1,5],[6,9]]`
+
+### Example 2:
+**Input:** `intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]`
+**Output:** `[[1,2],[3,10],[12,16]]`
+**Explanation:** The new interval `[4,8]` overlaps with `[3,5]`, `[6,7]`, and `[8,10]`, so they are merged.
+
+### Constraints:
+- `0 <= intervals.length <= 10^4`
+- `intervals[i].length == 2`
+- `0 <= starti <= endi <= 10^5`
+- `intervals` is sorted by `starti` in ascending order.
+- `newInterval.length == 2`
+- `0 <= start <= end <= 10^5`
+
+---
+
+## Approach
+1. **Insert the new interval in the correct position:**
+   - Iterate through `intervals` and find the correct position to insert `newInterval`.
+2. **Merge overlapping intervals:**
+   - Traverse the list and merge overlapping intervals.
+3. **Return the final merged list.**
+
+---
+
+## Java Code
+```java
+import java.util.*;
+
+public class InsertInterval {
+    public static int[][] insert(int[][] intervals, int[] newInterval) {
+        List<int[]> result = new ArrayList<>();
+        int i = 0, n = intervals.length;
+
+        // Add all intervals before newInterval
+        while (i < n && intervals[i][1] < newInterval[0]) {
+            result.add(intervals[i]);
+            i++;
+        }
+
+        // Merge overlapping intervals
+        while (i < n && intervals[i][0] <= newInterval[1]) {
+            newInterval[0] = Math.min(newInterval[0], intervals[i][0]);
+            newInterval[1] = Math.max(newInterval[1], intervals[i][1]);
+            i++;
+        }
+        result.add(newInterval);
+
+        // Add remaining intervals
+        while (i < n) {
+            result.add(intervals[i]);
+            i++;
+        }
+
+        return result.toArray(new int[result.size()][]);
+    }
+}
+```
+
+---
+
+## Dry Run
+### **Input:** `[[1,3],[6,9]], newInterval = [2,5]`
+1. Add `[1,3]` (overlaps with `[2,5]`), merge → `[1,5]`
+2. Add remaining `[6,9]`
+3. **Final Output:** `[[1,5],[6,9]]`
+
+# Minimum Number of Arrows to Burst Balloons
+
+## Problem Statement
+You are given an array of **spherical balloons** taped onto a flat wall that represents the XY-plane. The balloons are represented as a 2D integer array `points` where `points[i] = [xstart, xend]` denotes a balloon whose horizontal diameter stretches between `xstart` and `xend`. 
+
+Arrows can be shot **vertically upwards** along the x-axis, and an arrow shot at `x` will burst all balloons where `xstart <= x <= xend`.
+
+Return the **minimum number of arrows** that must be shot to burst all balloons.
+
+### Example 1:
+**Input:** `points = [[10,16],[2,8],[1,6],[7,12]]`
+**Output:** `2`
+**Explanation:** The balloons can be burst by 2 arrows:
+- Shoot an arrow at `x = 6`, bursting `[2,8]` and `[1,6]`.
+- Shoot an arrow at `x = 11`, bursting `[10,16]` and `[7,12]`.
+
+### Example 2:
+**Input:** `points = [[1,2],[3,4],[5,6],[7,8]]`
+**Output:** `4`
+**Explanation:** One arrow is needed for each balloon.
+
+### Example 3:
+**Input:** `points = [[1,2],[2,3],[3,4],[4,5]]`
+**Output:** `2`
+**Explanation:** The balloons can be burst by 2 arrows:
+- Shoot an arrow at `x = 2`, bursting `[1,2]` and `[2,3]`.
+- Shoot an arrow at `x = 4`, bursting `[3,4]` and `[4,5]`.
+
+### Constraints:
+- `1 <= points.length <= 10^5`
+- `points[i].length == 2`
+- `-2^31 <= xstart < xend <= 2^31 - 1`
+
+---
+
+## Approach
+1. **Sort the balloons by their ending coordinate (`xend`) in ascending order.**
+2. **Iterate through the sorted intervals:**
+   - Keep track of the `arrowPosition`, initially set to the end of the first balloon.
+   - If the next balloon's start is beyond the `arrowPosition`, increment the arrow count and update `arrowPosition`.
+3. **Return the total count of arrows needed.**
+
+---
+
+## Java Code
+```java
+import java.util.*;
+
+public class MinArrowsToBurstBalloons {
+    public static int findMinArrowShots(int[][] points) {
+        if (points.length == 0) return 0;
+
+        // Sort balloons based on their end coordinate
+        Arrays.sort(points, Comparator.comparingInt(a -> a[1]));
+
+        int arrows = 1;
+        int arrowPosition = points[0][1];
+
+        for (int i = 1; i < points.length; i++) {
+            if (points[i][0] > arrowPosition) {
+                arrows++;
+                arrowPosition = points[i][1];
+            }
+        }
+        return arrows;
+    }
+}
+```
+
+---
+
+## Dry Run
+### **Input:** `[[10,16],[2,8],[1,6],[7,12]]`
+1. Sort balloons by end points → `[[1,6], [2,8], [7,12], [10,16]]`
+2. Start with `arrowPosition = 6`, bursting `[1,6]` and `[2,8]`.
+3. Next balloon `[7,12]` is outside `arrowPosition`, so shoot another arrow at `11`.
+4. **Final Output:** `2` arrows required.
 
 
 
