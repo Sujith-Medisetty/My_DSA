@@ -2664,4 +2664,790 @@ class Solution {
 - **Space Complexity:** `O(totalWordsLength)` — For the `wordCount` and `seen` HashMaps.
 
 
+## Minimum Window Substring
+
+### Problem Statement
+Given two strings `s` and `t` of lengths `m` and `n` respectively, return the **minimum window substring** of `s` such that every character in `t` (including duplicates) is included in the window. If there is no such substring, return the empty string `""`.
+
+The test cases will be generated such that the answer is unique.
+
+### Examples
+**Input:** s = "ADOBECODEBANC", t = "ABC"
+
+**Output:** "BANC"
+
+**Explanation:** The minimum window substring "BANC" includes 'A', 'B', and 'C' from string `t`.
+
+**Input:** s = "a", t = "a"
+
+**Output:** "a"
+
+**Explanation:** The entire string `s` is the minimum window.
+
+**Input:** s = "a", t = "aa"
+
+**Output:** ""
+
+**Explanation:** Both 'a's from `t` must be included in the window. Since the largest window of `s` only has one 'a', return an empty string.
+
+### Constraints
+- `m == s.length`
+- `n == t.length`
+- `1 <= m, n <= 10^5`
+- `s` and `t` consist of uppercase and lowercase English letters.
+
+---
+
+### Java Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public String minWindow(String s, String t) {
+        if (s.length() < t.length()) return "";
+
+        Map<Character, Integer> targetCount = new HashMap<>();
+        for (char c : t.toCharArray()) {
+            targetCount.put(c, targetCount.getOrDefault(c, 0) + 1);
+        }
+
+        int left = 0, right = 0, minLength = Integer.MAX_VALUE;
+        int startIndex = 0;
+        int required = targetCount.size();
+        int formed = 0;
+        
+        Map<Character, Integer> windowCount = new HashMap<>();
+
+        while (right < s.length()) {
+            char c = s.charAt(right);
+            windowCount.put(c, windowCount.getOrDefault(c, 0) + 1);
+
+            if (targetCount.containsKey(c) && windowCount.get(c).intValue() == targetCount.get(c).intValue()) {
+                formed++;
+            }
+
+            while (formed == required) {
+                if (right - left + 1 < minLength) {
+                    minLength = right - left + 1;
+                    startIndex = left;
+                }
+
+                char leftChar = s.charAt(left);
+                windowCount.put(leftChar, windowCount.get(leftChar) - 1);
+
+                if (targetCount.containsKey(leftChar) && windowCount.get(leftChar) < targetCount.get(leftChar)) {
+                    formed--;
+                }
+
+                left++;
+            }
+
+            right++;
+        }
+
+        return minLength == Integer.MAX_VALUE ? "" : s.substring(startIndex, startIndex + minLength);
+    }
+}
+```
+
+---
+
+### Approach
+1. **Data Structures:**
+   - Use two HashMaps:
+     - `targetCount` to store character counts of `t`.
+     - `windowCount` to track characters in the current window.
+2. **Two Pointers Technique:**
+   - Use two pointers (`left` and `right`) to represent the sliding window.
+   - Expand the `right` pointer to grow the window until all characters in `t` are matched.
+   - Once a valid window is found, move the `left` pointer to try shrinking the window while ensuring all characters in `t` are still satisfied.
+3. Track the **minimum length** window using `minLength` and `startIndex`.
+
+---
+
+### Dry Run
+**Input:** `s = "ADOBECODEBANC"`, `t = "ABC"`
+
+| Step | Left | Right | Window | Formed | Min Window |
+|-------|-------|--------|---------|---------|---------------|
+| 1     | 0     | 0      | A       | 0       | -             |
+| 2     | 0     | 5      | ADOBEC  | 3       | ADOBEC        |
+| 3     | 1     | 5      | DOBEC   | 3       | DOBEC          |
+| 4     | 2     | 10     | CODEBANC| 3       | BANC           |
+| 5     | 3     | 10     | ODEBANC | 3       | BANC           |
+
+**Final Output:** "BANC"
+
+---
+
+### Complexity Analysis
+- **Time Complexity:** `O(m + n)` — Each character in `s` and `t` is processed at most twice.
+- **Space Complexity:** `O(128)` — Maximum possible distinct characters (ASCII range).
+
+This approach is optimal and efficiently handles large input sizes.
+
+# Valid Sudoku
+
+## Problem Statement
+Determine if a 9 x 9 Sudoku board is valid. Only the filled cells need to be validated according to the following rules:
+
+- Each row must contain the digits 1-9 without repetition.
+- Each column must contain the digits 1-9 without repetition.
+- Each of the nine 3 x 3 sub-boxes of the grid must contain the digits 1-9 without repetition.
+
+**Note:**
+- A Sudoku board (partially filled) could be valid but is not necessarily solvable.
+- Only the filled cells need to be validated according to the mentioned rules.
+
+### Example 1:
+**Input:**
+```
+board =
+[["5","3",".",".","7",".",".",".","."]
+,["6",".",".","1","9","5",".",".","."]
+,[".","9","8",".",".",".",".","6","."]
+,["8",".",".",".","6",".",".",".","3"]
+,["4",".",".","8",".","3",".",".","1"]
+,["7",".",".",".","2",".",".",".","6"]
+,[".","6",".",".",".",".","2","8","."]
+,[".",".",".","4","1","9",".",".","5"]
+,[".",".",".",".","8",".",".","7","9"]]
+```
+**Output:** `true`
+
+### Example 2:
+**Input:**
+```
+board =
+[["8","3",".",".","7",".",".",".","."]
+,["6",".",".","1","9","5",".",".","."]
+,[".","9","8",".",".",".",".","6","."]
+,["8",".",".",".","6",".",".",".","3"]
+,["4",".",".","8",".","3",".",".","1"]
+,["7",".",".",".","2",".",".",".","6"]
+,[".","6",".",".",".",".","2","8","."]
+,[".",".",".","4","1","9",".",".","5"]
+,[".",".",".",".","8",".",".","7","9"]]
+```
+**Output:** `false`
+
+---
+
+## Approach
+### Step 1: Initialize Data Structures
+- Use three sets:
+  - `rows`: Array of 9 sets to track numbers in each row.
+  - `cols`: Array of 9 sets to track numbers in each column.
+  - `boxes`: Array of 9 sets to track numbers in each 3x3 sub-box.
+
+### Step 2: Iterate Through the Board
+- Loop through each cell in the 9x9 grid.
+- If the cell contains `.` (empty), skip it.
+- Identify the corresponding box index using the formula:
+  ```java
+  int boxIndex = (i / 3) * 3 + (j / 3);
+  ```
+  **Explanation of the Box Index Formula:**
+  - `(i / 3)` → Divides the rows into 3 groups (0-2 → 0, 3-5 → 1, 6-8 → 2).
+  - `* 3` → Ensures the box indices jump in steps of 3 (to move across rows of boxes).
+  - `(j / 3)` → Divides the columns into 3 groups (0-2 → 0, 3-5 → 1, 6-8 → 2).
+
+  **Example:**
+  For cell `(i = 4, j = 7)`:
+  - `(i / 3) * 3 = 1 * 3 = 3`
+  - `(j / 3) = 2`
+
+  **`boxIndex = 3 + 2 = 5`** → Refers to the bottom-right box in the middle row.
+
+- Check for duplicate entries in the respective sets:
+  - If `rows[i]`, `cols[j]`, or `boxes[boxIndex]` already contains the number, return `false`.
+- Otherwise, add the number to the appropriate sets.
+
+### Step 3: Return True if All Checks Pass
+
+---
+
+## Java Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public boolean isValidSudoku(char[][] board) {
+        Set<Character>[] rows = new HashSet[9];
+        Set<Character>[] cols = new HashSet[9];
+        Set<Character>[] boxes = new HashSet[9];
+
+        for (int i = 0; i < 9; i++) {
+            rows[i] = new HashSet<>();
+            cols[i] = new HashSet<>();
+            boxes[i] = new HashSet<>();
+        }
+
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                char current = board[i][j];
+                if (current == '.') continue;
+
+                int boxIndex = (i / 3) * 3 + (j / 3);
+
+                if (rows[i].contains(current) ||
+                    cols[j].contains(current) ||
+                    boxes[boxIndex].contains(current)) {
+                    return false;
+                }
+
+                rows[i].add(current);
+                cols[j].add(current);
+                boxes[boxIndex].add(current);
+            }
+        }
+        return true;
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:**
+```
+board =
+[["5","3",".",".","7",".",".",".","."]
+,["6",".",".","1","9","5",".",".","."]
+,[".","9","8",".",".",".",".","6","."]
+,["8",".",".",".","6",".",".",".","3"]
+,["4",".",".","8",".","3",".",".","1"]
+,["7",".",".",".","2",".",".",".","6"]
+,[".","6",".",".",".",".","2","8","."]
+,[".",".",".","4","1","9",".",".","5"]
+,[".",".",".",".","8",".",".","7","9"]]
+```
+**Output:** `true`
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(1)` - The board is always 9x9, making the number of iterations constant.
+- **Space Complexity:** `O(1)` - The three sets contain at most 9 elements each.
+
+---
+
+# Spiral Matrix
+
+## Problem Statement
+Given an `m x n` matrix, return all elements of the matrix in spiral order.
+
+### Example 1:
+**Input:**
+```
+matrix = [[1,2,3],[4,5,6],[7,8,9]]
+```
+**Output:** `[1,2,3,6,9,8,7,4,5]`
+
+### Example 2:
+**Input:**
+```
+matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+```
+**Output:** `[1,2,3,4,8,12,11,10,9,5,6,7]`
+
+### Constraints:
+- `m == matrix.length`
+- `n == matrix[i].length`
+- `1 <= m, n <= 10`
+- `-100 <= matrix[i][j] <= 100`
+
+---
+
+## Approach
+### Step 1: Initialize Pointers
+- Use four pointers to define the boundaries:
+  - `top` (initially 0)
+  - `bottom` (initially `m - 1`)
+  - `left` (initially 0)
+  - `right` (initially `n - 1`)
+
+### Step 2: Traverse the Matrix in Spiral Order
+- While `top <= bottom` and `left <= right`:
+  1. **Traverse from Left to Right**: Iterate through columns from `left` to `right`. Increment `top` after this step.
+  2. **Traverse from Top to Bottom**: Iterate through rows from `top` to `bottom`. Decrement `right` after this step.
+  3. **Traverse from Right to Left** (only if `top <= bottom`): Iterate through columns from `right` to `left`. Decrement `bottom` after this step.
+  4. **Traverse from Bottom to Top** (only if `left <= right`): Iterate through rows from `bottom` to `top`. Increment `left` after this step.
+
+### Step 3: Return Result
+- Append all visited elements to the result list.
+
+---
+
+## Java Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public List<Integer> spiralOrder(int[][] matrix) {
+        List<Integer> result = new ArrayList<>();
+        if (matrix == null || matrix.length == 0) return result;
+
+        int top = 0, bottom = matrix.length - 1;
+        int left = 0, right = matrix[0].length - 1;
+
+        while (top <= bottom && left <= right) {
+            // Traverse from left to right
+            for (int i = left; i <= right; i++) {
+                result.add(matrix[top][i]);
+            }
+            top++;
+
+            // Traverse from top to bottom
+            for (int i = top; i <= bottom; i++) {
+                result.add(matrix[i][right]);
+            }
+            right--;
+
+            // Traverse from right to left
+            if (top <= bottom) {
+                for (int i = right; i >= left; i--) {
+                    result.add(matrix[bottom][i]);
+                }
+                bottom--;
+            }
+
+            // Traverse from bottom to top
+            if (left <= right) {
+                for (int i = bottom; i >= top; i--) {
+                    result.add(matrix[i][left]);
+                }
+                left++;
+            }
+        }
+
+        return result;
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:**
+```
+matrix = [[1,2,3],[4,5,6],[7,8,9]]
+```
+**Steps:**
+1. Traverse Left to Right → `[1, 2, 3]`
+2. Traverse Top to Bottom → `[1, 2, 3, 6, 9]`
+3. Traverse Right to Left → `[1, 2, 3, 6, 9, 8, 7]`
+4. Traverse Bottom to Top → `[1, 2, 3, 6, 9, 8, 7, 4]`
+5. Traverse Left to Right (inner spiral) → `[1, 2, 3, 6, 9, 8, 7, 4, 5]`
+
+**Output:** `[1, 2, 3, 6, 9, 8, 7, 4, 5]`
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(m * n)` — Every cell is visited once.
+- **Space Complexity:** `O(1)` — Only a result list is used (output does not count as extra space).
+
+# Rotate Image by 90 Degrees (In-Place)
+
+## Problem Statement
+You are given an n x n 2D matrix representing an image. Rotate the image by 90 degrees clockwise.
+
+**Constraints:**
+- The rotation must be done **in-place** (modify the input 2D matrix directly).
+- DO NOT allocate another 2D matrix.
+
+### Example 1:
+**Input:**
+```
+matrix = [[1,2,3],[4,5,6],[7,8,9]]
+```
+**Output:**
+```
+[[7,4,1],[8,5,2],[9,6,3]]
+```
+
+### Example 2:
+**Input:**
+```
+matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]
+```
+**Output:**
+```
+[[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
+```
+
+---
+
+## Approach
+### Step 1: Transpose the Matrix
+- Swap elements across the diagonal.
+- Iterate through the matrix, ensuring that for each `matrix[i][j]`, you swap with `matrix[j][i]` (for `i < j`).
+
+### Step 2: Reverse Each Row
+- After transposing, reverse each row to complete the rotation.
+
+---
+
+## Java Code Implementation
+```java
+class Solution {
+    public void rotate(int[][] matrix) {
+        int n = matrix.length;
+        // Step 1: Transpose the matrix
+        for (int i = 0; i < n; i++) {
+            for (int j = i; j < n; j++) {
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[j][i];
+                matrix[j][i] = temp;
+            }
+        }
+
+        // Step 2: Reverse each row
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n / 2; j++) {
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[i][n - j - 1];
+                matrix[i][n - j - 1] = temp;
+            }
+        }
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:**
+```
+matrix = [[1,2,3],[4,5,6],[7,8,9]]
+```
+### Step 1: Transpose the Matrix
+```
+[[1,4,7],
+ [2,5,8],
+ [3,6,9]]
+```
+### Step 2: Reverse Each Row
+```
+[[7,4,1],
+ [8,5,2],
+ [9,6,3]]
+```
+**Output:** `[[7,4,1],[8,5,2],[9,6,3]]`
+
+---
+
+## Complexity Analysis
+- **Time Complexity:** `O(n²)` - Each element is visited twice (once in transpose, once in reverse).
+- **Space Complexity:** `O(1)` - In-place rotation without extra space.
+
+
+# Set Matrix Zeroes
+
+## Problem Statement
+Given an `m x n` integer matrix `matrix`, if an element is `0`, set its entire row and column to `0`s.
+You must do it **in place**.
+
+### Example 1:
+**Input:**  
+`matrix = [[1,1,1],[1,0,1],[1,1,1]]`
+
+**Output:**  
+`[[1,0,1],[0,0,0],[1,0,1]]`
+
+### Example 2:
+**Input:**  
+`matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]]`
+
+**Output:**  
+`[[0,0,0,0],[0,4,5,0],[0,3,1,0]]`
+
+## Constraints
+- `m == matrix.length`
+- `n == matrix[0].length`
+- `1 <= m, n <= 200`
+- `-2^31 <= matrix[i][j] <= 2^31 - 1`
+
+## Follow-Up:
+1. A straightforward solution using **O(mn)** space is not optimal.
+2. An improved solution with **O(m + n)** space is possible but not the best.
+3. Aim for a **constant space** solution.
+
+## Approach
+### Constant Space Solution (O(1))
+1. **Use first row and first column as markers:** Instead of using additional space, use the first row and first column to store whether that row/column should be zeroed.
+2. **Scan the matrix:** Identify zeroes and mark the corresponding row and column indices in the first row and column.
+3. **Update the matrix:** Based on the markers, update the matrix to set elements to zero.
+4. **Handle first row and first column separately:** Since they are used as markers, process them last.
+
+## Java Code
+```java
+class Solution {
+    public void setZeroes(int[][] matrix) {
+        int m = matrix.length, n = matrix[0].length;
+        boolean firstRowZero = false, firstColZero = false;
+        
+        // Step 1: Identify zeroes and mark first row/column
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (matrix[i][j] == 0) {
+                    if (i == 0) firstRowZero = true;
+                    if (j == 0) firstColZero = true;
+                    matrix[i][0] = 0;
+                    matrix[0][j] = 0;
+                }
+            }
+        }
+        
+        // Step 2: Set zeroes based on markers
+        for (int i = 1; i < m; i++) {
+            for (int j = 1; j < n; j++) {
+                if (matrix[i][0] == 0 || matrix[0][j] == 0) {
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+        
+        // Step 3: Handle first row and column
+        if (firstRowZero) {
+            for (int j = 0; j < n; j++) {
+                matrix[0][j] = 0;
+            }
+        }
+        if (firstColZero) {
+            for (int i = 0; i < m; i++) {
+                matrix[i][0] = 0;
+            }
+        }
+    }
+}
+```
+
+## Dry Run
+### Input:
+```plaintext
+matrix = [[1,1,1],
+          [1,0,1],
+          [1,1,1]]
+```
+
+### Step 1: Identify Zeroes and Mark First Row/Column
+```plaintext
+Marked Matrix:
+[[1,0,1],
+ [0,0,1],
+ [1,1,1]]
+```
+
+### Step 2: Update Matrix Based on Markers
+```plaintext
+Updated Matrix:
+[[1,0,1],
+ [0,0,0],
+ [1,0,1]]
+```
+
+### Step 3: Handle First Row and Column
+```plaintext
+Final Output:
+[[1,0,1],
+ [0,0,0],
+ [1,0,1]]
+```
+
+### Complexity Analysis:
+- **Time Complexity:** `O(m * n)`, as we traverse the matrix twice.
+- **Space Complexity:** `O(1)`, since we use the matrix itself as storage.
+
+This solution ensures **in-place modification** with **constant space** usage.
+
+
+# Game of Life
+
+## Problem Statement
+The **Game of Life** is a cellular automaton devised by John Horton Conway in 1970. The board consists of an `m x n` grid where each cell is either **alive (1)** or **dead (0)**. The next state of the board is determined using these rules:
+
+1. Any live cell with **fewer than two** live neighbors dies (underpopulation).
+2. Any live cell with **two or three** live neighbors survives.
+3. Any live cell with **more than three** live neighbors dies (overpopulation).
+4. Any dead cell with **exactly three** live neighbors becomes alive (reproduction).
+
+You must update the board **in-place**.
+
+### Example 1:
+**Input:**
+```plaintext
+board = [[0,1,0],
+         [0,0,1],
+         [1,1,1],
+         [0,0,0]]
+```
+
+**Output:**
+```plaintext
+[[0,0,0],
+ [1,0,1],
+ [0,1,1],
+ [0,1,0]]
+```
+
+## Approach
+1. Use **in-place encoding** to avoid extra space:
+   - `0 → -1` (was dead, will be alive)
+   - `1 → 2` (was alive, will die)
+2. Traverse the board and count live neighbors.
+3. Update cells based on the rules.
+4. Convert encoded values back to `0` or `1`.
+
+## Java Code
+```java
+class Solution {
+    public void gameOfLife(int[][] board) {
+        int m = board.length, n = board[0].length;
+        int[] directions = {-1, 0, 1};
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                int liveNeighbors = 0;
+                for (int x : directions) {
+                    for (int y : directions) {
+                        if (x == 0 && y == 0) continue;
+                        int ni = i + x, nj = j + y;
+                        if (ni >= 0 && ni < m && nj >= 0 && nj < n && Math.abs(board[ni][nj]) == 1) {
+                            liveNeighbors++;
+                        }
+                    }
+                }
+                if (board[i][j] == 1 && (liveNeighbors < 2 || liveNeighbors > 3)) {
+                    board[i][j] = 2;
+                } else if (board[i][j] == 0 && liveNeighbors == 3) {
+                    board[i][j] = -1;
+                }
+            }
+        }
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (board[i][j] == 2) board[i][j] = 0;
+                else if (board[i][j] == -1) board[i][j] = 1;
+            }
+        }
+    }
+}
+```
+
+## Dry Run & Complexity
+### Input:
+```plaintext
+board = [[0,1,0,0,1],
+         [1,0,1,1,0],
+         [0,1,0,1,0],
+         [1,0,0,0,1],
+         [0,1,1,0,0]]
+```
+
+### Step 1: Encoding based on live neighbors
+```plaintext
+Encoded Board:
+[[0, 2, 0, 0, -1],
+ [-1, 0, 2, 1, 0],
+ [0, 1, 0, 2, 0],
+ [1, 0, 0, 0, -1],
+ [0, 2, 2, 0, 0]]
+```
+
+### Step 2: Convert encoded values back
+```plaintext
+Final Output:
+[[0, 0, 0, 0, 1],
+ [1, 0, 0, 1, 0],
+ [0, 1, 0, 0, 0],
+ [1, 0, 0, 0, 1],
+ [0, 0, 0, 0, 0]]
+```
+
+### Complexity Analysis:
+- **Time Complexity:** `O(m * n)`, as we traverse the matrix twice.
+- **Space Complexity:** `O(1)`, since we modify in-place.
+
+This solution ensures all updates happen **simultaneously** without extra space.
+
+# Ransom Note
+
+## Problem Statement
+Given two strings `ransomNote` and `magazine`, return `true` if `ransomNote` can be constructed by using the letters from `magazine` and `false` otherwise.
+
+Each letter in `magazine` can only be used once in `ransomNote`.
+
+### Example 1:
+**Input:**  
+```plaintext
+ransomNote = "a", magazine = "b"
+```
+**Output:**  
+```plaintext
+false
+```
+
+### Example 2:
+**Input:**  
+```plaintext
+ransomNote = "aa", magazine = "ab"
+```
+**Output:**  
+```plaintext
+false
+```
+
+### Example 3:
+**Input:**  
+```plaintext
+ransomNote = "aa", magazine = "aab"
+```
+**Output:**  
+```plaintext
+true
+```
+
+## Constraints:
+- `1 <= ransomNote.length, magazine.length <= 10^5`
+- `ransomNote` and `magazine` consist of lowercase English letters.
+
+## Approach
+1. Use a **HashMap** to count the frequency of each character in `magazine`.
+2. Iterate through `ransomNote` and check if each character is available in sufficient quantity.
+3. If any letter in `ransomNote` is missing or not enough in `magazine`, return `false`.
+4. Otherwise, return `true`.
+
+## Java Code
+```java
+import java.util.HashMap;
+
+class Solution {
+    public boolean canConstruct(String ransomNote, String magazine) {
+        HashMap<Character, Integer> charCounts = new HashMap<>();
+        
+        for (char c : magazine.toCharArray()) {
+            charCounts.put(c, charCounts.getOrDefault(c, 0) + 1);
+        }
+        
+        for (char c : ransomNote.toCharArray()) {
+            if (!charCounts.containsKey(c) || charCounts.get(c) == 0) {
+                return false;
+            }
+            charCounts.put(c, charCounts.get(c) - 1);
+        }
+        
+        return true;
+    }
+}
+```
+
+## Complexity Analysis
+- **Time Complexity:** `O(n + m)`, where `n` is the length of `ransomNote` and `m` is the length of `magazine`.
+- **Space Complexity:** `O(1)`, as we use a HashMap to store character counts, which has at most 26 entries for lowercase letters.
+
+
+
+
 
