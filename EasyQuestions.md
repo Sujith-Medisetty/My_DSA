@@ -52,6 +52,7 @@ public class MergeSortedArrays {
         }
     }
 }
+```
 
 # Remove Element
 
