@@ -4455,4 +4455,190 @@ public class MinArrowsToBurstBalloons {
 4. **Final Output:** `2` arrows required.
 
 
+## Problem Statement
+Given an integer array `nums`, find the subarray with the largest sum, and return its sum.
+
+### Example 1
+**Input:**
+```
+nums = [-2,1,-3,4,-1,2,1,-5,4]
+```
+**Output:** `6`
+**Explanation:** The subarray `[4,-1,2,1]` has the largest sum `6`.
+
+### Example 2
+**Input:**
+```
+nums = [1]
+```
+**Output:** `1`
+**Explanation:** The subarray `[1]` has the largest sum `1`.
+
+### Example 3
+**Input:**
+```
+nums = [5,4,-1,7,8]
+```
+**Output:** `23`
+**Explanation:** The subarray `[5,4,-1,7,8]` has the largest sum `23`.
+
+---
+
+## Approach
+### Step 1: Kadane's Algorithm (Optimal O(n) Solution)
+- Initialize two variables:
+  - `maxSum` to store the maximum subarray sum found so far.
+  - `currentSum` to track the current subarray sum.
+- Iterate through the array:
+  - For each element, decide whether to continue the current subarray or start a new one.
+  - `currentSum = Math.max(currentSum + nums[i], nums[i])`
+  - Update `maxSum` whenever `currentSum` exceeds it.
+
+### Step 2: Return the Maximum Sum
+- Return the final `maxSum` as the result.
+
+---
+
+## Code Implementation
+```java
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int maxSum = nums[0]; // Initialize with the first element
+        int currentSum = nums[0];
+
+        for (int i = 1; i < nums.length; i++) {
+            // Continue or start a new subarray
+            currentSum = Math.max(currentSum + nums[i], nums[i]);
+            // Update maximum sum found so far
+            maxSum = Math.max(maxSum, currentSum);
+        }
+
+        return maxSum;
+    }
+}
+```
+
+---
+
+## Key Insights
+✅ Efficient O(n) solution using **Kadane's Algorithm**.
+✅ Tracks the best possible subarray dynamically without generating all subarrays.
+✅ Easily scalable for large constraints like `nums.length = 10^5`.
+
+## Problem Statement
+Given a circular integer array `nums` of length `n`, return the maximum possible sum of a non-empty subarray of `nums`.
+
+A circular array means the end of the array connects to the beginning of the array.
+
+### Example 1
+**Input:**
+```
+nums = [1,-2,3,-2]
+```
+**Output:**
+```
+3
+```
+**Explanation:** Subarray [3] has maximum sum 3.
+
+### Example 2
+**Input:**
+```
+nums = [5,-3,5]
+```
+**Output:**
+```
+10
+```
+**Explanation:** Subarray [5,5] has maximum sum 5 + 5 = 10.
+
+### Example 3
+**Input:**
+```
+nums = [-3,-2,-3]
+```
+**Output:**
+```
+-2
+```
+**Explanation:** Subarray [-2] has maximum sum -2.
+
+---
+
+## Approach
+### Step 1: Use Kadane's Algorithm
+- Find the **maximum subarray sum** using **Kadane’s Algorithm**.
+
+### Step 2: Find Minimum Subarray Sum
+- Find the **minimum subarray sum** using **Kadane’s Algorithm** (flipping signs).
+
+### Step 3: Handle Circular Case
+- The maximum circular subarray sum is calculated as:
+  - `totalSum - minSubarraySum`
+  - If all numbers are negative, return the maximum element.
+
+#### Why does `totalSum - minSubarraySum` work?
+- The **minimum subarray sum** represents the worst segment in `nums`.
+- **Removing the worst segment** leaves the **best possible circular subarray**.
+- If all elements are negative, `totalSum - minSubarraySum` would result in `0`, which is incorrect—so we handle this separately by returning `maxSum` instead.
+
+---
+
+## Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public int maxSubarraySumCircular(int[] nums) {
+        int totalSum = 0, maxSum = Integer.MIN_VALUE, minSum = Integer.MAX_VALUE;
+        int currMax = 0, currMin = 0;
+
+        for (int num : nums) {
+            totalSum += num;
+            currMax = Math.max(num, currMax + num);
+            maxSum = Math.max(maxSum, currMax);
+            currMin = Math.min(num, currMin + num);
+            minSum = Math.min(minSum, currMin);
+        }
+        
+        return maxSum > 0 ? Math.max(maxSum, totalSum - minSum) : maxSum;
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:** `nums = [5,-3,5]`
+
+### Step 1: Find Max Subarray Sum
+```
+Max Kadane’s Algorithm:
+[5] → maxSum = 5
+[5,-3] → maxSum = 5
+[5,-3,5] → maxSum = 10
+```
+
+### Step 2: Find Min Subarray Sum
+```
+Min Kadane’s Algorithm:
+[5] → minSum = 5
+[5,-3] → minSum = -3
+[5,-3,5] → minSum = -3
+```
+
+### Step 3: Calculate Circular Sum
+```
+totalSum = 5 + (-3) + 5 = 7
+circularSum = totalSum - minSum = 7 - (-3) = 10
+```
+
+**Final Output:** `10`
+
+---
+
+## Key Insights
+✅ Handles both normal and circular cases efficiently.  
+✅ Runs in **O(n) time** with **O(1) space**.  
+✅ Uses **Kadane’s Algorithm** twice for optimization.
 
