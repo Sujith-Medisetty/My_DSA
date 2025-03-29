@@ -188,3 +188,212 @@ k = 2, w = 0, profits = [1, 2, 3], capital = [0, 1, 1]
 ✅ Ensures maximum profit in each step.  
 ✅ Handles large constraints effectively.  
 
+## Problem Statement
+Given two integer arrays `nums1` and `nums2` sorted in non-decreasing order and an integer `k`, return the `k` pairs with the smallest sums.
+
+### Example 1
+**Input:**
+```
+nums1 = [1,7,11], nums2 = [2,4,6], k = 3
+```
+**Output:**
+```
+[[1,2],[1,4],[1,6]]
+```
+
+### Example 2
+**Input:**
+```
+nums1 = [1,1,2], nums2 = [1,2,3], k = 2
+```
+**Output:**
+```
+[[1,1],[1,1]]
+```
+
+---
+
+## Approach
+### Step 1: Use a Min-Heap (Priority Queue)
+- Since the arrays are sorted, we know the smallest possible pair starts with `nums1[0]` and `nums2[0]`.
+- Use a **Min-Heap** to track pairs with the smallest sums efficiently.
+
+### Step 2: Add Initial Elements to the Heap
+- Add pairs starting with `nums1[0]` and each element from `nums2` into the heap.
+- Track their indices to extend potential pairs later.
+
+### Step 3: Extract K Smallest Pairs
+- While extracting elements from the heap, if a pair `(nums1[i], nums2[j])` is chosen, push the next pair in sequence: 
+  - `(nums1[i + 1], nums2[j])` (if possible)
+
+### Step 4: Return the Result
+- Continue until `k` pairs are collected.
+
+---
+
+## Code Implementation
+```java
+import java.util.*;
+
+class Solution {
+    public List<List<Integer>> kSmallestPairs(int[] nums1, int[] nums2, int k) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (nums1.length == 0 || nums2.length == 0 || k == 0) return result;
+
+        PriorityQueue<int[]> minHeap = new PriorityQueue<>((a, b) -> (nums1[a[0]] + nums2[a[1]]) - (nums1[b[0]] + nums2[b[1]]));
+
+        // Step 2: Initialize the heap with nums1[0] paired with all nums2 elements
+        for (int i = 0; i < Math.min(nums1.length, k); i++) {
+            minHeap.offer(new int[]{i, 0}); // Track the indices
+        }
+
+        // Step 3: Extract pairs with smallest sums
+        while (!minHeap.isEmpty() && k-- > 0) {
+            int[] current = minHeap.poll();
+            int i = current[0], j = current[1];
+            result.add(Arrays.asList(nums1[i], nums2[j]));
+
+            // Step 4: Add the next potential pair
+            if (j + 1 < nums2.length) {
+                minHeap.offer(new int[]{i, j + 1});
+            }
+        }
+
+        return result;
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:** `nums1 = [1,7,11], nums2 = [2,4,6], k = 3`
+
+### Step 1: Initialize the Heap
+```
+Heap: [(1, 2), (7, 2), (11, 2)]
+```
+
+### Step 2: Extract the Minimum and Add Next Element
+```
+Result: [[1, 2]]
+Heap: [(1, 4), (7, 2), (11, 2)]
+```
+```
+Result: [[1, 2], [1, 4]]
+Heap: [(1, 6), (7, 2), (11, 2)]
+```
+```
+Result: [[1, 2], [1, 4], [1, 6]]
+```
+
+**Final Output:** `[[1, 2], [1, 4], [1, 6]]`
+
+---
+
+## Key Insights
+✅ Efficient solution using **Min-Heap** for optimal complexity.  
+✅ Handles large constraints effectively.  
+✅ Ensures correct order by exploiting sorted property of the input arrays.
+
+## Problem Statement
+Design a data structure that efficiently finds the **median** from a data stream.
+
+### Operations:
+- **`addNum(int num)`**: Adds the integer `num` to the data structure.
+- **`findMedian()`**: Returns the median of all elements so far. If the size is even, return the mean of the two middle values.
+
+### Example 1
+**Input:**
+```
+["MedianFinder", "addNum", "addNum", "findMedian", "addNum", "findMedian"]
+[[], [1], [2], [], [3], []]
+```
+**Output:**
+```
+[null, null, null, 1.5, null, 2.0]
+```
+
+---
+
+## Approach
+To efficiently find the median in O(log n) for insertion and O(1) for retrieval:
+
+### Step 1: Use Two Heaps (Max Heap & Min Heap)
+- **Max Heap:** Stores the **smaller half** of the data.
+- **Min Heap:** Stores the **larger half** of the data.
+
+### Step 2: Adding a Number
+- Add the new number to the **Max Heap** first.
+- Transfer the **maximum** element from Max Heap to Min Heap to maintain order.
+- If the Min Heap exceeds the Max Heap in size, transfer the **minimum** element back to the Max Heap.
+
+### Step 3: Finding the Median
+- If the total number of elements is odd, the median is the top of the **Max Heap**.
+- If the total number of elements is even, the median is the **average** of the tops of both heaps.
+
+---
+
+## Code Implementation
+```java
+import java.util.*;
+
+class MedianFinder {
+    private PriorityQueue<Integer> maxHeap; // Lower half (max heap)
+    private PriorityQueue<Integer> minHeap; // Upper half (min heap)
+
+    public MedianFinder() {
+        maxHeap = new PriorityQueue<>(Collections.reverseOrder());
+        minHeap = new PriorityQueue<>();
+    }
+
+    public void addNum(int num) {
+        maxHeap.offer(num);
+        minHeap.offer(maxHeap.poll());
+
+        if (maxHeap.size() < minHeap.size()) {
+            maxHeap.offer(minHeap.poll());
+        }
+    }
+
+    public double findMedian() {
+        if (maxHeap.size() > minHeap.size()) {
+            return maxHeap.peek();
+        } else {
+            return (maxHeap.peek() + minHeap.peek()) / 2.0;
+        }
+    }
+}
+
+// Example Usage
+public class Main {
+    public static void main(String[] args) {
+        MedianFinder medianFinder = new MedianFinder();
+        medianFinder.addNum(1);
+        medianFinder.addNum(2);
+        System.out.println(medianFinder.findMedian()); // 1.5
+        medianFinder.addNum(3);
+        System.out.println(medianFinder.findMedian()); // 2.0
+    }
+}
+```
+
+---
+
+## Dry Run
+**Input:** `[1, 2, 3]`
+
+| Step | Max Heap (Lower Half) | Min Heap (Upper Half) | Median |
+|------|-----------------------|------------------------|---------|
+| Init  | []                    | []                     | -       |
+| Add 1 | [1]                   | []                     | 1       |
+| Add 2 | [1]                   | [2]                    | 1.5     |
+| Add 3 | [2, 1]                | [3]                    | 2       |
+
+---
+
+## Complexity Analysis
+- **Time Complexity for `addNum()`**: `O(log n)` (due to heap insertion)
+- **Time Complexity for `findMedian()`**: `O(1)` (direct heap access)
+- **Space Complexity**: `O(n)` (for both heaps)
+
