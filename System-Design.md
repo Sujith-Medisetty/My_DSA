@@ -140,3 +140,256 @@ This design ensures a scalable, reliable, and low-latency text storage service l
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
+
+# Design a URL Shortener like TinyURL
+
+## Problem Statement
+A URL shortener converts long URLs into short, shareable links (e.g., bit.ly/xyz123).
+
+## Key Features
+- **Shorten long URLs**
+- **Redirect short URLs to original URLs**
+- **Optional Features:**
+  - Analytics
+  - Custom aliases
+  - Expiry settings
+  - User accounts
+
+## Functional Requirements
+### Shorten URL:
+- Generate a short key (e.g., abc123) for a long URL.
+- Support custom aliases (e.g., short.com/mylink).
+
+### Redirect:
+- Resolve short.com/abc123 → original URL.
+
+### Optional:
+- User accounts to manage links.
+- Set expiration time.
+- Track click analytics.
+- API for developers.
+
+## Non-Functional Requirements
+- **Low Latency:** Redirects in <100ms.
+- **High Availability:** 99.99% uptime.
+- **Scalability:** Handle millions of URLs/day.
+- **Durability:** Never lose a URL.
+- **Unpredictable Keys:** Prevent guessing/abuse.
+
+## Capacity Estimation
+### Assumptions:
+- **Daily Active Users (DAU):** 1 million
+- **New URLs/day:** 500K
+- **Read (redirects)/write ratio:** 100:1 (50M redirects/day)
+- **Avg URL length:** 500 bytes (long) + 10 bytes (short key)
+
+### Storage:
+- **Daily URLs:**
+  - 500K/day * (500B + 10B) = ~250 MB/day
+  - Yearly: ~90 GB.
+- **Metadata (user, expiry, clicks):** ~50B/URL → 25 MB/day.
+
+### Bandwidth:
+- **Redirects:**
+  - 50M/day * 500B (original URL) = ~25 GB/day.
+- **Writes:** Negligible.
+
+## Key Components
+### Short Key Generation:
+- **Hash-based:** MD5/SHA-1 + base62 encoding (e.g., abc123).
+- **Counter-based:** Distributed ID generator (e.g., Snowflake).
+- **Custom Aliases:** Validate uniqueness.
+
+### Database:
+- **SQL (PostgreSQL):** Store short_key → long_url, user data.
+- **Cache (Redis):** Hot URLs (10M entries, TTL).
+
+### Redirect Flow:
+- Client → CDN → Load Balancer → App Server → Redis → DB → 301 Redirect.
+
+### Optional:
+- **Analytics:** Log clicks (Kafka + Flink + Time-series DB).
+- **Expiry:** Background job to purge old links.
+
+## Database Schema
+```sql
+TABLE urls (
+  id BIGINT PRIMARY KEY,
+  short_key VARCHAR(10) UNIQUE,
+  long_url TEXT,
+  user_id BIGINT,
+  created_at TIMESTAMP,
+  expires_at TIMESTAMP,
+  clicks BIGINT DEFAULT 0
+);
+
+TABLE users (
+  id BIGINT PRIMARY KEY,
+  email VARCHAR(255),
+  api_key VARCHAR(64)
+);
+```
+
+## APIs
+### Shorten URL:
+```json
+POST /api/shorten
+{
+  "url": "https://long.com/...",
+  "custom_alias": "mylink"  // Optional
+}
+```
+Response: `{ "short_url": "short.com/abc123" }`
+
+### Redirect:
+```json
+GET /abc123 → 301 Redirect to long URL.
+```
+
+## Scaling Tricks
+- **Read-heavy?** Cache 99% traffic in Redis.
+- **Write-heavy?** Use DB sharding by short_key hash.
+- **Key Collisions?** Retry with salted hash.
+- **Global latency?** Use CDN (Cloudflare).
+
+## Alternate Designs
+- **NoSQL (DynamoDB):** If metadata is simple.
+- **Zookeeper:** For distributed ID generation.
+
+## Final Thoughts
+This design ensures a scalable, reliable, and low-latency URL shortener. Key decisions:
+- Use Redis for caching popular URLs.
+- Shard database for high availability.
+- Background jobs for expired link deletion.
+- Optional analytics for tracking user interactions.
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                          URL Shortener                              │
+│                                                                     │
+│  ┌─────────────┐    ┌─────────────┐    ┌───────────────────────┐   │
+│  │    Client   │    │    CDN      │    │   Load Balancer       │   │
+│  │  (Web/API)  ├───►│ (Caching)   ├───►│  (Routes Traffic)     │   │
+│  └─────────────┘    └─────────────┘    └───────────┬───────────┘   │
+│                                                     │               │
+│  ┌──────────────────────────────────────────────────▼───────┐       │
+│  │                  Application Servers                     │       │
+│  │  ┌─────────────┐    ┌──────────────────────────┐         │       │
+│  │  │   Auth      │    │   URL Shortening Service │         │       │
+│  │  │  Service    │    │  (Key Generation, DB)    │         │       │
+│  │  └─────────────┘    └─────────────┬────────────┘         │       │
+│  └───────────────────────────────────┼──────────────────────┘       │
+│                                      │                              │
+│  ┌───────────────────────────────────▼───────┐                      │
+│  │            Cache (Redis)                 │                      │
+│  │  (Frequent URL mappings, 10M entries)    │                      │
+│  └───────────────────┬──────────────────────┘                      │
+│                      │                                             │
+│  ┌───────────────────▼──────────────────────┐    ┌───────────────┐ │
+│  │          Relational DB (PostgreSQL)      │    │  Analytics DB │ │
+│  │  (URL mappings, user data, metadata)     │    │  (Time-series)│ │
+│  └──────────────────────────────────────────┘    └───────────────┘ │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+# Design a Leaderboard System
+
+## Problem Statement
+A leaderboard system ranks users based on scores and updates in real-time. It is commonly used in various applications:
+
+### Example Use Cases:
+- **Gaming:** Ranking top players based on scores.
+- **Competitions:** Coding challenges like LeetCode.
+- **E-commerce:** Top sellers based on revenue.
+
+## Requirements
+
+### Functional Requirements
+- **Update Score:** Record a user’s new score.
+- **Get Top N Players:** Return a ranked list (e.g., top 100).
+- **Get User Rank:** Fetch rank by user ID.
+- **Optional Features:**
+  - Time-windowed leaderboards (daily/weekly/monthly rankings).
+  - Pagination for ranks beyond the top N (e.g., fetch ranks 101-200).
+
+### Non-Functional Requirements
+- **Low Latency:** <100ms for ranking queries.
+- **High Throughput:** Handle 10K+ score updates per second.
+- **Scalability:** Support millions of users.
+- **Consistency:** Ensure strong consistency in ranks and scores.
+
+## Capacity Estimation
+### Assumptions:
+- **10M daily active users.**
+- **1M score updates per second (peak).**
+- **Read-to-write ratio:** 10:1 (10M reads/sec).
+- **Data per user:**
+  - User ID: 8 bytes
+  - Score: 4 bytes
+  - Name: 20 bytes
+  - **Total per user:** 32 bytes
+- **Total storage requirement:**
+  - 10M users * 32B = 320MB (fits in RAM for real-time processing).
+
+## APIs
+
+### Update Score:
+```http
+POST /api/score
+{
+  "user_id": "123",
+  "score": 1000
+}
+```
+
+### Get Top N Players:
+```http
+GET /api/leaderboard?limit=100
+```
+**Response:**
+```json
+[
+  { "user_id": "456", "score": 2000, "rank": 1 },
+  { "user_id": "123", "score": 1000, "rank": 2 }
+]
+```
+
+### Get User Rank:
+```http
+GET /api/rank?user_id=123
+```
+**Response:**
+```json
+{
+  "rank": 2,
+  "score": 1000
+}
+```
+
+This design ensures an efficient, scalable, and real-time leaderboard system.
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                          Leaderboard Service                        │
+│                                                                     │
+│  ┌─────────────┐    ┌─────────────┐    ┌───────────────────────┐   │
+│  │    Client   │    │   CDN/      │    │   Load Balancer       │   │
+│  │  (Game/App) ├───►│  Cache      ├───►│  (Distributes Traffic)│   │
+│  └─────────────┘    └─────────────┘    └───────────┬───────────┘   │
+│                                                     │               │
+│  ┌──────────────────────────────────────────────────▼───────┐       │
+│  │                  Application Servers                     │       │
+│  │  ┌─────────────┐    ┌──────────────────────────┐         │       │
+│  │  │   Auth      │    │   Leaderboard Service    │         │       │
+│  │  │  Service    │    │  (Score Updates, Ranks)  │         │       │
+│  │  └─────────────┘    └─────────────┬────────────┘         │       │
+│  └───────────────────────────────────┼──────────────────────┘       │
+│                                      │                              │
+│  ┌───────────────────────────────────▼───────┐    ┌───────────────┐ │
+│  │            Sorted Set (Redis)             │    │  Database     │ │
+│  │  (Stores scores + ranks in real-time)     │    │  (PostgreSQL) │ │
+│  └───────────────────────────────────────────┘    └───────────────┘ │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
