@@ -1,4 +1,4 @@
-*** # All the below diagrams and notes is based on the assumptions and we can make the changes as needed , there is no strict structure for these ***
+# ***All the below diagrams and notes is based on the assumptions and we can make the changes as needed , there is no strict structure for these ***
 
 # Design a Text Storage Service like Pastebin
 
