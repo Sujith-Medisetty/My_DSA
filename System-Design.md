@@ -393,3 +393,109 @@ This design ensures an efficient, scalable, and real-time leaderboard system.
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
+
+# Design a Content Delivery Network (CDN)
+
+## Problem Statement
+A Content Delivery Network (CDN) distributes content (videos, images, web pages) globally with low latency and high availability. The primary goal is to serve content efficiently, reducing the load on origin servers and ensuring a seamless experience for users worldwide.
+
+## Key Features
+- **Cache Static/Dynamic Content**: Store frequently accessed content at geographically distributed edge servers.
+- **Reduce Origin Server Load**: Offload traffic from the origin servers (e.g., S3, backend APIs) to edge servers.
+- **Handle High Traffic Spikes**: Manage large-scale traffic surges due to viral content.
+
+## Requirements
+### Functional Requirements
+- **Edge Caching**: Store content at distributed edge locations to minimize latency.
+- **Content Purging/Invalidation**: Mechanism to update cached content when origin data changes.
+- **Load Balancing**: Efficiently distribute user requests across multiple edge servers.
+- **Security Measures**: Implement DDoS protection, HTTPS encryption, and access control mechanisms.
+
+### Non-Functional Requirements
+- **Latency**: Ensure response times <50ms for cache hits.
+- **Availability**: Achieve 99.999% uptime (five-nines reliability).
+- **Scalability**: Handle millions of requests per second.
+- **Durability**: Ensure no data loss across distributed caches.
+
+## Capacity Estimation
+### Assumptions:
+- **Daily Active Users (DAU):** 100 million
+- **Average Requests per User per Day:** 10 → Total 1 billion requests/day (~12K requests/sec)
+- **Cache Hit Ratio:** 90% (only 10% of requests go to the origin server)
+- **Average Object Size:** 1MB (videos, images, web assets)
+
+### Storage Estimation:
+- **Cache Size per Edge Server:** 10TB (stores approximately 10 million objects)
+- **Total Edge Servers Required:** 100 → **1PB total cache storage**
+
+### Bandwidth Estimation:
+- **Peak Traffic:** 12K Requests/sec × 1MB = **12GB/sec**
+
+## API Endpoints
+### Fetch Cached Content:
+```http
+GET /cdn/content/{object_id}
+```
+**Response:**
+```json
+{
+  "status": "success",
+  "content_url": "https://edge.cdn.com/abcd1234"
+}
+```
+
+### Purge Cached Content:
+```http
+DELETE /cdn/cache/{object_id}
+```
+**Response:**
+```json
+{
+  "status": "purged",
+  "message": "Cache cleared for object ID abcd1234"
+}
+```
+
+## Scaling Considerations
+- **Global Distribution:** Deploy edge servers in multiple regions to optimize delivery.
+- **Load Balancing:** Use intelligent request routing based on proximity and server load.
+- **Compression & Optimization:** Reduce payload sizes via Gzip, Brotli, and WebP formats.
+- **Traffic Prioritization:** Implement rate limiting and QoS to ensure fair usage.
+
+## Final Thoughts
+This CDN design ensures **low-latency, high-availability, and scalable content distribution**. By leveraging **edge caching, load balancing, and security mechanisms**, the system can efficiently serve billions of requests daily while protecting against high traffic loads and cyber threats.
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                           Content Delivery Network (CDN)            │
+│                                                                     │
+│  ┌─────────────┐    ┌───────────────────┐    ┌───────────────────┐  │
+│  │    User     │    │   DNS Load        │    │   Origin          │  │
+│  │  (Browser)  ├───►│   Balancer        ├───►│   (S3/Backend)    │  │
+│  └─────────────┘    └────────┬──────────┘    └───────────────────┘  │
+│                              │                                       │
+│                   ┌──────────▼──────────┐                            │
+│                   │   Edge Server       │                            │
+│                   │  (Cache + Compute)  │                            │
+│                   └─────────────────────┘                            │
+│                              │                                       │
+│                   ┌──────────▼──────────┐                            │
+│                   │   Global Network    │                            │
+│                   │  (Anycast Routing)  │                            │
+│                   └─────────────────────┘                            │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+Apologies for the confusion! Here's just the data flow part in `.md` format:
+
+### Data Flow
+#### User Request:
+```
+GET https://cdn.com/video.mp4
+```
+#### DNS Resolution:
+- Returns IP of the nearest edge server (via Anycast).
+#### Edge Processing:
+- **If cached:** Return video.
+- **Else:** Fetch from origin → Cache → Return.
+
