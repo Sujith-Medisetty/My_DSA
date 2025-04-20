@@ -1,0 +1,352 @@
+# CSS Position and Display Explained
+
+This guide provides a clean and detailed explanation of the `position` and `display` properties in CSS, covering all their types, uses, and applications.
+
+---
+
+## 📍 CSS `position`
+
+The `position` property specifies how an element is positioned in the document. It works with `top`, `right`, `bottom`, and `left` properties to adjust the element's final position.
+
+### Types of `position`
+
+1. **static** (default)
+   - The default position of elements.
+   - Not affected by `top`, `right`, `bottom`, `left`.
+   - Elements appear in the normal document flow.
+
+   ```css
+   div {
+     position: static;
+   }
+   ```
+
+2. **relative**
+   - Positioned relative to its normal position.
+   - `top`, `left`, etc. move it relative to its original position.
+
+   ```css
+   div {
+     position: relative;
+     top: 10px; /* Moves element 10px down */
+   }
+   ```
+
+3. **absolute**
+   - Positioned relative to the nearest positioned ancestor (not static).
+   - If no such ancestor exists, it’s positioned relative to `<html>`.
+   - Removed from the normal document flow.
+
+   ```css
+   div {
+     position: absolute;
+     top: 0;
+     left: 0;
+   }
+   ```
+
+4. **fixed**
+   - Positioned relative to the viewport.
+   - Stays fixed when scrolling.
+
+   ```css
+   div {
+     position: fixed;
+     bottom: 0;
+     right: 0;
+   }
+   ```
+
+5. **sticky**
+   - Acts like `relative` until a scroll threshold is reached, then acts like `fixed`.
+
+   ```css
+   div {
+     position: sticky;
+     top: 0;
+   }
+   ```
+
+### Applications of `position`
+- Create overlays/modals (`fixed`, `absolute`)
+- Stick headers (`sticky`)
+- Custom tooltips or dropdowns (`absolute`)
+- Fine-tune element layout (`relative`)
+
+---
+
+## 🧱 CSS `display`
+
+The `display` property specifies the display behavior (the type of rendering box) of an element.
+
+### Common values of `display`
+
+1. **block**
+   - Element takes full width, starts on a new line.
+   - Can have width, height, margin, and padding.
+
+   ```css
+   div {
+     display: block;
+   }
+   ```
+
+2. **inline**
+   - Only takes as much width as needed.
+   - Cannot set width and height.
+
+   ```css
+   span {
+     display: inline;
+   }
+   ```
+
+3. **inline-block**
+   - Like `inline`, but allows setting width and height.
+
+   ```css
+   span {
+     display: inline-block;
+     width: 100px;
+     height: 50px;
+   }
+   ```
+
+4. **none**
+   - Element is removed from layout and not rendered.
+
+   ```css
+   div {
+     display: none;
+   }
+   ```
+
+5. **flex**
+   - Makes container a flexbox.
+   - Allows layout control via `justify-content`, `align-items`, etc.
+
+   ```css
+   div {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+   }
+   ```
+
+6. **grid**
+   - Turns container into a CSS Grid.
+   - Ideal for complex two-dimensional layouts.
+
+   ```css
+   div {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+   }
+   ```
+
+7. **inline-flex / inline-grid**
+   - Same as `flex`/`grid` but element behaves like `inline`.
+
+---
+
+## 🛠 Practical Applications
+
+### `position`
+- Sticky headers: `position: sticky; top: 0;`
+- Tooltips: `position: absolute;` inside `position: relative;`
+- Floating buttons: `position: fixed; bottom: 20px; right: 20px;`
+
+### `display`
+- Hide elements: `display: none;`
+- Layouts with Flexbox/Grid: `display: flex;` / `display: grid;`
+- Align inline images and text: `display: inline-block;`
+
+---
+
+## ✅ Tips
+- Combine `position` with `z-index` to layer elements.
+- Use `display: contents;` to remove a wrapper but keep its children in the layout.
+- Flexbox is ideal for 1D layout; Grid for 2D layout.
+
+---
+
+Use these properties wisely to control element layout and behavior across your web pages.
+
+---
+
+**Happy Styling! 🎨**
+
+# 📐 CSS Grid Layout Guide
+
+CSS Grid is a powerful layout system in CSS used to create two-dimensional grid-based designs. It gives precise control over rows and columns.
+
+---
+
+## 🧱 What is CSS Grid?
+
+CSS Grid Layout allows you to divide a page into major regions or align elements into rows and columns. It’s perfect for 2D layouts.
+
+To create a grid:
+```css
+.container {
+  display: grid;
+}
+```
+
+---
+
+## 📏 Grid Container Properties
+
+### 1. `grid-template-columns` / `grid-template-rows`
+Defines the number and size of columns or rows.
+```css
+.container {
+  grid-template-columns: 200px 1fr 2fr;
+  grid-template-rows: 100px auto;
+}
+```
+
+- `px`, `%`, `fr` (fractional unit)
+- Example: `grid-template-columns: repeat(3, 1fr);`
+
+### 2. `gap`, `row-gap`, `column-gap`
+Sets spacing between grid tracks.
+```css
+.container {
+  gap: 20px;
+  row-gap: 10px;
+  column-gap: 30px;
+}
+```
+
+### 3. `grid-template-areas`
+Creates named grid areas.
+```css
+.container {
+  grid-template-areas:
+    "header header"
+    "sidebar content";
+}
+.item1 { grid-area: header; }
+.item2 { grid-area: sidebar; }
+.item3 { grid-area: content; }
+```
+
+### 4. `justify-items` / `align-items`
+Aligns items inside their grid cells.
+- `start`, `end`, `center`, `stretch`
+```css
+.container {
+  justify-items: center;
+  align-items: start;
+}
+```
+
+### 5. `justify-content` / `align-content`
+Aligns the entire grid within the container.
+```css
+.container {
+  justify-content: space-between;
+  align-content: center;
+}
+```
+
+### 6. `grid-auto-flow`
+Controls the direction in which auto-placed items are inserted.
+- `row` (default), `column`, `dense`
+```css
+.container {
+  grid-auto-flow: row dense;
+}
+```
+
+### 7. `grid-auto-rows` / `grid-auto-columns`
+Defines size of rows/columns for implicitly created tracks.
+```css
+.container {
+  grid-auto-rows: 100px;
+}
+```
+
+---
+
+## 🧩 Grid Item Properties
+
+### 1. `grid-column` / `grid-row`
+Span columns/rows.
+```css
+.item {
+  grid-column: 1 / 3;
+  grid-row: 2 / 4;
+}
+```
+
+### 2. `grid-column-start`, `grid-column-end`, `grid-row-start`, `grid-row-end`
+```css
+.item {
+  grid-column-start: 2;
+  grid-column-end: 4;
+}
+```
+
+### 3. `grid-area`
+Assign to a named grid area.
+```css
+.item {
+  grid-area: header;
+}
+```
+
+### 4. `justify-self` / `align-self`
+Align an item inside its grid area.
+```css
+.item {
+  justify-self: end;
+  align-self: center;
+}
+```
+
+---
+
+## 🎯 Practical Examples
+
+### Example 1: Basic Grid
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+```
+
+### Example 2: Responsive Grid with `auto-fit`
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+```
+
+---
+
+## 🧠 Tips & Tricks
+- Use `fr` units for flexible layouts.
+- Use `minmax()` for responsive tracks.
+- Named areas improve readability.
+- Combine Grid with Flexbox for powerful designs.
+
+---
+
+## ✅ When to Use CSS Grid?
+- Layouts with rows *and* columns.
+- Complex UI structure.
+- Centering content both vertically and horizontally.
+- Aligning items in 2D space.
+
+---
+
+CSS Grid offers unmatched flexibility and precision for building modern web layouts.
+
+**Happy Gridding! 🎯**
+
