@@ -15,8 +15,8 @@
 - Instead of writing multiple `setState()` calls or multiple small functions ➔ use a single **reducer** function to handle all changes.
 - The reducer acts like a **central controller 🧠** for your state updates.
 - ➔ Use when state **logic is complex** or when **multiple operations** are needed.
-- We can also bundle multiple states in a single object of the reducer like
--
+- We can also bundle multiple states in a single object of the reducer , So if u have muliple state variables and has multiple operations to be done then also this reducer will help us to manage the things in a claer way.
+
 EX:
 - const [state, dispatch] = useReducer(reducer, {count:0, step:0})
 - const [count, step] = state;
