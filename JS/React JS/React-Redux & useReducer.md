@@ -5,6 +5,7 @@
 - Actions like `addCustomer`, `updateCustomer`, `deposit`, `withdraw`
 - Thunks for async operations
 - `useSelector` and `useDispatch` in React components
+- `useReducer` local state example
 
 ---
 
@@ -178,6 +179,42 @@ function Dashboard() {
 }
 
 export default Dashboard;
+```
+
+---
+
+## 🧠 `useReducer` Local State Example
+
+```jsx
+import React, { useReducer } from 'react';
+
+const initialState = { balance: 0 };
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'deposit':
+      return { ...state, balance: state.balance + action.payload };
+    case 'withdraw':
+      return { ...state, balance: state.balance - action.payload };
+    default:
+      return state;
+  }
+}
+
+function LocalAccount() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return (
+    <div>
+      <h3>Local Account</h3>
+      <p>Balance: ${state.balance}</p>
+      <button onClick={() => dispatch({ type: 'deposit', payload: 50 })}>Deposit $50</button>
+      <button onClick={() => dispatch({ type: 'withdraw', payload: 20 })}>Withdraw $20</button>
+    </div>
+  );
+}
+
+export default LocalAccount;
 ```
 
 ---
