@@ -1116,6 +1116,8 @@ public class CandyDistribution {
 ## Problem Statement
 Given `n` non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.
 
+### Intuition:  Water is trapped between taller bars. The amount trapped at each index depends on the minimum of the tallest bar to its left and the tallest bar to its right.
+
 ### Example 1:
 **Input:** `height = [0,1,0,2,1,0,1,3,2,1,2,1]`  
 **Output:** `6`  
